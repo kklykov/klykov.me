@@ -10,7 +10,7 @@ Fases pequeñas y en orden. Se trabaja directamente en `main`. Al terminar cada 
 - [x] `tokens.css` con los colores, tipografías y espaciados del artefacto de diseño, y `global.css` (reset mínimo, tipografía base, foco visible, `prefers-reduced-motion`).
 - [x] Fuentes autoalojadas en woff2 (Instrument Serif; IBM Plex Sans y Mono 400 y 500).
 - [x] `layouts/Base.astro`: `lang`, meta, `hreflang`, `viewport-fit=cover`, canónica.
-- [ ] Conectar el repo a Cloudflare y comprobar el despliegue.
+- [x] Conectar el repo a Cloudflare y comprobar el despliegue (https://klykov-me.kklykov.workers.dev).
 
 **Hecho cuando:** `/es/` y `/en/` muestran una página vacía con las fuentes y los colores correctos, desplegada en Cloudflare.
 
