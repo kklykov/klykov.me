@@ -1,0 +1,554 @@
+---
+/**
+ * Línea temporal de la portada. Sin JS (o con movimiento reducido) los capítulos se apilan en vertical.
+ * Con JS, `data-mode` elige la versión:
+ * - "horizontal" (escritorio): sección anclada con la pista de capítulos en horizontal y menú inferior.
+ * - "vertical" (móvil, o escritorio con movimiento reducido): barra superior con índice desplegable.
+ */
+import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '../../i18n/config';
+import { t } from '../../i18n/ui';
+import Chapter from './Chapter.astro';
+
+interface Props {
+  chapters: CollectionEntry<'timeline'>[];
+  lang: Locale;
+}
+
+const { chapters, lang } = Astro.props;
+const ui = t(lang).home;
+const nameOf = (chapter: CollectionEntry<'timeline'>) => chapter.data.title[lang].replace(/\n/g, ' ');
+const first = chapters[0];
+---
+
+<div
+  class="timeline"
+  role="region"
+  aria-label={ui.timeline}
+  data-timeline
+  data-go-to={ui.goTo}
+  data-index-label={ui.index}
+  data-konami-message={ui.konami}
+>
+  <!-- Móvil: barra fija con el capítulo actual y el índice -->
+  <div class="mbar" data-mbar hidden>
+    <div class="mbar-row">
+      <span>klykov.me</span>
+      <button
+        type="button"
+        class="mbar-toggle"
+        aria-expanded="false"
+        aria-controls="indice-capitulos"
+        aria-label={ui.index.replace('{name}', nameOf(first))}
+        data-index-toggle
+      >
+        <span class="code" data-current-code>{first.data.code}</span> — <span data-current-name>{nameOf(first)}</span>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </button>
+    </div>
+    <div class="progress"><span data-progress></span></div>
+    <nav id="indice-capitulos" class="index" aria-label={ui.chapters} hidden>
+      <ul role="list">
+        {
+          chapters.map((chapter) => (
+            <li>
+              <a href={`#capitulo-${chapter.id}`} data-index-link>
+                <span class="code">{chapter.data.code}</span>
+                <span class="name">{nameOf(chapter)}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+
+  <div class="pin" data-pin>
+    <!-- Escritorio: barra superior (decorativa: el estado lo anuncia el menú) -->
+    <div class="dbar" aria-hidden="true">
+      <span>klykov.me</span>
+      <span><span class="code" data-current-code>{first.data.code}</span> — <span data-current-name>{nameOf(first)}</span></span>
+    </div>
+
+    <div class="track" data-track>
+      {chapters.map((chapter) => <Chapter chapter={chapter} lang={lang} />)}
+    </div>
+
+    <!-- Escritorio: menú inferior de capítulos -->
+    <nav class="menu" aria-label={ui.chapters} data-menu hidden>
+      <div class="progress"><span data-progress></span></div>
+      <div class="ticks">
+        {
+          chapters.map((chapter, i) => (
+            <button
+              type="button"
+              class="tick"
+              data-tick={i}
+              aria-label={ui.goTo.replace('{code}', chapter.id).replace('{name}', nameOf(chapter))}
+            >
+              {chapter.id}
+              <span class="tick-name" aria-hidden="true">
+                {nameOf(chapter)}
+              </span>
+            </button>
+          ))
+        }
+      </div>
+    </nav>
+  </div>
+
+  <p class="visually-hidden" role="status" aria-live="polite" data-konami-live></p>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-timeline]');
+  if (root) init(root);
+
+  function init(root: HTMLElement) {
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
+    const $$ = <T extends Element>(sel: string) => [...root.querySelectorAll<T>(sel)];
+
+    const track = $<HTMLElement>('[data-track]');
+    const chapters = $$<HTMLElement>('[data-chapter]');
+    const numbers = chapters.map((c) => c.querySelector<HTMLElement>('.number')!);
+    const contents = chapters.map((c) => c.querySelector<HTMLElement>('.content')!);
+    const menu = $<HTMLElement>('[data-menu]');
+    const ticks = $$<HTMLButtonElement>('[data-tick]');
+    const mbar = $<HTMLElement>('[data-mbar]');
+    const toggle = $<HTMLButtonElement>('[data-index-toggle]');
+    const index = document.getElementById(toggle.getAttribute('aria-controls')!)!;
+    const indexLinks = $$<HTMLAnchorElement>('[data-index-link]');
+    const last = chapters.length - 1;
+
+    const desktop = matchMedia('(min-width: 64rem)');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+    let mode: 'horizontal' | 'vertical' | undefined;
+    let start = 0;
+    let travel = 1;
+    let vw = innerWidth;
+    let vh = innerHeight;
+    let tops: number[] = [];
+    let current = -1;
+    let frame = 0;
+
+    const clamp = (v: number) => Math.min(1, Math.max(0, v));
+    const pageTop = (el: Element) => el.getBoundingClientRect().top + scrollY;
+
+    function measure() {
+      vw = innerWidth;
+      vh = innerHeight;
+      start = pageTop(root);
+      travel = Math.max(1, root.offsetHeight - vh);
+      tops = chapters.map(pageTop);
+    }
+
+    function setCurrent(i: number) {
+      if (i === current) return;
+      current = i;
+      const { code, name } = chapters[i].dataset;
+      for (const el of $$('[data-current-code]')) el.textContent = code!;
+      for (const el of $$('[data-current-name]')) el.textContent = name!;
+      toggle.setAttribute('aria-label', root.dataset.indexLabel!.replace('{name}', name!));
+      ticks.forEach((tick, t) => {
+        tick.toggleAttribute('data-passed', t <= i);
+        if (t === i) tick.setAttribute('aria-current', 'step');
+        else tick.removeAttribute('aria-current');
+      });
+      indexLinks.forEach((link, l) => {
+        if (l === i) link.setAttribute('aria-current', 'step');
+        else link.removeAttribute('aria-current');
+      });
+    }
+
+    function setProgress(p: number) {
+      for (const bar of $$<HTMLElement>('[data-progress]')) bar.style.transform = `scaleX(${p})`;
+    }
+
+    function update() {
+      frame = 0;
+      const y = scrollY;
+      if (mode === 'horizontal') {
+        // p = clamp((scrollY − inicio) / recorrido); pista con translate3d(−p × 6 × 100vw)
+        const pos = clamp((y - start) / travel) * last;
+        track.style.transform = `translate3d(${-pos * vw}px, 0, 0)`;
+        chapters.forEach((_, i) => {
+          const local = pos - i;
+          const d = Math.min(1, Math.abs(local));
+          numbers[i].style.transform = `translateX(${-local * 360}px)`;
+          contents[i].style.opacity = String(Math.max(0.1, 1 - Math.abs(local) * 1.4));
+          contents[i].style.transform = `translateY(${d * 48}px)`;
+        });
+        setProgress(pos / last);
+        setCurrent(Math.round(pos));
+      } else {
+        let i = 0;
+        tops.forEach((top, t) => {
+          if (y + vh / 2 >= top) i = t;
+        });
+        if (!reduce.matches) {
+          // Parallax vertical del número gigante
+          numbers.forEach((el, n) => {
+            const local = (y - tops[n]) / vh;
+            if (Math.abs(local) < 1.5) el.style.transform = `translateY(${local * 220}px)`;
+          });
+        }
+        setProgress(clamp((y - tops[0]) / Math.max(1, tops[last] - tops[0])));
+        setCurrent(i);
+      }
+    }
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    function setMode() {
+      const next = desktop.matches && !reduce.matches ? 'horizontal' : 'vertical';
+      if (next !== mode) {
+        mode = next;
+        root.dataset.mode = next;
+        menu.hidden = next !== 'horizontal';
+        mbar.hidden = next !== 'vertical';
+        closeIndex(false);
+        track.style.transform = '';
+        for (const el of [...numbers, ...contents]) el.style.transform = el.style.opacity = '';
+      }
+      measure();
+      update();
+    }
+
+    // Escritorio: ir a un capítulo es desplazarse a su punto del recorrido.
+    function goTo(i: number, smooth = !reduce.matches) {
+      scrollTo({ top: start + (i / last) * travel, behavior: smooth ? 'smooth' : 'auto' });
+    }
+
+    ticks.forEach((tick, i) => tick.addEventListener('click', () => goTo(i)));
+
+    // Con el foco en un capítulo que no se ve (Tab), se lleva a la vista.
+    root.addEventListener('focusin', (event) => {
+      if (mode !== 'horizontal') return;
+      const i = chapters.findIndex((c) => c.contains(event.target as Node));
+      if (i >= 0 && i !== current) goTo(i, false);
+    });
+
+    // Anclas #capitulo-0X: en horizontal, al punto del recorrido.
+    function followHash() {
+      const i = chapters.findIndex((c) => `#${c.id}` === location.hash);
+      if (mode === 'horizontal' && i >= 0) goTo(i, false);
+    }
+    addEventListener('hashchange', followHash);
+
+    // Móvil: índice desplegable
+    function closeIndex(focus = true) {
+      if (index.hidden) return;
+      index.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+      if (focus) toggle.focus();
+    }
+
+    toggle.addEventListener('click', () => {
+      if (index.hidden) {
+        index.hidden = false;
+        toggle.setAttribute('aria-expanded', 'true');
+      } else closeIndex();
+    });
+    index.addEventListener('click', (event) => {
+      if ((event.target as Element).closest('a')) closeIndex();
+    });
+    document.addEventListener('click', (event) => {
+      if (!mbar.contains(event.target as Node)) closeIndex();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeIndex();
+    });
+
+    // Código Konami (solo escritorio): ↑ ↑ ↓ ↓ ← → ← → B A
+    const sequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    const glyphs = $$<HTMLElement>('[data-glyph]');
+    let step = 0;
+    document.addEventListener('keydown', function konami(event) {
+      if (!desktop.matches || (event.target as Element).closest?.('input, textarea')) return;
+      const key = event.key?.length === 1 ? event.key.toLowerCase() : event.key;
+      // Un error reinicia la secuencia, salvo un ↑ de más tras ↑↑, que mantiene el progreso.
+      if (key === sequence[step]) step++;
+      else if (key === 'ArrowUp') step = step === 2 ? 2 : 1;
+      else step = 0;
+      glyphs.forEach((g, i) => g.toggleAttribute('data-lit', i < step));
+      if (step < sequence.length) return;
+      document.removeEventListener('keydown', konami);
+      root.toggleAttribute('data-konami-done', true);
+      for (const el of $$('[data-level], [data-life]')) el.toggleAttribute('data-lit', true);
+      $('[data-level]').textContent = '999';
+      $<HTMLElement>('[data-bonus]').hidden = false;
+      $('[data-konami-live]').textContent = root.dataset.konamiMessage!;
+    });
+
+    addEventListener('scroll', schedule, { passive: true });
+    addEventListener('resize', () => {
+      measure();
+      schedule();
+    });
+    desktop.addEventListener('change', setMode);
+    reduce.addEventListener('change', setMode);
+    setMode();
+    followHash();
+    // Las fuentes cambian las alturas: se vuelve a medir cuando cargan.
+    document.fonts?.ready.then(() => {
+      measure();
+      schedule();
+    });
+  }
+</script>
+
+<style>
+  .code {
+    color: var(--accent);
+  }
+
+  .progress {
+    display: flex;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .progress span {
+    flex: 1;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  /* ——— Móvil: barra superior con índice ——— */
+  .mbar {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    padding: env(safe-area-inset-top) var(--gutter-right) 0 var(--gutter-left);
+    background: var(--bg);
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    color: var(--text-muted);
+  }
+
+  .mbar[hidden] {
+    display: none;
+  }
+
+  .mbar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 3.5rem;
+  }
+
+  .mbar-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--tap);
+    margin-right: -0.5rem;
+    padding: 0 0.5rem;
+    border: 0;
+    background: none;
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .chevron {
+    display: inline-block;
+    transition: transform var(--duration) ease;
+  }
+
+  [aria-expanded='true'] .chevron {
+    transform: rotate(180deg);
+  }
+
+  .index {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: 0.5rem 0.75rem 1rem;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--bg) 96%, transparent);
+    backdrop-filter: blur(12px);
+  }
+
+  .index[hidden] {
+    display: none;
+  }
+
+  .index ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .index a {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    min-height: 3.25rem;
+    padding: 0.875rem 0.75rem;
+    border-radius: var(--radius-md);
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .index a[aria-current] {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  .index .code {
+    width: 3.25rem;
+    flex-shrink: 0;
+    font-size: var(--fs-meta);
+  }
+
+  .index .name {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  /* Anclas del índice: que la barra no tape el capítulo. */
+  [data-mode='vertical'] :global(.chapter) {
+    scroll-margin-top: calc(3.5rem + env(safe-area-inset-top));
+  }
+
+  /* ——— Escritorio: barra superior y menú, solo en horizontal ——— */
+  .dbar,
+  .menu {
+    display: none;
+  }
+
+  [data-mode='horizontal'] {
+    height: calc(100vh + 6 * 900px);
+  }
+
+  [data-mode='horizontal'] .pin {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: clip;
+  }
+
+  [data-mode='horizontal'] .track {
+    display: flex;
+    width: calc(7 * 100vw);
+    height: 100vh;
+    will-change: transform;
+  }
+
+  [data-mode='horizontal'] :global(.chapter) {
+    flex-shrink: 0;
+    width: 100vw;
+    height: 100vh;
+    min-height: 0;
+    padding-bottom: 9.375rem;
+  }
+
+  [data-mode='horizontal'] :global(.chapter[data-chapter='06']) {
+    padding-top: 6.875rem;
+    padding-bottom: 8.125rem;
+  }
+
+  [data-mode='horizontal'] :global(.chapter .number),
+  [data-mode='horizontal'] :global(.chapter .content) {
+    will-change: transform;
+  }
+
+  [data-mode='horizontal'] .dbar {
+    position: absolute;
+    top: 2rem;
+    left: var(--gutter-left);
+    right: var(--gutter-right);
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  [data-mode='horizontal'] .menu:not([hidden]) {
+    position: absolute;
+    left: calc(var(--gutter-left) - 0.75rem);
+    right: calc(var(--gutter-right) - 0.75rem);
+    bottom: 1.875rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .menu .progress {
+    margin: 0 0.75rem;
+  }
+
+  .ticks {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .tick {
+    position: relative;
+    min-width: var(--tap);
+    min-height: var(--tap);
+    padding: 0 0.75rem;
+    border: 0;
+    background: none;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    cursor: pointer;
+    transition: color 300ms ease;
+  }
+
+  .tick[data-passed] {
+    color: var(--accent);
+  }
+
+  .tick:hover {
+    color: var(--text);
+  }
+
+  .tick-name {
+    position: absolute;
+    bottom: 100%;
+    left: 0.75rem;
+    font-family: var(--font-sans);
+    white-space: nowrap;
+    color: var(--text);
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 200ms ease,
+      transform 200ms ease;
+    pointer-events: none;
+  }
+
+  .tick:hover .tick-name,
+  .tick:focus-visible .tick-name {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Móvil: capítulos a pantalla completa con ajuste suave al desplazarse */
+  @media (max-width: 63.999rem) {
+    :global(html:has([data-timeline])) {
+      scroll-snap-type: y proximity;
+    }
+
+    :global(.chapter),
+    :global(.hero) {
+      scroll-snap-align: start;
+    }
+
+    :global(.chapter) {
+      padding-bottom: max(3rem, calc(env(safe-area-inset-bottom) + 1.5rem));
+    }
+  }
+</style>

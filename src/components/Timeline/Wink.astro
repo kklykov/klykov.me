@@ -22,6 +22,22 @@ const services: { name: string; desktop: [number, number]; mobile: [number, numb
   { name: 'billing', desktop: [130, 54], mobile: null },
 ];
 const place = ([top, left]: [number, number], prefix: string) => `--${prefix}t: ${top}px; --${prefix}l: ${left}px;`;
+
+// Código Konami: símbolos dispersos, con [izquierda, arriba, tamaño] en escritorio y en móvil.
+const glyphs: { ch: string; desktop: [number, number, number]; mobile: [number, number, number] }[] = [
+  { ch: '↑', desktop: [424, -24, 22], mobile: [226, 30, 16] },
+  { ch: '↑', desktop: [516, 32, 13], mobile: [276, 72, 11] },
+  { ch: '↓', desktop: [156, -28, 12], mobile: [38, 26, 10] },
+  { ch: '↓', desktop: [374, 182, 26], mobile: [176, 148, 18] },
+  { ch: '←', desktop: [54, 202, 16], mobile: [16, 164, 12] },
+  { ch: '→', desktop: [464, 112, 11], mobile: [258, 134, 10] },
+  { ch: '←', desktop: [266, 26, 18], mobile: [126, 54, 13] },
+  { ch: '→', desktop: [546, 168, 20], mobile: [296, 184, 15] },
+  { ch: 'B', desktop: [204, 214, 13], mobile: [86, 196, 10] },
+  { ch: 'A', desktop: [590, -12, 24], mobile: [306, 22, 17] },
+];
+const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof glyphs)[number], i: number) =>
+  `--i: ${i}; --dx: ${dx}px; --dy: ${dy}px; --ds: ${ds}px; --mx: ${mx}px; --my: ${my}px; --ms: ${ms}px;`;
 ---
 
 {wink === 'grid' && <div class="grid" aria-hidden="true" />}
@@ -32,13 +48,23 @@ const place = ([top, left]: [number, number], prefix: string) => `--${prefix}t: 
       {wink === 'level' && (
         <>
           <div class="hud">
-            <span>{ui.level} 00</span>
+            <span>
+              {ui.level} <span class="level" data-level>00</span>
+            </span>
             <span class="lives">
               <span />
               <span />
               <span />
-              <span class="empty" />
+              <span class="empty" data-life />
             </span>
+            <span class="bonus" data-bonus hidden>+30</span>
+          </div>
+          <div class="glyphs">
+            {glyphs.map((g, i) => (
+              <span data-glyph style={glyphStyle(g, i)}>
+                {g.ch}
+              </span>
+            ))}
           </div>
           <svg class="squiggle" viewBox="0 0 420 120" fill="none">
             <path d="M4 90 C 60 20, 110 110, 170 60 S 280 10, 330 70 S 400 100, 416 40" />
@@ -122,6 +148,57 @@ const place = ([top, left]: [number, number], prefix: string) => `--${prefix}t: 
   .lives .empty {
     border: 1px solid var(--line-dashed);
     background: none;
+  }
+
+  .level {
+    transition: color 400ms ease;
+  }
+
+  .bonus {
+    font-size: var(--fs-small);
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+
+  .bonus[hidden] {
+    display: none;
+  }
+
+  /* Símbolos del Código Konami: se encienden al acertar la secuencia (ver Timeline.astro). */
+  .glyphs span {
+    position: absolute;
+    left: var(--mx);
+    top: var(--my);
+    font-size: var(--ms);
+    line-height: 1;
+    color: var(--glyph);
+    transition: color 400ms ease;
+  }
+
+  .glyphs span[data-lit] {
+    color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global([data-konami-done]) .glyphs span {
+      animation: wave 900ms var(--ease-out) both;
+      animation-delay: calc(var(--i) * 60ms);
+    }
+  }
+
+  @keyframes wave {
+    40% {
+      transform: translateY(-5px);
+    }
+  }
+
+  .lives .empty[data-lit] {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+
+  .level[data-lit] {
+    color: var(--accent);
   }
 
   .squiggle {
@@ -269,6 +346,12 @@ const place = ([top, left]: [number, number], prefix: string) => `--${prefix}t: 
 
     .squiggle {
       width: 26.25rem;
+    }
+
+    .glyphs span {
+      left: var(--dx);
+      top: var(--dy);
+      font-size: var(--ds);
     }
 
     .squiggle path {

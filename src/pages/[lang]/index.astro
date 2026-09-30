@@ -1,8 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
-import Chapter from '../../components/Timeline/Chapter.astro';
 import Hero from '../../components/Timeline/Hero.astro';
 import Outro from '../../components/Timeline/Outro.astro';
+import Timeline from '../../components/Timeline/Timeline.astro';
 import Base from '../../layouts/Base.astro';
 import { locales, type Locale } from '../../i18n/config';
 import { alternatesFor } from '../../i18n/routes';
@@ -18,11 +18,8 @@ const alternates = alternatesFor(Astro.url.pathname);
 const chapters = (await getCollection('timeline')).sort((a, b) => a.id.localeCompare(b.id));
 ---
 
-<!-- Versión base: capítulos en vertical, completos sin JS y con movimiento reducido. -->
 <Base title="klykov.me" description={ui.intro} alternates={alternates} header={false}>
   <Hero lang={lang} alternates={alternates} />
-  <div class="timeline" aria-label={ui.timeline} role="region" data-timeline>
-    {chapters.map((chapter) => <Chapter chapter={chapter} lang={lang} />)}
-  </div>
+  <Timeline chapters={chapters} lang={lang} />
   <Outro lang={lang} />
 </Base>

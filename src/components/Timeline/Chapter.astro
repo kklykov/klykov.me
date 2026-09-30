@@ -17,7 +17,15 @@ const titleId = `capitulo-${id}-t`;
 const textWithHeading = !data.snippet;
 ---
 
-<section class="chapter" id={`capitulo-${id}`} data-chapter={id} data-font={data.font} aria-labelledby={titleId}>
+<section
+  class="chapter"
+  id={`capitulo-${id}`}
+  data-chapter={id}
+  data-font={data.font}
+  data-code={data.code}
+  data-name={data.title[lang].replace(/\n/g, ' ')}
+  aria-labelledby={titleId}
+>
   <span class="number" aria-hidden="true">{id}</span>
   {data.wink && <Wink wink={data.wink} lang={lang} />}
 

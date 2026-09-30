@@ -46,7 +46,7 @@ src/
 ├── lib/                     # notes.ts, lab.ts, uses.ts (carga de cada colección), content.ts (común), format.ts (fechas), code.ts (Shiki)
 ├── styles/                  # tokens.css, global.css, prose.css (Markdown), lab.css (View Transitions), fonts/
 ├── layouts/Base.astro
-├── components/              # Header, Footer, LangSwitch, PageHeader, Filters, EmptyList, Keyboard, Timeline/* (Hero, Chapter, Wink, Outro), Chat/*, …
+├── components/              # Header, Footer, LangSwitch, PageHeader, Filters, EmptyList, Keyboard, Timeline/* (Hero, Timeline, Chapter, Wink, Outro), Chat/*, …
 └── pages/
     ├── [lang]/…             # portada, [notes] (listado, [slug], rss.xml), lab (listado, [slug]), uses y 404
     └── api/chat.ts          # único endpoint dinámico

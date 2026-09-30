@@ -48,10 +48,10 @@ Fases pequeñas y en orden. Se trabaja directamente en `main`. Al terminar cada 
 
 ## Fase 6 · Portada interactiva
 
-- [ ] Escritorio: scroll horizontal anclado, parallax, barra superior y menú inferior de capítulos.
-- [ ] Móvil: capítulos a pantalla completa, barra superior con índice desplegable, zonas seguras.
-- [ ] Easter egg del Código Konami.
-- [ ] Medir: ≤ 20 KB de JS inicial y 60 fps al hacer scroll en un móvil medio.
+- [x] Escritorio: scroll horizontal anclado, parallax, barra superior y menú inferior de capítulos.
+- [x] Móvil: capítulos a pantalla completa, barra superior con índice desplegable, zonas seguras.
+- [x] Easter egg del Código Konami.
+- [x] Medir: ≤ 20 KB de JS inicial y 60 fps al hacer scroll en un móvil medio. (1,6 KB gzip; sin fotogramas largos en Edge con CPU ×4. Confirmar en un móvil real en la auditoría de la Fase 8.)
 
 ## Fase 7 · Chat de la versión IA
 

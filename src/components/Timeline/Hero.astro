@@ -23,8 +23,8 @@ const ui = t(lang).home;
   <div class="main">
     <p class="tagline tagline-main">{ui.tagline}</p>
     <h1 id="hero-title">
-      <span>{ui.title.line1}</span>
-      <span>{ui.title.line2}<em>{ui.title.em}</em>{ui.title.end}</span>
+      <span class="line"><span class="rise">{ui.title.line1}</span></span>
+      <span class="line"><span class="rise">{ui.title.line2}<em>{ui.title.em}</em>{ui.title.end}</span></span>
     </h1>
     <p class="intro">{ui.intro}</p>
   </div>
@@ -85,6 +85,46 @@ const ui = t(lang).home;
 
   h1 span {
     display: block;
+  }
+
+  /* Entrada: el titular sube desde una máscara y el resto aparece. Solo transform y opacity. */
+  .line {
+    overflow: hidden;
+    padding-bottom: 0.06em;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .rise {
+      animation: rise 1100ms var(--ease-out) both;
+    }
+
+    .line + .line .rise {
+      animation-delay: 160ms;
+    }
+
+    .bar,
+    .tagline-main,
+    .intro,
+    .scroll {
+      animation: fade 1200ms ease both;
+    }
+
+    .intro,
+    .scroll {
+      animation-delay: 600ms;
+    }
+  }
+
+  @keyframes rise {
+    from {
+      transform: translateY(105%);
+    }
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
   }
 
   em {
