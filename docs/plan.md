@@ -55,11 +55,13 @@ Fases pequeñas y en orden. Se trabaja directamente en `main`. Al terminar cada 
 
 ## Fase 7 · Chat de la versión IA
 
-- [ ] Interfaz del chat (cerrado y abierto) con respuestas simuladas.
-- [ ] `/api/chat` con streaming, límites en KV y mensajes de error.
-- [ ] Construcción del contexto. El `system-prompt.md` lo escribe el autor antes de esta fase.
-- [ ] Tope de gasto configurado en la consola de Anthropic.
-- [ ] Enlace "¿Te queda alguna duda? Pregúntale a mi versión IA" al final de cada nota (está en el artefacto; se añade cuando exista el chat).
+- [x] Interfaz del chat (cerrado y abierto) con respuestas simuladas.
+- [x] `/api/chat` con streaming, límites en KV y mensajes de error.
+- [x] Construcción del contexto (CV, notas en español y /uses, con prompt caching).
+- [ ] **Autor:** completar `src/ai/system-prompt.md` (borrador con las reglas de `docs/chat-ia.md`) y `src/ai/cv.md` (solo marcadores).
+- [ ] **Autor:** secreto `ANTHROPIC_API_KEY` en el Worker de Cloudflare (Settings → Variables and Secrets). Sin él, el chat responde "Ahora mismo no puedo responder".
+- [ ] **Autor:** tope de gasto configurado en la consola de Anthropic.
+- [x] Enlace "¿Te queda alguna duda? Pregúntale a mi versión IA" al final de cada nota.
 
 ## Fase 8 · Pulido y lanzamiento
 

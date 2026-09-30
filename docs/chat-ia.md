@@ -22,7 +22,10 @@ Navegador ── POST /api/chat ──► src/pages/api/chat.ts (Cloudflare, on-
 
 - `src/pages/api/chat.ts` con `export const prerender = false`. Es la única ruta dinámica.
 - Secretos y bindings de Cloudflare: `ANTHROPIC_API_KEY` (secreto) y `RATE_LIMIT` (KV).
-- En local, los secretos van en `.dev.vars` (en `.gitignore`).
+- En local, los secretos van en `.dev.vars` (en `.gitignore`): `ANTHROPIC_API_KEY=...`. Sin clave, `npm run dev` responde con textos simulados para probar la interfaz; en producción, sin clave, devuelve `upstream`.
+- La KV `RATE_LIMIT` está declarada en `wrangler.jsonc` sin `id`: Wrangler la crea en el primer despliegue. En local la simula.
+- Con el Worker, las rutas inexistentes pasan por Astro: `src/middleware.ts` las devuelve a los assets para que se sirva la 404 de cada idioma.
+- Código: `src/lib/chat/` (contrato, límites, contexto) y `src/components/Chat/` (interfaz; `chat.ts` se carga con `import()`).
 
 ## Contrato del endpoint
 
@@ -46,7 +49,8 @@ Respuesta: texto en streaming (`text/event-stream` o `text/plain` por trozos). E
 
 ## Modelo y parámetros
 
-- Modelo: el más económico y rápido disponible de Claude (hoy, `claude-haiku-4-5-20251001`). Confírmalo en la documentación de Anthropic al implementarlo.
+- Modelo: el más económico y rápido disponible de Claude: `claude-haiku-4-5` (confirmado el 30.09.2026). Cambiarlo es una línea en `src/pages/api/chat.ts`.
+- Con Haiku 4.5 el prompt caching solo actúa si instrucciones + contexto superan unos 4096 tokens; por debajo, simplemente no se cachea.
 - `max_tokens`: 400. Respuestas cortas: 2–4 frases.
 - Idioma: el de la página (`lang`), aunque responde en el idioma en que le escriban.
 
@@ -54,7 +58,7 @@ Respuesta: texto en streaming (`text/event-stream` o `text/plain` por trozos). E
 
 Se construye en el servidor con:
 
-1. `src/ai/system-prompt.md`: identidad, tono, reglas y límites. **Pendiente de escribir.**
+1. `src/ai/system-prompt.md`: identidad, tono, reglas y límites. **Borrador con las reglas de este documento y marcadores: lo completa el autor.**
 2. `src/ai/cv.md`: CV público.
 3. Notas publicadas en español: título, fecha, etiquetas y texto.
 4. `src/data/uses.yaml` en texto plano.

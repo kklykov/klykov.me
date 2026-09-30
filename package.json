@@ -18,6 +18,7 @@
     "workerd": true
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.129.0",
     "@astrojs/cloudflare": "^14.3.3",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",

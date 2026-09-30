@@ -2,5 +2,8 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "klykov-me",
   "compatibility_date": "2026-09-26",
-  "assets": { "not_found_handling": "404-page" }
+  "assets": { "not_found_handling": "404-page" },
+  // Contadores anónimos del chat (docs/chat-ia.md). Sin "id": Wrangler la crea en el primer despliegue.
+  "kv_namespaces": [{ "binding": "RATE_LIMIT" }]
+  // Secreto: ANTHROPIC_API_KEY (panel de Cloudflare o `npx wrangler secret put ANTHROPIC_API_KEY`).
 }

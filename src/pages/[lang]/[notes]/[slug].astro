@@ -2,7 +2,7 @@
 import { render } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import type { Locale } from '../../../i18n/config';
-import { sections, sectionUrl } from '../../../i18n/routes';
+import { homeUrl, sections, sectionUrl } from '../../../i18n/routes';
 import { fill, t } from '../../../i18n/ui';
 import { alternatesOf, neighbors } from '../../../lib/content';
 import { formatDate, isoDate } from '../../../lib/format';
@@ -76,19 +76,26 @@ const tagList = (list: typeof data.tags) => list.map((tag) => ui.tags[tag]).join
         <Content />
       </div>
 
-      {
-        next && (
-          <a class="next" href={next.url}>
-            <span class="next-label">
-              {ui.notes.next} · {tagList(next.entry.data.tags)}
-            </span>
-            <span class="next-title">
-              <span>{next.entry.data.title}</span>
-              <span class="arrow" aria-hidden="true">→</span>
-            </span>
-          </a>
-        )
-      }
+      <div class="after">
+        <a class="ask" href={`${homeUrl(note.lang)}#capitulo-06`}>
+          <span class="pulse" aria-hidden="true" />
+          <span class="ask-label">{ui.chat.ask}</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+        {
+          next && (
+            <a class="next" href={next.url}>
+              <span class="next-label">
+                {ui.notes.next} · {tagList(next.entry.data.tags)}
+              </span>
+              <span class="next-title">
+                <span>{next.entry.data.title}</span>
+                <span class="arrow" aria-hidden="true">→</span>
+              </span>
+            </a>
+          )
+        }
+      </div>
     </article>
   </div>
 </Base>
@@ -254,11 +261,73 @@ const tagList = (list: typeof data.tags) => list.map((tag) => ui.tags[tag]).join
     letter-spacing: -0.02em;
   }
 
+  .after {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .ask {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: var(--tap);
+    color: var(--text);
+    font-size: 1rem;
+    text-decoration: none;
+  }
+
+  .ask:hover .ask-label {
+    color: var(--accent);
+  }
+
+  .ask:hover .arrow {
+    transform: translateX(6px);
+  }
+
+  .pulse {
+    position: relative;
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+  }
+
+  .pulse::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--accent);
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .pulse::after {
+      animation: pulse 2.6s ease-in-out infinite;
+    }
+  }
+
+  @keyframes pulse {
+    0% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    70%,
+    100% {
+      opacity: 0;
+      transform: scale(3);
+    }
+  }
+
   .next {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    margin-top: 2rem;
     padding: 1.5rem;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);

@@ -1,0 +1,322 @@
+---
+// Chat de la versión IA, en el capítulo 06. Necesita JS: sin él no aparece.
+// El módulo (chat.ts) se carga con import() al pulsar el botón.
+import { links } from '../../data/links';
+import type { Locale } from '../../i18n/config';
+import { t } from '../../i18n/ui';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const ui = t(lang).chat;
+const errors = Object.fromEntries(Object.entries(ui.errors).map(([code, text]) => [code, text.replace('{email}', links.email)]));
+const strings = JSON.stringify({ greeting: ui.greeting, errors });
+---
+
+<div class="chat" data-chat data-lang={lang} data-strings={strings} hidden>
+  <div class="closed" data-chat-closed>
+    <button type="button" class="trigger" data-chat-open>
+      <span class="pulse" aria-hidden="true"></span>
+      <span class="trigger-label">{ui.open}</span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </button>
+    <p class="note">{ui.note}</p>
+  </div>
+
+  <div class="panel" data-chat-panel hidden>
+    <div class="head">
+      <span class="who"><span class="pulse small" aria-hidden="true"></span>{ui.title}</span>
+      <button type="button" class="close" aria-label={ui.close} data-chat-close>×</button>
+    </div>
+    <div class="log" data-chat-log></div>
+    <p class="visually-hidden" role="status" aria-live="polite" data-chat-live></p>
+    <div class="suggestions">
+      {
+        ui.suggestions.map((suggestion) => (
+          <button type="button" data-chat-suggestion>
+            {suggestion}
+          </button>
+        ))
+      }
+    </div>
+    <form class="ask" data-chat-form>
+      <span aria-hidden="true">›</span>
+      <label for="chat-question" class="visually-hidden">{ui.label}</label>
+      <input id="chat-question" type="text" autocomplete="off" maxlength="500" placeholder={ui.placeholder} />
+      <button type="submit" aria-label={ui.send}>↵</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-chat]');
+  if (root) {
+    root.hidden = false;
+    root.querySelector('[data-chat-open]')!.addEventListener('click', async () => {
+      const { openChat } = await import('./chat');
+      openChat(root);
+    });
+  }
+</script>
+
+<style>
+  .chat[hidden],
+  .chat [hidden] {
+    display: none;
+  }
+
+  .closed {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    align-items: flex-start;
+  }
+
+  .trigger {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3.5rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--text);
+    font-family: var(--font-serif);
+    font-size: clamp(1.75rem, 1.5309rem + 0.8989vw, 2.25rem); /* 28 → 36 */
+    line-height: 1.1;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .trigger:hover .trigger-label {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 8px;
+  }
+
+  .arrow {
+    color: var(--accent);
+    transition: transform 300ms ease;
+  }
+
+  .trigger:hover .arrow {
+    transform: translateX(6px);
+  }
+
+  /* Punto que late: un halo que crece y se desvanece (solo transform y opacity) */
+  .pulse {
+    position: relative;
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+  }
+
+  .pulse.small {
+    width: 8px;
+    height: 8px;
+  }
+
+  .pulse::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--accent);
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .pulse::after {
+      animation: pulse 2.6s ease-in-out infinite;
+    }
+  }
+
+  @keyframes pulse {
+    0% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    70%,
+    100% {
+      opacity: 0;
+      transform: scale(3);
+    }
+  }
+
+  .note {
+    padding-left: 1.625rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.125rem;
+    height: min(33.75rem, 70svh);
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    color: var(--text-muted);
+  }
+
+  .who {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .close {
+    min-width: var(--tap);
+    min-height: var(--tap);
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    font-size: 1.375rem;
+    cursor: pointer;
+  }
+
+  .close:hover {
+    color: var(--text);
+  }
+
+  /* Conversación: lo antiguo se desvanece arriba */
+  .log {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 1.375rem;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    mask-image: linear-gradient(to bottom, transparent 0%, var(--bg) 40%);
+  }
+
+  .log :global(> :first-child) {
+    margin-top: auto;
+  }
+
+  .log :global(.user) {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .log :global(.user span) {
+    color: var(--accent);
+  }
+
+  .log :global(.ai) {
+    font-family: var(--font-serif);
+    font-size: clamp(1.25rem, 1.0857rem + 0.6742vw, 1.625rem); /* 20 → 26 */
+    line-height: 1.35;
+    color: var(--text);
+  }
+
+  /* Cursor mientras llega la respuesta (sin efecto de escritura con movimiento reducido) */
+  .log :global(.ai[data-typing]::after) {
+    content: '';
+    display: inline-block;
+    width: 0.08em;
+    height: 0.72em;
+    margin-left: 0.06em;
+    background: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .log :global(.ai[data-typing]::after) {
+      animation: blink 1.1s steps(1) infinite;
+    }
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.125rem;
+  }
+
+  .suggestions button {
+    min-height: var(--tap);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+    text-decoration: underline;
+    text-decoration-color: var(--line-muted);
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+
+  .suggestions button:hover {
+    color: var(--text);
+  }
+
+  .ask {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .ask > span {
+    font-family: var(--font-mono);
+    font-size: 1.125rem;
+    color: var(--accent);
+  }
+
+  .ask input {
+    flex-grow: 1;
+    min-width: 0;
+    min-height: var(--tap);
+    border: 0;
+    background: none;
+    color: var(--text);
+    font-size: 1.0625rem;
+  }
+
+  .ask input::placeholder {
+    color: var(--text-faint);
+  }
+
+  .ask button {
+    min-width: var(--tap);
+    min-height: var(--tap);
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font-size: 1.25rem;
+    cursor: pointer;
+  }
+
+  .ask[data-busy] button {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  /* Móvil: al abrir el chat se ocultan el "IA" gigante y su texto (docs/diseno.md). */
+  @media (max-width: 63.999rem) {
+    :global([data-chapter][data-chat-open]) :global(:is(.number, h2, .text)) {
+      display: none;
+    }
+  }
+</style>

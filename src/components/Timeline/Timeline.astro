@@ -8,6 +8,7 @@
 import type { CollectionEntry } from 'astro:content';
 import type { Locale } from '../../i18n/config';
 import { t } from '../../i18n/ui';
+import Chat from '../Chat/Chat.astro';
 import Chapter from './Chapter.astro';
 
 interface Props {
@@ -71,7 +72,13 @@ const first = chapters[0];
     </div>
 
     <div class="track" data-track>
-      {chapters.map((chapter) => <Chapter chapter={chapter} lang={lang} />)}
+      {
+        chapters.map((chapter) => (
+          <Chapter chapter={chapter} lang={lang}>
+            {chapter.id === '06' && <Chat lang={lang} />}
+          </Chapter>
+        ))
+      }
     </div>
 
     <!-- Escritorio: menú inferior de capítulos -->

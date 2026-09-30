@@ -82,6 +82,25 @@ const es = {
       note: 'Lo útil por encima de lo bonito',
     },
   },
+  chat: {
+    open: 'Conóceme a través de mi IA',
+    note: 'Una versión de mí hecha con mi CV y mis notas. Puede equivocarse.',
+    title: 'Klykov · versión IA',
+    close: 'Cerrar chat',
+    label: 'Pregúntale a mi versión IA',
+    placeholder: 'Pregúntame lo que quieras…',
+    send: 'Enviar pregunta',
+    greeting:
+      'Hola, soy la versión IA de Klykov. Pregúntame por su experiencia, su forma de trabajar o su café. Puedo equivocarme; para algo importante, escríbele directamente.',
+    suggestions: ['¿Cómo empezaste?', '¿Qué te importa al construir?', '¿Y fuera del código?'],
+    errors: {
+      invalid: 'No he entendido la pregunta. ¿Puedes reformularla?',
+      limit_user: 'Por hoy ya hemos hablado bastante. Si quieres seguir, escríbeme a {email}.',
+      limit_global: 'Hoy he llegado a mi límite de conversaciones. Escríbeme a {email}.',
+      upstream: 'Ahora mismo no puedo responder. Prueba en un rato.',
+    },
+    ask: '¿Te queda alguna duda? Pregúntale a mi versión IA',
+  },
   uses: {
     meta: '/uses · actualizado {date}',
     intro: 'Herramientas, hardware y café. Con el porqué de cada cosa, que es lo que de verdad importa.',
@@ -186,6 +205,25 @@ const en: Ui = {
       view: 'View',
       note: 'Useful over pretty',
     },
+  },
+  chat: {
+    open: 'Get to know me through my AI',
+    note: 'A version of me made from my CV and my notes. It can be wrong.',
+    title: 'Klykov · AI version',
+    close: 'Close chat',
+    label: 'Ask my AI version',
+    placeholder: 'Ask me anything…',
+    send: 'Send question',
+    greeting:
+      "Hi, I'm Klykov's AI version. Ask me about his experience, the way he works or his coffee. I can be wrong; for anything important, write to him directly.",
+    suggestions: ['How did you start?', 'What matters to you when building?', 'And outside of code?'],
+    errors: {
+      invalid: "I didn't understand the question. Could you rephrase it?",
+      limit_user: "We've talked a lot today. If you want to keep going, write to me at {email}.",
+      limit_global: "I've reached my conversation limit for today. Write to me at {email}.",
+      upstream: "I can't answer right now. Try again in a while.",
+    },
+    ask: 'Any questions left? Ask my AI version',
   },
   uses: {
     meta: '/uses · updated {date}',
