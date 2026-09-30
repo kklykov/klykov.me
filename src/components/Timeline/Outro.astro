@@ -1,0 +1,71 @@
+---
+import type { Locale } from '../../i18n/config';
+import { sectionUrl } from '../../i18n/routes';
+import { t } from '../../i18n/ui';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const ui = t(lang);
+---
+
+<section class="outro" aria-labelledby="outro-title">
+  <h2 id="outro-title">{ui.home.outro.before}<em>{ui.home.outro.em}</em>{ui.home.outro.end}</h2>
+  <p>{ui.home.outroText}</p>
+  <ul role="list">
+    <li><a href={sectionUrl('notes', lang)}>{ui.home.readNotes} <span aria-hidden="true">→</span></a></li>
+    <li><a href={sectionUrl('lab', lang)}>{ui.nav.lab} <span aria-hidden="true">→</span></a></li>
+  </ul>
+</section>
+
+<style>
+  .outro {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.75rem;
+    min-height: 80svh;
+    padding: 4rem var(--gutter-right) 2rem var(--gutter-left);
+  }
+
+  h2 {
+    font-size: clamp(5rem, 2.809rem + 8.9888vw, 10rem); /* 80 → 160 */
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+  }
+
+  em {
+    color: var(--accent);
+  }
+
+  p {
+    font-size: clamp(1rem, 0.8904rem + 0.4494vw, 1.25rem); /* 16 → 20 */
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 1.125rem;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.5ch;
+    min-height: var(--tap);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--accent);
+  }
+</style>

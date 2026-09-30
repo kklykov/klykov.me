@@ -1,49 +1,28 @@
 ---
+import { getCollection } from 'astro:content';
+import Chapter from '../../components/Timeline/Chapter.astro';
+import Hero from '../../components/Timeline/Hero.astro';
+import Outro from '../../components/Timeline/Outro.astro';
 import Base from '../../layouts/Base.astro';
 import { locales, type Locale } from '../../i18n/config';
+import { alternatesFor } from '../../i18n/routes';
+import { t } from '../../i18n/ui';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
 }
 
-// Portada provisional hasta la fase 5. El lema sale de CLAUDE.md y del README.
-const motto: Record<Locale, string> = {
-  es: 'Lo útil por encima de lo bonito.',
-  en: 'Useful over pretty.',
-};
 const lang = Astro.params.lang as Locale;
+const ui = t(lang).home;
+const alternates = alternatesFor(Astro.url.pathname);
+const chapters = (await getCollection('timeline')).sort((a, b) => a.id.localeCompare(b.id));
 ---
 
-<Base title="klykov.me">
-  <div class="placeholder">
-    <h1>Klykov<span class="dot">.</span></h1>
-    <p class="motto">{motto[lang]}</p>
+<!-- Versión base: capítulos en vertical, completos sin JS y con movimiento reducido. -->
+<Base title="klykov.me" description={ui.intro} alternates={alternates} header={false}>
+  <Hero lang={lang} alternates={alternates} />
+  <div class="timeline" aria-label={ui.timeline} role="region" data-timeline>
+    {chapters.map((chapter) => <Chapter chapter={chapter} lang={lang} />)}
   </div>
+  <Outro lang={lang} />
 </Base>
-
-<style>
-  .placeholder {
-    display: grid;
-    align-content: center;
-    gap: 1.75rem;
-    min-height: 60svh;
-    padding-inline: var(--gutter-left) var(--gutter-right);
-  }
-
-  h1 {
-    font-size: var(--fs-display);
-    line-height: var(--lh-display);
-    letter-spacing: -0.03em;
-  }
-
-  .dot {
-    color: var(--accent);
-  }
-
-  .motto {
-    max-width: 35rem;
-    font-size: var(--fs-lead);
-    line-height: var(--lh-lead);
-    color: var(--text-muted);
-  }
-</style>

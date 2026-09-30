@@ -31,7 +31,26 @@
   --code-keyword: var(--text-muted);
   --code-string: var(--accent);
 
+  /* Portada: detalles de cada época */
+  --outline: #34312a; /* números gigantes con contorno */
+  --grid-line: #211f19; /* retícula de tablas (01) */
+  --line-muted: #4a463c; /* cajas del MVC (03) */
+  --line-dashed: #5a564b; /* microservicios (04) */
+  --glyph: #2a2822; /* símbolos del Código Konami apagados (00) */
+  --web2-bg: #f2f2f2; /* caja Web 2.0 (02) */
+  --web2-bar: #dddddd;
+  --web2-border: #bbbbbb;
+  --web2-text: #333333;
+  --web2-link: #0055aa;
+  --paper: #faf8f3; /* tarjeta de componente (05) */
+  --paper-text: #17160f;
+  --paper-muted: #5e5a50;
+  --paper-chip: #ece7dc;
+  --paper-shadow: rgb(0 0 0 / 45%);
+
   /* Tipografía */
+  --font-times: 'Times New Roman', times, serif; /* tipografías de época: del sistema */
+  --font-verdana: verdana, geneva, sans-serif;
   --fs-meta: 0.8125rem; /* 13 */
   --fs-small: 0.75rem; /* 12 */
   --fs-nav: clamp(0.8125rem, 0.7851rem + 0.1124vw, 0.875rem); /* 13 → 14 */

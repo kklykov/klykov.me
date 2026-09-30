@@ -1,4 +1,8 @@
+import type { LocalizedText } from '../content.config';
 import type { Locale } from '../i18n/config';
+
+/** Un texto plano vale para todos los idiomas. */
+export const inLang = (value: LocalizedText, lang: Locale) => (typeof value === 'string' ? value : value[lang]);
 
 /** Una pieza en un idioma. `key` es el nombre de la carpeta y une sus traducciones. */
 export interface Localized {

@@ -86,7 +86,21 @@ const uses = defineCollection({
   schema: z.object({ updated: z.string(), sections: z.array(usesSection).min(1) }),
 });
 
+// Portada: capítulos de la línea temporal (src/data/timeline.yaml).
+const timeline = defineCollection({
+  loader: file('src/data/timeline.yaml'),
+  schema: z.object({
+    code: z.string(),
+    font: z.enum(['serif', 'times', 'verdana', 'mono', 'sans']),
+    year: text,
+    title: localized,
+    text: localized,
+    wink: z.enum(['level', 'grid', 'web2', 'mvc', 'services', 'component']).optional(),
+    snippet: z.object({ file: z.string().optional(), code: z.string() }).optional(),
+  }),
+});
+
 export type UsesSection = z.infer<typeof usesSection>;
 export type LocalizedText = z.infer<typeof text>;
 
-export const collections = { notas, lab, uses };
+export const collections = { notas, lab, uses, timeline };

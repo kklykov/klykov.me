@@ -1,7 +1,8 @@
 ---
-import { locales, type Locale } from '../i18n/config';
+import type { Locale } from '../i18n/config';
 import { homeUrl, parsePath, sectionUrl, type Section } from '../i18n/routes';
 import { t } from '../i18n/ui';
+import LangSwitch from './LangSwitch.astro';
 
 interface Props {
   lang: Locale;
@@ -39,23 +40,7 @@ const nav = [
         ))
       }
     </ul>
-    <div class="lang">
-      {
-        locales.map((locale, i) => (
-          <>
-            {i > 0 && <span aria-hidden="true">/</span>}
-            {locale === lang ? (
-              <span aria-hidden="true">{locale.toUpperCase()}</span>
-            ) : (
-              <a class="tap" href={alternates[locale] ?? homeUrl(locale)} hreflang={locale} lang={locale}>
-                {locale.toUpperCase()}
-                <span class="visually-hidden"> ({t(locale).langName})</span>
-              </a>
-            )}
-          </>
-        ))
-      }
-    </div>
+    <LangSwitch lang={lang} alternates={alternates} />
   </nav>
 </header>
 
@@ -101,10 +86,5 @@ const nav = [
 
   li a[aria-current] {
     color: var(--accent);
-  }
-
-  .lang {
-    display: flex;
-    gap: 0.5ch;
   }
 </style>

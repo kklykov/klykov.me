@@ -4,7 +4,8 @@ import PageHeader from '../../../components/PageHeader.astro';
 import Base from '../../../layouts/Base.astro';
 import { locales, type Locale } from '../../../i18n/config';
 import { t } from '../../../i18n/ui';
-import { getUses, inLang } from '../../../lib/uses';
+import { inLang } from '../../../lib/content';
+import { getUses } from '../../../lib/uses';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));

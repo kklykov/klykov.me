@@ -42,9 +42,9 @@ Fases pequeñas y en orden. Se trabaja directamente en `main`. Al terminar cada 
 
 ## Fase 5 · Portada estática
 
-- [ ] `timeline.yaml` con los siete capítulos.
-- [ ] Hero y capítulos **en vertical**, accesibles y completos sin JS. Esta es la versión base que ven quienes tienen movimiento reducido.
-- [ ] Guiños visuales de cada época.
+- [x] `timeline.yaml` con los siete capítulos.
+- [x] Hero y capítulos **en vertical**, accesibles y completos sin JS. Esta es la versión base que ven quienes tienen movimiento reducido.
+- [x] Guiños visuales de cada época.
 
 ## Fase 6 · Portada interactiva
 

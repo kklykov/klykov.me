@@ -1,0 +1,48 @@
+---
+// "ES / EN": lleva a la misma página en el otro idioma o, si no existe, a su portada.
+import { locales, type Locale } from '../i18n/config';
+import { homeUrl } from '../i18n/routes';
+import { t } from '../i18n/ui';
+
+interface Props {
+  lang: Locale;
+  alternates: Partial<Record<Locale, string>>;
+}
+
+const { lang, alternates } = Astro.props;
+---
+
+<div class="lang">
+  {
+    locales.map((locale, i) => (
+      <>
+        {i > 0 && <span aria-hidden="true">/</span>}
+        {locale === lang ? (
+          <span aria-hidden="true">{locale.toUpperCase()}</span>
+        ) : (
+          <a class="tap" href={alternates[locale] ?? homeUrl(locale)} hreflang={locale} lang={locale}>
+            {locale.toUpperCase()}
+            <span class="visually-hidden"> ({t(locale).langName})</span>
+          </a>
+        )}
+      </>
+    ))
+  }
+</div>
+
+<style>
+  .lang {
+    display: flex;
+    gap: 0.5ch;
+    color: var(--text-muted);
+  }
+
+  a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--text);
+  }
+</style>

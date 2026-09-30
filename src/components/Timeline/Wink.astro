@@ -1,0 +1,333 @@
+---
+// Guiño visual de cada época. Decorativo: el contenido del capítulo no depende de él.
+import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '../../i18n/config';
+import { t } from '../../i18n/ui';
+
+interface Props {
+  wink: NonNullable<CollectionEntry<'timeline'>['data']['wink']>;
+  lang: Locale;
+}
+
+const { wink, lang } = Astro.props;
+const ui = t(lang).home;
+
+// Microservicios: posición [arriba, izquierda] en escritorio y en móvil (null = no cabe).
+const services: { name: string; desktop: [number, number]; mobile: [number, number] | null; main?: boolean }[] = [
+  { name: 'users', desktop: [0, 0], mobile: [0, 0] },
+  { name: 'orders', desktop: [70, 164], mobile: [52, 96] },
+  { name: 'gateway', desktop: [-10, 334], mobile: [-4, 186], main: true },
+  { name: 'auth', desktop: [110, 424], mobile: [108, 16] },
+  { name: 'stock', desktop: [40, 544], mobile: [102, 206] },
+  { name: 'billing', desktop: [130, 54], mobile: null },
+];
+const place = ([top, left]: [number, number], prefix: string) => `--${prefix}t: ${top}px; --${prefix}l: ${left}px;`;
+---
+
+{wink === 'grid' && <div class="grid" aria-hidden="true" />}
+
+{
+  wink !== 'grid' && (
+    <div class="wink" data-wink={wink} aria-hidden="true">
+      {wink === 'level' && (
+        <>
+          <div class="hud">
+            <span>{ui.level} 00</span>
+            <span class="lives">
+              <span />
+              <span />
+              <span />
+              <span class="empty" />
+            </span>
+          </div>
+          <svg class="squiggle" viewBox="0 0 420 120" fill="none">
+            <path d="M4 90 C 60 20, 110 110, 170 60 S 280 10, 330 70 S 400 100, 416 40" />
+          </svg>
+        </>
+      )}
+
+      {wink === 'web2' && (
+        <div class="web2-box">
+          <div class="web2-bar">{ui.winks.news}</div>
+          <div class="web2-body">
+            {ui.winks.rounded} <span>{ui.winks.readMore}</span>
+          </div>
+        </div>
+      )}
+
+      {wink === 'mvc' && (
+        <div class="mvc">
+          <span>{ui.winks.model}</span>⇄<span class="main">{ui.winks.controller}</span>⇄<span>{ui.winks.view}</span>
+        </div>
+      )}
+
+      {wink === 'services' && (
+        <div class="services">
+          {services.map((s) => (
+            <span
+              class:list={{ main: s.main, 'desktop-only': !s.mobile }}
+              style={place(s.desktop, 'd') + (s.mobile ? place(s.mobile, 'm') : '')}
+            >
+              {s.name}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {wink === 'component' && (
+        <div class="card">
+          <span class="tag">&lt;Note /&gt;</span>
+          <span class="title">{ui.winks.note}</span>
+          <span class="chips">
+            <span>UX</span>
+            <span>DX</span>
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+<style>
+  .wink {
+    position: absolute;
+    top: 5.5rem;
+    left: var(--gutter-left);
+    right: var(--gutter-right);
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  /* 00 · Nivel y vidas, y un garabato de lápiz */
+  .hud {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    letter-spacing: 0.25em;
+  }
+
+  .lives {
+    display: flex;
+    gap: 4px;
+  }
+
+  .lives span {
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+  }
+
+  .lives .empty {
+    border: 1px solid var(--line-dashed);
+    background: none;
+  }
+
+  .squiggle {
+    width: 18.75rem;
+    margin-top: 1rem;
+  }
+
+  .squiggle path {
+    stroke: var(--accent);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    opacity: 0.7;
+  }
+
+  /* 01 · Retícula de tablas */
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 78px 40px;
+    pointer-events: none;
+  }
+
+  /* 02 · Caja Web 2.0 */
+  .web2-box {
+    width: 16.25rem;
+    border: 1px solid var(--web2-border);
+    border-radius: 6px;
+    background: var(--web2-bg);
+    font-family: var(--font-verdana);
+    font-size: 0.6875rem;
+    line-height: 1.6;
+    color: var(--web2-text);
+  }
+
+  .web2-bar {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--web2-border);
+    border-radius: 6px 6px 0 0;
+    background: var(--web2-bar);
+    font-weight: 700;
+  }
+
+  .web2-body {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .web2-body span {
+    color: var(--web2-link);
+  }
+
+  /* 03 · Modelo ⇄ Controlador ⇄ Vista */
+  .mvc {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .mvc span {
+    padding: 0.75rem 0.875rem;
+    border: 1px solid var(--line-muted);
+  }
+
+  .mvc .main {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  /* 04 · Servicios sueltos alrededor de un gateway */
+  .services {
+    position: relative;
+  }
+
+  .services span {
+    position: absolute;
+    top: var(--mt);
+    left: var(--ml);
+    padding: 0.5rem 0.75rem;
+    border: 1px dashed var(--line-dashed);
+    border-radius: var(--radius-sm);
+  }
+
+  .services .main {
+    border: 1px solid var(--accent);
+    color: var(--text);
+  }
+
+  .services .desktop-only {
+    display: none;
+  }
+
+  /* 05 · Tarjeta de componente */
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 17.5rem;
+    padding: 1.125rem;
+    border-radius: 1rem;
+    background: var(--paper);
+    box-shadow: 0 24px 60px var(--paper-shadow);
+    font-family: var(--font-sans);
+    color: var(--paper-text);
+  }
+
+  .card .tag {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--paper-muted);
+  }
+
+  .card .title {
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+
+  .chips {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .chips span {
+    padding: 0.1875rem 0.625rem;
+    border-radius: var(--radius-pill);
+    background: var(--paper-chip);
+    font-size: 0.6875rem;
+  }
+
+  @media (min-width: 64rem) {
+    .wink {
+      top: 7.5rem;
+      font-size: var(--fs-meta);
+    }
+
+    .hud {
+      gap: 1rem;
+    }
+
+    .lives span {
+      width: 10px;
+      height: 10px;
+    }
+
+    .squiggle {
+      width: 26.25rem;
+    }
+
+    .squiggle path {
+      stroke-width: 2;
+    }
+
+    .grid {
+      background-size: 160px 80px;
+    }
+
+    .web2-box {
+      width: 20rem;
+      font-size: 0.75rem;
+    }
+
+    .web2-bar {
+      padding: 0.5rem 0.75rem;
+    }
+
+    .web2-body {
+      padding: 0.75rem;
+    }
+
+    .mvc {
+      gap: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .mvc span {
+      padding: 1.125rem 1.75rem;
+    }
+
+    .services span {
+      top: var(--dt);
+      left: var(--dl);
+      padding: 0.625rem 1rem;
+    }
+
+    .services .desktop-only {
+      display: block;
+    }
+
+    .card {
+      gap: 0.625rem;
+      width: 21.25rem;
+      padding: 1.375rem;
+    }
+
+    .card .tag {
+      font-size: var(--fs-small);
+    }
+
+    .card .title {
+      font-size: 1.25rem;
+    }
+
+    .chips span {
+      padding: 0.25rem 0.75rem;
+      font-size: var(--fs-small);
+    }
+  }
+</style>

@@ -124,6 +124,13 @@ duration: 8
 
 Los textos iniciales de cada capítulo (título, párrafo, fragmento de código y guiño visual) están en el artefacto de diseño. Pásalos a `timeline.yaml` en la Fase 5; a partir de ahí, el YAML es la fuente del contenido.
 
+- `font`: `serif`, `times`, `verdana`, `mono` o `sans` (titular y número gigante). Los tamaños de cada capítulo están en `src/components/Timeline/Chapter.astro`.
+- `year`: un texto o `{ es, en }` (el 00 dice "infancia"; el 06, "[año] → hoy").
+- `title`: un `\n` (entre comillas dobles) parte el titular en dos líneas.
+- `wink` (opcional): `level`, `grid`, `web2`, `mvc`, `services` o `component`; se dibuja en `src/components/Timeline/Wink.astro`.
+- `snippet` es opcional: sin él (06), el texto va con el titular y el hueco de la derecha queda para el chat. `file` no se ve; lo anuncia el lector de pantalla.
+- El hero y el cierre de la portada son textos de interfaz: están en `src/i18n/ui.ts` (`home`).
+
 ## /uses
 
 `src/data/uses.yaml`. Los nombres de producto no se traducen; los porqués sí.

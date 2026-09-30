@@ -1,0 +1,115 @@
+# Capítulos de la portada (ver docs/contenido.md). El orden es el de `id`.
+# `font`: serif, times, verdana, mono o sans. `wink`: el guiño visual de la época.
+# Un salto de línea en `title` (\n) se respeta en el titular.
+- id: "00"
+  code: "00"
+  font: serif
+  year: { es: infancia, en: childhood }
+  title: { es: "Antes\ndel código", en: "Before\ncode" }
+  text:
+    es: Videojuegos y dibujo desde muy pequeño. Pantallas por un lado, lápiz y papel por otro.
+    en: "[traducción]"
+  wink: level
+  snippet:
+    code: |
+      // Aún no escribía código.
+      // Solo mandos, lápices
+      // y muchas horas de juego.
+
+- id: "01"
+  code: "<01>"
+  font: times
+  year: "[año]"
+  title: { es: "HTML\ny CSS", en: "HTML\nand CSS" }
+  text:
+    es: Páginas maquetadas con tablas y CSS a mano. Cada píxel era una celda.
+    en: "[traducción]"
+  wink: grid
+  snippet:
+    file: index.html
+    code: |
+      <table width="100%" border="0">
+        <tr>
+          <td bgcolor="#cccccc">Menú</td>
+          <td>Bienvenido</td>
+        </tr>
+      </table>
+
+- id: "02"
+  code: "$(02)"
+  font: verdana
+  year: "[año]"
+  title: { es: jQuery, en: jQuery }
+  text:
+    es: El DOM por fin se dejaba domar. Un $ para todo.
+    en: "[traducción]"
+  wink: web2
+  snippet:
+    file: app.js
+    code: |
+      $(document).ready(function () {
+        $(".menu").click(function () {
+          $(this).next().slideToggle();
+        });
+      });
+
+- id: "03"
+  code: "/03"
+  font: mono
+  year: "[año]"
+  title: { es: MVC, en: MVC }
+  text:
+    es: Separar datos, lógica y vista. El orden empezó a llamarse arquitectura.
+    en: "[traducción]"
+  wink: mvc
+  snippet:
+    file: PostsController.js
+    code: |
+      class PostsController {
+        index() {
+          const posts = Post.all();
+          return view("posts", posts);
+        }
+      }
+
+- id: "04"
+  code: ":04"
+  font: mono
+  year: "[año]"
+  title: { es: "Micro\nservicios", en: "Micro\nservices" }
+  text:
+    es: Partir el sistema en piezas pequeñas y descubrir lo que cuesta que hablen entre sí.
+    en: "[traducción]"
+  wink: services
+  snippet:
+    file: gateway.yaml
+    code: |
+      routes:
+        /users   -> users-service
+        /orders  -> orders-service
+        /stock   -> inventory-service
+
+- id: "05"
+  code: "<05/>"
+  font: sans
+  year: "[año]"
+  title: { es: "Frameworks\nJS", en: "JS\nframeworks" }
+  text:
+    es: Componentes, estado y un build para cada cosa. La DX pasó a primer plano.
+    en: "[traducción]"
+  wink: component
+  snippet:
+    file: Note.jsx
+    code: |
+      export function Note({ title }) {
+        return <article>{title}</article>;
+      }
+
+- id: "06"
+  code: ">06"
+  font: serif
+  year: { es: "[año] → hoy", en: "[año] → today" }
+  title: { es: IA, en: AI }
+  text:
+    es: Claude Code en el día a día, en el trabajo y en casa. Y una versión de mí con la que puedes hablar.
+    en: "[traducción]"
