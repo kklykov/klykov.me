@@ -1,0 +1,58 @@
+/*
+ * Tokens de diseño. Valores de la página "Diseño" del artefacto:
+ * https://claude.ai/artifact/U6cyBdr6Z4hZXBbfLhdEcT
+ *
+ * Las familias (--font-serif, --font-sans, --font-mono) las define <Font>
+ * a partir de astro.config.mjs.
+ *
+ * Los tamaños fluidos interpolan entre las medidas de móvil (390px) y de
+ * escritorio (1280px) del lienzo. Punto de corte de maquetación: 1024px
+ * (los media queries no admiten variables).
+ */
+:root {
+  color-scheme: dark;
+
+  /* Color */
+  --bg: #0e0d0a;
+  --surface: #16150f; /* bloques de código, figuras, tarjetas */
+  --surface-2: #1c1b16; /* código en línea */
+  --line: #2e2c25; /* separadores */
+  --line-strong: #3a372f; /* bordes de botones y filtros */
+  --text: #efebe1; /* 16.3:1 sobre --bg */
+  --text-soft: #d8d3c7; /* párrafos de lectura, 13:1 */
+  --text-muted: #a29d90; /* entradillas, navegación, metadatos, 7.2:1 */
+  --text-faint: #8a8475; /* etiquetas y pies; el gris más claro permitido para texto (AA), 5.2:1 */
+  --accent: #c8874f; /* caramelo, 6.5:1 */
+  --on-accent: #0e0d0a;
+
+  /* Tipografía */
+  --fs-meta: 0.8125rem; /* 13 */
+  --fs-small: 0.75rem; /* 12 */
+  --fs-nav: clamp(0.8125rem, 0.7851rem + 0.1124vw, 0.875rem); /* 13 → 14 */
+  --fs-body: clamp(1.0625rem, 1.0077rem + 0.2247vw, 1.1875rem); /* 17 → 19 */
+  --fs-lead: clamp(1.1875rem, 1.0506rem + 0.5618vw, 1.5rem); /* 19 → 24 */
+  --fs-h2: clamp(2rem, 1.7809rem + 0.8989vw, 2.5rem); /* 32 → 40 */
+  --fs-h1: clamp(3.25rem, 2.264rem + 4.0449vw, 5.5rem); /* 52 → 88 */
+  --fs-display: clamp(6rem, 3.809rem + 8.9888vw, 11rem); /* 96 → 176 */
+  --lh-body: 1.75;
+  --lh-lead: 1.5;
+  --lh-heading: 1.1;
+  --lh-display: 0.9;
+
+  /* Espacio */
+  --gutter: clamp(1.5rem, -0.4719rem + 8.0899vw, 6rem); /* 24 → 96 */
+  --header-pad-y: clamp(1.5rem, 1.2809rem + 0.8989vw, 2rem); /* 24 → 32 */
+  --measure: 42.5rem; /* 680, columna de lectura */
+  --tap: 44px; /* zona táctil mínima */
+
+  /* Formas */
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  /* Movimiento (solo transform y opacity) */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --duration-fast: 200ms;
+  --duration: 250ms;
+}

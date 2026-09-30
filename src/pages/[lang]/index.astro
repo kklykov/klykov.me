@@ -1,0 +1,58 @@
+---
+import Base from '../../layouts/Base.astro';
+import { locales, type Locale } from '../../i18n/config';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+// Página provisional de la fase 0: solo comprueba fuentes y colores.
+// El lema sale de CLAUDE.md y del README.
+const motto: Record<Locale, string> = {
+  es: 'Lo útil por encima de lo bonito.',
+  en: 'Useful over pretty.',
+};
+const lang = Astro.params.lang as Locale;
+---
+
+<Base title="klykov.me">
+  <main class="placeholder">
+    <p class="meta">klykov.me</p>
+    <h1>Klykov<span class="dot">.</span></h1>
+    <p class="motto">{motto[lang]}</p>
+  </main>
+</Base>
+
+<style>
+  .placeholder {
+    display: grid;
+    align-content: center;
+    gap: 1.75rem;
+    min-height: 100svh;
+    padding: var(--gutter);
+    padding-inline: max(var(--gutter), env(safe-area-inset-left)) max(var(--gutter), env(safe-area-inset-right));
+  }
+
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta);
+    color: var(--text-muted);
+  }
+
+  h1 {
+    font-size: var(--fs-display);
+    line-height: var(--lh-display);
+    letter-spacing: -0.03em;
+  }
+
+  .dot {
+    color: var(--accent);
+  }
+
+  .motto {
+    max-width: 35rem;
+    font-size: var(--fs-lead);
+    line-height: var(--lh-lead);
+    color: var(--text-muted);
+  }
+</style>

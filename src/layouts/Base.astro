@@ -1,0 +1,43 @@
+---
+import { Font } from 'astro:assets';
+import { defaultLocale, locales as allLocales, stripLocale, type Locale } from '../i18n/config';
+import '../styles/tokens.css';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Idiomas en los que existe esta página. Si falta una traducción, no se anuncia. */
+  locales?: readonly Locale[];
+}
+
+const { title, description, locales = allLocales } = Astro.props;
+
+const lang = (Astro.currentLocale ?? defaultLocale) as Locale;
+const path = stripLocale(Astro.url.pathname);
+const urlFor = (locale: Locale) => new URL(`/${locale}${path}`, Astro.site).href;
+
+const alternates = locales.length > 1 ? locales : [];
+const xDefault = locales.includes(defaultLocale) ? defaultLocale : locales[0];
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={urlFor(lang)} />
+    {alternates.map((locale) => <link rel="alternate" hreflang={locale} href={urlFor(locale)} />)}
+    {alternates.length > 0 && <link rel="alternate" hreflang="x-default" href={urlFor(xDefault)} />}
+
+    <Font cssVariable="--font-serif" preload={[{ style: 'normal' }]} />
+    <Font cssVariable="--font-sans" />
+    <Font cssVariable="--font-mono" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
