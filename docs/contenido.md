@@ -53,6 +53,9 @@ const notas = defineCollection({
 - Tiempo de lectura calculado en el build (≈ 220 palabras por minuto).
 - Los proyectos son notas con la etiqueta `Proyecto`.
 - `draft: true` se ve en desarrollo y no se publica.
+- El primer párrafo del cuerpo es la entradilla: se muestra más grande y en gris, bajo el título. `description` se usa en el listado, el RSS y los metadatos.
+- Bloques de código con nombre de archivo: ` ```js title="regla.js" `. Sin `title`, la cabecera del bloque muestra el lenguaje.
+- URLs: `/es/notas/<carpeta>/` y `/en/notes/<slug o carpeta>/`.
 
 ## Lab
 

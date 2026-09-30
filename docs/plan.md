@@ -22,10 +22,10 @@ Fases pequeñas y en orden. Se trabaja directamente en `main`. Al terminar cada 
 
 ## Fase 2 · Notas
 
-- [ ] Colección `notas` con su esquema (ver `docs/contenido.md`) y una nota de ejemplo.
-- [ ] Listado con filtros como mejora progresiva.
-- [ ] Página de nota: diseño de lectura, Shiki con tema propio, copiar código y copiar enlace, barra de progreso solo con CSS, siguiente nota.
-- [ ] Tiempo de lectura, RSS y sitemap.
+- [x] Colección `notas` con su esquema (ver `docs/contenido.md`) y una nota de ejemplo.
+- [x] Listado con filtros como mejora progresiva.
+- [x] Página de nota: diseño de lectura, Shiki con tema propio, copiar código y copiar enlace, barra de progreso solo con CSS, siguiente nota.
+- [x] Tiempo de lectura, RSS y sitemap.
 
 ## Fase 3 · Lab
 
@@ -59,6 +59,7 @@ Fases pequeñas y en orden. Se trabaja directamente en `main`. Al terminar cada 
 - [ ] `/api/chat` con streaming, límites en KV y mensajes de error.
 - [ ] Construcción del contexto. El `system-prompt.md` lo escribe el autor antes de esta fase.
 - [ ] Tope de gasto configurado en la consola de Anthropic.
+- [ ] Enlace "¿Te queda alguna duda? Pregúntale a mi versión IA" al final de cada nota (está en el artefacto; se añade cuando exista el chat).
 
 ## Fase 8 · Pulido y lanzamiento
 

@@ -1,3 +1,4 @@
+import type { Tag } from '../content.config';
 import type { Locale } from './config';
 
 const es = {
@@ -17,6 +18,34 @@ const es = {
     lab: 'Lab',
     uses: 'Lo que uso',
   },
+  notes: {
+    intro: 'Textos cortos sobre lo que aprendo construyendo. Sin relleno.',
+    topics: 'UX · DX · IA · arte',
+    count: { one: '{n} nota', other: '{n} notas' },
+    filter: 'Filtrar',
+    all: 'Todas',
+    list: 'Listado de notas',
+    empty: 'Todavía no hay notas.',
+    readInSpanish: 'Leer las notas en español',
+    back: 'Todas las notas',
+    published: 'Publicada',
+    updated: 'Actualizada',
+    reading: 'Lectura',
+    minutes: '{n} min',
+    tags: 'Etiquetas',
+    copyLink: 'Copiar enlace',
+    linkCopied: 'Enlace copiado ✓',
+    copyCode: 'Copiar',
+    codeCopied: 'Copiado ✓',
+    next: 'Siguiente nota',
+  },
+  tags: {
+    UX: 'UX',
+    DX: 'DX',
+    IA: 'IA',
+    Arte: 'Arte',
+    Proyecto: 'Proyecto',
+  } satisfies Record<Tag, string>,
   notFound: {
     title: 'Página no encontrada',
     text: 'Esta página no existe',
@@ -43,6 +72,34 @@ const en: Ui = {
     lab: 'Lab',
     uses: 'What I use',
   },
+  notes: {
+    intro: 'Short pieces about what I learn while building. No filler.',
+    topics: 'UX · DX · AI · art',
+    count: { one: '{n} note', other: '{n} notes' },
+    filter: 'Filter',
+    all: 'All',
+    list: 'List of notes',
+    empty: 'There are no notes in English yet.',
+    readInSpanish: 'Read the notes in Spanish',
+    back: 'All notes',
+    published: 'Published',
+    updated: 'Updated',
+    reading: 'Reading time',
+    minutes: '{n} min',
+    tags: 'Tags',
+    copyLink: 'Copy link',
+    linkCopied: 'Link copied ✓',
+    copyCode: 'Copy',
+    codeCopied: 'Copied ✓',
+    next: 'Next note',
+  },
+  tags: {
+    UX: 'UX',
+    DX: 'DX',
+    IA: 'AI',
+    Arte: 'Art',
+    Proyecto: 'Project',
+  },
   notFound: {
     title: 'Page not found',
     text: 'This page does not exist',
@@ -53,3 +110,6 @@ const en: Ui = {
 const ui: Record<Locale, Ui> = { es, en };
 
 export const t = (lang: Locale): Ui => ui[lang];
+
+/** Sustituye `{n}` en un texto. */
+export const fill = (text: string, n: number) => text.replace('{n}', String(n));

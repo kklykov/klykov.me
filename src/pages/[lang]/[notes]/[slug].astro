@@ -1,0 +1,318 @@
+---
+import { render } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import type { Locale } from '../../../i18n/config';
+import { sections, sectionUrl } from '../../../i18n/routes';
+import { fill, t } from '../../../i18n/ui';
+import { alternatesOf, formatDate, getNotes, isoDate, type Note } from '../../../lib/notes';
+import '../../../styles/prose.css';
+
+export async function getStaticPaths() {
+  const all = await getNotes();
+  return all.map((note) => {
+    const sameLang = all.filter((n) => n.lang === note.lang);
+    const i = sameLang.indexOf(note);
+    // Siguiente = la anterior en el tiempo; desde la más antigua se vuelve a la más reciente.
+    const next = sameLang.length > 1 ? sameLang[(i + 1) % sameLang.length] : undefined;
+    return {
+      params: { lang: note.lang, notes: sections.notes[note.lang], slug: note.slug },
+      props: { note, next, alternates: alternatesOf(note, all) },
+    };
+  });
+}
+
+interface Props {
+  note: Note;
+  next?: Note;
+  alternates: Partial<Record<Locale, string>>;
+}
+
+const { note, next, alternates } = Astro.props;
+const { data } = note.entry;
+const ui = t(note.lang);
+const { Content } = await render(note.entry);
+const tagList = (list: typeof data.tags) => list.map((tag) => ui.tags[tag]).join(' · ');
+---
+
+<Base title={`${data.title} · klykov.me`} description={data.description} alternates={alternates}>
+  <div class="progress" aria-hidden="true"></div>
+
+  <div class="note">
+    <div class="side">
+      <a class="back" href={sectionUrl('notes', note.lang)}><span aria-hidden="true">←</span> {ui.notes.back}</a>
+      <dl>
+        <div>
+          <dt>{ui.notes.published}</dt>
+          <dd><time datetime={isoDate(data.date)}>{formatDate(data.date)}</time></dd>
+        </div>
+        {
+          data.updated && (
+            <div>
+              <dt>{ui.notes.updated}</dt>
+              <dd><time datetime={isoDate(data.updated)}>{formatDate(data.updated)}</time></dd>
+            </div>
+          )
+        }
+        <div>
+          <dt>{ui.notes.reading}</dt>
+          <dd>{fill(ui.notes.minutes, note.minutes)}</dd>
+        </div>
+        <div>
+          <dt>{ui.notes.tags}</dt>
+          <dd>{tagList(data.tags)}</dd>
+        </div>
+      </dl>
+      <button type="button" class="pill share" data-copy-link data-done={ui.notes.linkCopied} hidden>
+        {ui.notes.copyLink}
+      </button>
+    </div>
+
+    <article>
+      <h1>{data.title}</h1>
+      <div class="prose" data-copy-label={ui.notes.copyCode} data-copy-done={ui.notes.codeCopied}>
+        <Content />
+      </div>
+
+      {
+        next && (
+          <a class="next" href={next.url}>
+            <span class="next-label">
+              {ui.notes.next} · {tagList(next.entry.data.tags)}
+            </span>
+            <span class="next-title">
+              <span>{next.entry.data.title}</span>
+              <span class="arrow" aria-hidden="true">→</span>
+            </span>
+          </a>
+        )
+      }
+    </article>
+  </div>
+</Base>
+
+<script>
+  // Copiar enlace y copiar código. Sin JS, los botones no existen o están ocultos.
+  const flash = (button: HTMLElement, done: string) => {
+    const label = button.textContent;
+    button.textContent = done;
+    setTimeout(() => (button.textContent = label), 1800);
+  };
+
+  const copy = async (text: string, button: HTMLElement, done: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      flash(button, done);
+    } catch {
+      // Sin permiso para el portapapeles: no hacemos nada.
+    }
+  };
+
+  if (navigator.clipboard) {
+    const share = document.querySelector<HTMLButtonElement>('[data-copy-link]');
+    if (share) {
+      const url = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href ?? location.href;
+      share.hidden = false;
+      share.addEventListener('click', () => copy(url, share, share.dataset.done!));
+    }
+
+    const prose = document.querySelector<HTMLElement>('[data-copy-label]');
+    for (const block of document.querySelectorAll('.code-block')) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'pill';
+      button.textContent = prose!.dataset.copyLabel!;
+      button.addEventListener('click', () =>
+        copy(block.querySelector('pre')!.textContent ?? '', button, prose!.dataset.copyDone!),
+      );
+      block.querySelector('.code-head')!.append(button);
+    }
+  }
+</script>
+
+<style>
+  /* Barra de lectura solo con CSS; sin soporte de scroll-driven animations, no aparece. */
+  .progress {
+    display: none;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .progress {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 5;
+      display: block;
+      height: 2px;
+      background: var(--accent);
+      transform-origin: 0 50%;
+      animation: progress linear both;
+      animation-timeline: scroll(root);
+    }
+
+    /* Sigue al scroll, no es una animación: se mantiene con movimiento reducido. */
+    @media (prefers-reduced-motion: reduce) {
+      .progress {
+        animation-duration: auto !important;
+      }
+    }
+  }
+
+  @keyframes progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  .note {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 0.5rem var(--gutter-right) 0 var(--gutter-left);
+  }
+
+  /* En móvil, la columna lateral se deshace: el botón de copiar enlace va al final. */
+  .side {
+    display: contents;
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5ch;
+    align-self: flex-start;
+    min-height: var(--tap);
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta);
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .back:hover {
+    color: var(--text);
+  }
+
+  dl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta);
+  }
+
+  dt {
+    color: var(--text-faint);
+  }
+
+  dd {
+    color: var(--text);
+  }
+
+  .share {
+    order: 1;
+    align-self: flex-start;
+  }
+
+  .pill,
+  .prose :global(.pill) {
+    min-height: var(--tap);
+    padding: 0 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+
+  .pill:hover,
+  .prose :global(.pill:hover) {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .pill[hidden] {
+    display: none;
+  }
+
+  article {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+  }
+
+  h1 {
+    font-size: var(--fs-h1);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+  }
+
+  .next {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .next-label {
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    color: var(--text-muted);
+  }
+
+  .next-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    font-family: var(--font-serif);
+    font-size: clamp(1.75rem, 1.5309rem + 0.8989vw, 2.25rem); /* 28 → 36 */
+    line-height: 1.1;
+  }
+
+  .next:hover .next-title > span:first-child {
+    color: var(--accent);
+  }
+
+  .arrow {
+    font-size: 1.25rem;
+    color: var(--accent);
+    transition: transform var(--duration) ease;
+  }
+
+  .next:hover .arrow {
+    transform: translateX(6px);
+  }
+
+  @media (min-width: 64rem) {
+    .note {
+      display: grid;
+      grid-template-columns: 13.75rem minmax(0, var(--measure));
+      gap: 6rem;
+      padding-top: 2.5rem;
+    }
+
+    .side {
+      position: sticky;
+      top: 2.5rem;
+      align-self: start;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    dl {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+</style>

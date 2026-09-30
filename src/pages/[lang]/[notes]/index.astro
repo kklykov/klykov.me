@@ -1,18 +1,292 @@
 ---
 import PageHeader from '../../../components/PageHeader.astro';
+import { tags } from '../../../content.config';
 import Base from '../../../layouts/Base.astro';
-import { locales, type Locale } from '../../../i18n/config';
-import { sections } from '../../../i18n/routes';
-import { t } from '../../../i18n/ui';
+import { defaultLocale, locales, type Locale } from '../../../i18n/config';
+import { sections, sectionUrl } from '../../../i18n/routes';
+import { fill, t } from '../../../i18n/ui';
+import { formatDate, getNotes, isoDate, usedTags } from '../../../lib/notes';
 
 // El segmento cambia con el idioma: /es/notas/, /en/notes/.
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang, notes: sections.notes[lang] } }));
 }
 
-const ui = t(Astro.params.lang as Locale);
+const lang = Astro.params.lang as Locale;
+const ui = t(lang);
+const notes = await getNotes(lang);
+const filterTags = usedTags(notes, tags);
+const hasSpanishNotes = lang !== defaultLocale && (await getNotes(defaultLocale)).length > 0;
+const count = (n: number) => fill(n === 1 ? ui.notes.count.one : ui.notes.count.other, n);
 ---
 
-<Base title={`${ui.pages.notes} · klykov.me`}>
-  <PageHeader>{ui.pages.notes}</PageHeader>
+<Base title={`${ui.pages.notes} · klykov.me`} description={ui.notes.intro}>
+  <link slot="head" rel="alternate" type="application/rss+xml" title={`${ui.pages.notes} · klykov.me`} href={`${sectionUrl('notes', lang)}rss.xml`} />
+
+  <PageHeader intro={ui.notes.intro}>
+    <Fragment slot="meta">
+      {
+        notes.length > 0 && (
+          <>
+            <span data-count data-one={ui.notes.count.one} data-other={ui.notes.count.other}>
+              {count(notes.length)}
+            </span>{' '}
+            ·{' '}
+          </>
+        )
+      }
+      {ui.notes.topics}
+    </Fragment>
+    {ui.pages.notes}
+    {
+      filterTags.length > 1 && (
+        <div slot="after" class="filters" role="group" aria-label={ui.notes.filter} data-filters hidden>
+          <button type="button" aria-pressed="true" data-tag="">{ui.notes.all}</button>
+          {filterTags.map((tag) => (
+            <button type="button" aria-pressed="false" data-tag={tag}>
+              {ui.tags[tag]}
+            </button>
+          ))}
+        </div>
+      )
+    }
+  </PageHeader>
+
+  <section class="list" aria-label={ui.notes.list}>
+    {
+      notes.length > 0 ? (
+        <ul role="list">
+          {notes.map(({ entry, url, minutes }) => (
+            <li class="row" data-note data-tags={entry.data.tags.join(' ')}>
+              <p class="when">
+                <time datetime={isoDate(entry.data.date)}>{formatDate(entry.data.date)}</time> ·{' '}
+                {fill(ui.notes.minutes, minutes)}
+              </p>
+              <div class="text">
+                <h2>
+                  <a href={url}>{entry.data.title}</a>
+                </h2>
+                <p class="excerpt">{entry.data.description}</p>
+              </div>
+              <p class="tags">{entry.data.tags.map((tag) => ui.tags[tag]).join(' · ')}</p>
+              <span class="arrow" aria-hidden="true">→</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div class="empty">
+          <p>{ui.notes.empty}</p>
+          {hasSpanishNotes && (
+            <p>
+              <a href={sectionUrl('notes', defaultLocale)} hreflang={defaultLocale}>
+                {ui.notes.readInSpanish} <span aria-hidden="true">→</span>
+              </a>
+            </p>
+          )}
+        </div>
+      )
+    }
+  </section>
 </Base>
+
+<script>
+  // Filtros: sin JS no aparecen y se ven todas las notas.
+  const group = document.querySelector<HTMLElement>('[data-filters]');
+  const count = document.querySelector<HTMLElement>('[data-count]');
+  const rows = document.querySelectorAll<HTMLElement>('[data-note]');
+
+  if (group && count) {
+    group.hidden = false;
+    group.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest('button');
+      if (!button) return;
+      const tag = button.dataset.tag;
+      for (const b of group.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b === button));
+      let shown = 0;
+      for (const row of rows) {
+        row.hidden = !!tag && !row.dataset.tags!.split(' ').includes(tag);
+        if (!row.hidden) shown++;
+      }
+      count.textContent = (shown === 1 ? count.dataset.one! : count.dataset.other!).replace('{n}', String(shown));
+    });
+  }
+</script>
+
+<style>
+  .filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-inline: calc(var(--gutter-left) * -1) calc(var(--gutter-right) * -1);
+    padding-inline: var(--gutter-left) var(--gutter-right);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .filters[hidden] {
+    display: none;
+  }
+
+  .filters button {
+    flex-shrink: 0;
+    min-height: var(--tap);
+    padding: 0 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  .filters button:hover {
+    border-color: var(--accent);
+  }
+
+  .filters button[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .list {
+    padding-inline: var(--gutter-left) var(--gutter-right);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Toda la fila es clicable: el enlace del título se extiende sobre ella. */
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'when tags'
+      'text text';
+    gap: 0.5rem 1rem;
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .row[hidden] {
+    display: none;
+  }
+
+  .when,
+  .tags {
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    color: var(--text-muted);
+  }
+
+  .when {
+    grid-area: when;
+  }
+
+  .tags {
+    grid-area: tags;
+  }
+
+  .text {
+    grid-area: text;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  h2 {
+    font-size: clamp(1.875rem, 1.6011rem + 1.1236vw, 2.5rem); /* 30 → 40 */
+    line-height: 1.05;
+  }
+
+  h2 a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  h2 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  h2 a:focus-visible {
+    outline: none;
+  }
+
+  .row:has(a:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+  }
+
+  .row:hover h2 a {
+    color: var(--accent);
+  }
+
+  .excerpt {
+    font-size: clamp(0.9375rem, 0.8827rem + 0.2247vw, 1.0625rem); /* 15 → 17 */
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  .arrow {
+    display: none;
+    color: var(--accent);
+    font-size: 1.25rem;
+    transition: transform var(--duration) ease;
+  }
+
+  .row:hover .arrow {
+    transform: translateX(6px);
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-block: 3rem;
+    border-top: 1px solid var(--line);
+    color: var(--text-muted);
+  }
+
+  .empty a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .empty a:hover {
+    color: var(--accent);
+  }
+
+  .empty span {
+    color: var(--accent);
+  }
+
+  @media (min-width: 64rem) {
+    .filters {
+      flex-wrap: wrap;
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+
+    .row {
+      grid-template-columns: 11.25rem minmax(0, 1fr) 10rem 2rem;
+      grid-template-areas: 'when text tags arrow';
+      align-items: baseline;
+      gap: 2rem;
+      padding-block: 2rem;
+    }
+
+    .when {
+      font-size: var(--fs-meta);
+    }
+
+    .arrow {
+      display: block;
+    }
+  }
+</style>

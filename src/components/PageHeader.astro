@@ -1,9 +1,18 @@
 ---
-// Título grande de las páginas de sección, con el punto en el color de acento.
+// Cabecera de las páginas de sección: metadatos, título grande con el punto
+// en el color de acento, entradilla y, debajo, lo que se pase en el slot "after".
+interface Props {
+  intro?: string;
+}
+
+const { intro } = Astro.props;
 ---
 
 <div class="page-header">
+  {Astro.slots.has('meta') && <p class="meta"><slot name="meta" /></p>}
   <h1><slot /><span class="dot">.</span></h1>
+  {intro && <p class="intro">{intro}</p>}
+  <slot name="after" />
 </div>
 
 <style>
@@ -16,6 +25,12 @@
     padding-inline: var(--gutter-left) var(--gutter-right);
   }
 
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta);
+    color: var(--text-muted);
+  }
+
   h1 {
     font-size: var(--fs-display);
     line-height: 0.85;
@@ -24,5 +39,12 @@
 
   .dot {
     color: var(--accent);
+  }
+
+  .intro {
+    max-width: 35rem;
+    font-size: clamp(1.0625rem, 0.9803rem + 0.3371vw, 1.25rem); /* 17 → 20 */
+    line-height: 1.55;
+    color: var(--text-muted);
   }
 </style>

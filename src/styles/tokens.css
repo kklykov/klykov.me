@@ -25,6 +25,12 @@
   --accent: #c8874f; /* caramelo, 6.5:1 */
   --on-accent: #0e0d0a;
 
+  /* Código (tema de Shiki en src/lib/code.ts) */
+  --code-text: var(--text);
+  --code-comment: var(--text-faint);
+  --code-keyword: var(--text-muted);
+  --code-string: var(--accent);
+
   /* Tipografía */
   --fs-meta: 0.8125rem; /* 13 */
   --fs-small: 0.75rem; /* 12 */

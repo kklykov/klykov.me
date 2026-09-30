@@ -43,11 +43,12 @@ src/
 │   ├── cv.md                # CV público (sin datos privados)
 │   └── system-prompt.md     # system prompt de la versión IA
 ├── i18n/                    # idiomas (config.ts), rutas por idioma (routes.ts), textos de interfaz (ui.ts)
-├── styles/                  # tokens.css, global.css, fonts/ (woff2 + licencias OFL)
+├── lib/                     # notes.ts (carga de notas, fechas, lectura), code.ts (tema y cabecera de Shiki)
+├── styles/                  # tokens.css, global.css, prose.css (Markdown), fonts/ (woff2 + licencias OFL)
 ├── layouts/Base.astro
 ├── components/              # Header, Footer, PageHeader, Timeline/*, Chat/*, …
 └── pages/
-    ├── [lang]/…             # portada, [notes] (/es/notas/, /en/notes/), lab, uses y 404
+    ├── [lang]/…             # portada, [notes] (listado, [slug], rss.xml), lab, uses y 404
     └── api/chat.ts          # único endpoint dinámico
 ```
 

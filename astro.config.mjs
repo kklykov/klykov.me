@@ -2,6 +2,8 @@
 import { rename, rm } from 'node:fs/promises';
 import { defineConfig, fontProviders } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
+import sitemap from '@astrojs/sitemap';
+import { codeFrame, codeTheme } from './src/lib/code.ts';
 import { defaultLocale, locales } from './src/i18n/config.ts';
 
 const fonts = './src/styles/fonts';
@@ -30,7 +32,8 @@ export default defineConfig({
   // Todo prerenderizado; solo /api/chat (fase 7) se servirá bajo demanda.
   output: 'static',
   // Imágenes optimizadas en el build; sin bindings de Cloudflare Images.
-  adapter: cloudflare({ imageService: 'compile' }),
+  // Prerender con Node: con workerd, getStaticPaths de las colecciones falla en el build.
+  adapter: cloudflare({ imageService: 'compile', prerenderEnvironment: 'node' }),
   // Sin sesiones: evita que el adaptador cree una KV para ellas.
   session: false,
 
@@ -42,7 +45,11 @@ export default defineConfig({
   redirects: {
     '/': `/${defaultLocale}/`,
   },
-  integrations: [localized404],
+  integrations: [sitemap({ filter: (page) => !page.includes('/404/') }), localized404],
+
+  markdown: {
+    shikiConfig: { theme: codeTheme, transformers: [codeFrame] },
+  },
 
   // Autoalojadas, woff2 con subset latino. Cada familia define su variable CSS.
   fonts: [

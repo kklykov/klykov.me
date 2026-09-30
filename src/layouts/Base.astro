@@ -51,6 +51,7 @@ const xDefault = alternates[defaultLocale] ?? languages[0]?.[1];
     <Font cssVariable="--font-serif" preload={[{ style: 'normal' }]} />
     <Font cssVariable="--font-sans" />
     <Font cssVariable="--font-mono" />
+    <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#contenido">{t(lang).skipToContent}</a>
