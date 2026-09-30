@@ -1,16 +1,205 @@
 ---
+import { Picture } from 'astro:assets';
+import EmptyList from '../../../components/EmptyList.astro';
+import Filters from '../../../components/Filters.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import Base from '../../../layouts/Base.astro';
-import { locales, type Locale } from '../../../i18n/config';
+import { defaultLocale, locales, type Locale } from '../../../i18n/config';
+import { sectionUrl } from '../../../i18n/routes';
 import { t } from '../../../i18n/ui';
+import { formatDate, formatDuration, isoDate } from '../../../lib/format';
+import { getExperiments } from '../../../lib/lab';
+import '../../../styles/lab.css';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
 }
 
-const ui = t(Astro.params.lang as Locale);
+const lang = Astro.params.lang as Locale;
+const ui = t(lang);
+const items = await getExperiments(lang);
+const types = (['imagen', 'video'] as const).filter((type) => items.some((i) => i.entry.data.type === type));
+const hasSpanish = lang !== defaultLocale && (await getExperiments(defaultLocale)).length > 0;
 ---
 
-<Base title={`${ui.pages.lab} · klykov.me`}>
-  <PageHeader><em>{ui.pages.lab}</em></PageHeader>
+<Base title={`${ui.pages.lab} · klykov.me`} description={ui.lab.intro}>
+  <PageHeader intro={ui.lab.intro}>
+    <Fragment slot="meta">{ui.lab.meta}</Fragment>
+    <em>{ui.pages.lab}</em>
+    {
+      types.length > 1 && (
+        <Filters
+          slot="after"
+          label={ui.lab.filter}
+          options={[{ value: '', label: ui.lab.all }, ...types.map((type) => ({ value: type, label: ui.lab.types[type] }))]}
+        />
+      )
+    }
+  </PageHeader>
+
+  <section class="mosaic" aria-label={ui.lab.list}>
+    {
+      items.length > 0 ? (
+        <ul role="list">
+          {items.map(({ entry, key, url }, i) => {
+            const { data } = entry;
+            const image = data.type === 'imagen' ? data.media : data.poster;
+            return (
+              <li class="card" data-filter-item data-filter-values={data.type}>
+                <div class="media" style={`view-transition-name: lab-${key}`}>
+                  <Picture
+                    src={image}
+                    alt={data.alt}
+                    formats={['avif', 'webp']}
+                    widths={[400, 800, 1200]}
+                    sizes="(min-width: 64rem) 33vw, (min-width: 40rem) 50vw, 100vw"
+                    loading={i < 3 ? 'eager' : 'lazy'}
+                  />
+                  {data.type === 'video' && (
+                    <span class="badge">
+                      <span aria-hidden="true">▶</span> {ui.lab.types.video} · {formatDuration(data.duration)}
+                    </span>
+                  )}
+                </div>
+                <div class="text">
+                  <h2>
+                    <a href={url}>{data.title}</a>
+                  </h2>
+                  <p class="meta">
+                    {ui.lab.types[data.type]} · {data.tool} · <time datetime={isoDate(data.date)}>{formatDate(data.date)}</time>
+                  </p>
+                  <p class="prompt">“{data.prompt}”</p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <EmptyList
+          message={ui.lab.empty}
+          link={hasSpanish ? { href: sectionUrl('lab', defaultLocale), label: ui.lab.readInSpanish } : undefined}
+        />
+      )
+    }
+  </section>
 </Base>
+
+<style>
+  .mosaic {
+    padding-inline: var(--gutter-left) var(--gutter-right);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    column-gap: 2rem;
+  }
+
+  /* Toda la tarjeta es clicable: el enlace del título se extiende sobre ella. */
+  .card {
+    position: relative;
+    break-inside: avoid;
+    margin-bottom: 2rem;
+  }
+
+  .media {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+
+  .media :global(img) {
+    width: 100%;
+    transition: transform 700ms var(--ease-out);
+  }
+
+  .card:hover .media :global(img) {
+    transform: scale(1.04);
+  }
+
+  .badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-pill);
+    background: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--text);
+  }
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding-top: 0.875rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h2 a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  h2 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  h2 a:focus-visible {
+    outline: none;
+  }
+
+  .card:has(a:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: var(--radius-lg);
+  }
+
+  .card:hover h2 a {
+    color: var(--accent);
+  }
+
+  .meta,
+  .prompt {
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+  }
+
+  .meta {
+    color: var(--text-muted);
+  }
+
+  .prompt {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    line-height: 1.6;
+    color: var(--text-faint);
+  }
+
+  @media (min-width: 40rem) {
+    ul {
+      columns: 2;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    ul {
+      columns: 3;
+    }
+
+    .card {
+      margin-bottom: 2.5rem;
+    }
+  }
+</style>

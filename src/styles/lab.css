@@ -1,0 +1,9 @@
+/*
+ * Transición de la tarjeta al experimento: View Transitions entre documentos, solo con CSS.
+ * Ambas páginas del Lab la activan; el medio comparte `view-transition-name` (lab-<carpeta>).
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}

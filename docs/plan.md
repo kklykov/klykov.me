@@ -29,10 +29,10 @@ Fases pequeñas y en orden. Se trabaja directamente en `main`. Al terminar cada 
 
 ## Fase 3 · Lab
 
-- [ ] Colección `lab` con imagen y vídeo, y dos piezas de ejemplo.
-- [ ] Mosaico con filtros.
-- [ ] Página de experimento: anterior y siguiente (también con flechas), copiar prompt, vídeo sin reproducción automática.
-- [ ] View Transitions entre documentos, solo con CSS.
+- [x] Colección `lab` con imagen y vídeo, y dos piezas de ejemplo.
+- [x] Mosaico con filtros.
+- [x] Página de experimento: anterior y siguiente (también con flechas), copiar prompt, vídeo sin reproducción automática.
+- [x] View Transitions entre documentos, solo con CSS.
 
 ## Fase 4 · /uses
 
@@ -65,5 +65,6 @@ Fases pequeñas y en orden. Se trabaja directamente en `main`. Al terminar cada 
 
 - [ ] Contenido en inglés (con `/traducir`), `hreflang` y `x-default` revisados.
 - [ ] Imágenes para compartir (Open Graph), favicon y `robots.txt`.
+- [ ] Sustituir las piezas de prueba del Lab (`estudio-de-luz`, `horizonte-caramelo`, generadas con código) por experimentos reales.
 - [ ] Auditoría: Lighthouse ≥ 95, axe sin errores, navegación completa con teclado, lector de pantalla en portada y chat, movimiento reducido, iPhone real.
 - [ ] Migración del dominio de Vercel a Cloudflare (primero DNS, después el registro) y archivar el repositorio antiguo.

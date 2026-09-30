@@ -1,0 +1,96 @@
+---
+/**
+ * Filtros como mejora progresiva. Sin JS no aparecen y se ve todo.
+ * Filtra los elementos `[data-filter-item]` según su `data-filter-values` (separados por espacios).
+ * Si hay un `[data-filter-count]` con `data-one` y `data-other` (con `{n}`), actualiza el recuento.
+ */
+interface Props {
+  label: string;
+  /** La primera opción es "todas" (valor vacío). */
+  options: { value: string; label: string }[];
+}
+
+const { label, options } = Astro.props;
+---
+
+<div class="filters" role="group" aria-label={label} data-filters hidden>
+  {
+    options.map((option, i) => (
+      <button type="button" aria-pressed={i === 0 ? 'true' : 'false'} data-value={option.value}>
+        {option.label}
+      </button>
+    ))
+  }
+</div>
+
+<script>
+  const group = document.querySelector<HTMLElement>('[data-filters]');
+  const count = document.querySelector<HTMLElement>('[data-filter-count]');
+  const items = document.querySelectorAll<HTMLElement>('[data-filter-item]');
+
+  if (group) {
+    group.hidden = false;
+    group.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest('button');
+      if (!button) return;
+      const value = button.dataset.value;
+      for (const b of group.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b === button));
+      let shown = 0;
+      for (const item of items) {
+        item.hidden = !!value && !item.dataset.filterValues!.split(' ').includes(value);
+        if (!item.hidden) shown++;
+      }
+      if (count) count.textContent = count.dataset[shown === 1 ? 'one' : 'other']!.replace('{n}', String(shown));
+    });
+  }
+</script>
+
+<style>
+  .filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-inline: calc(var(--gutter-left) * -1) calc(var(--gutter-right) * -1);
+    padding-inline: var(--gutter-left) var(--gutter-right);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .filters[hidden] {
+    display: none;
+  }
+
+  button {
+    flex-shrink: 0;
+    min-height: var(--tap);
+    padding: 0 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  button:hover {
+    border-color: var(--accent);
+  }
+
+  button[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  @media (min-width: 64rem) {
+    .filters {
+      flex-wrap: wrap;
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+  }
+
+  /* Los elementos filtrados se ocultan aunque su CSS use display. */
+  :global([data-filter-item][hidden]) {
+    display: none !important;
+  }
+</style>

@@ -17,10 +17,12 @@ interface Props {
    * Sin la del idioma actual (p. ej. en la 404), no hay canónica.
    */
   alternates?: Partial<Record<Locale, string>>;
+  /** Sin cabecera: páginas a pantalla completa que traen su propia navegación. */
+  header?: boolean;
 }
 
 const lang = (Astro.currentLocale ?? defaultLocale) as Locale;
-const { title, description, alternates = alternatesFor(Astro.url.pathname) } = Astro.props;
+const { title, description, alternates = alternatesFor(Astro.url.pathname), header = true } = Astro.props;
 
 const absolute = (path: string) => new URL(path, Astro.site).href;
 const canonical = alternates[lang];
@@ -55,7 +57,7 @@ const xDefault = alternates[defaultLocale] ?? languages[0]?.[1];
   </head>
   <body>
     <a class="skip-link" href="#contenido">{t(lang).skipToContent}</a>
-    <Header lang={lang} alternates={alternates} />
+    {header && <Header lang={lang} alternates={alternates} />}
     <main id="contenido">
       <slot />
     </main>

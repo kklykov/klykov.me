@@ -25,4 +25,34 @@ const notas = defineCollection({
     }),
 });
 
-export const collections = { notas };
+const lab = defineCollection({
+  loader: glob({
+    pattern: '*/{es,en}.md',
+    base: './src/content/lab',
+    generateId: ({ entry }) => entry.replace(/\.md$/, ''),
+  }),
+  schema: ({ image }) => {
+    const common = {
+      title: z.string().max(90),
+      date: z.coerce.date(),
+      tool: z.string().min(1),
+      alt: z.string().min(1),
+      prompt: z.string().min(1),
+      draft: z.boolean().default(false),
+    };
+    return z.discriminatedUnion('type', [
+      z.object({ ...common, type: z.literal('imagen'), media: image() }),
+      z.object({
+        ...common,
+        type: z.literal('video'),
+        // Ruta dentro de la carpeta (./video.mp4) o URL absoluta (R2) para vídeos grandes.
+        media: z.string(),
+        webm: z.string().optional(),
+        poster: image(),
+        duration: z.number().positive(),
+      }),
+    ]);
+  },
+});
+
+export const collections = { notas, lab };

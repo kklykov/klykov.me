@@ -1,0 +1,371 @@
+---
+import { getImage, Picture } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import type { Locale } from '../../../i18n/config';
+import { sectionUrl } from '../../../i18n/routes';
+import { t } from '../../../i18n/ui';
+import { alternatesOf, neighbors } from '../../../lib/content';
+import { formatDate, isoDate, twoDigits } from '../../../lib/format';
+import { getExperiments, videoUrl, type Experiment } from '../../../lib/lab';
+import '../../../styles/lab.css';
+
+export async function getStaticPaths() {
+  const all = await getExperiments();
+  return all.map((item) => {
+    const sameLang = all.filter((i) => i.lang === item.lang);
+    return {
+      params: { lang: item.lang, slug: item.key },
+      props: {
+        item,
+        ...neighbors(sameLang, item),
+        position: sameLang.indexOf(item) + 1,
+        total: sameLang.length,
+        alternates: alternatesOf(item, all),
+      },
+    };
+  });
+}
+
+interface Props {
+  item: Experiment;
+  prev?: Experiment;
+  next?: Experiment;
+  position: number;
+  total: number;
+  alternates: Partial<Record<Locale, string>>;
+}
+
+const { item, prev, next, position, total, alternates } = Astro.props;
+const { data } = item.entry;
+const ui = t(item.lang);
+const { Content } = await render(item.entry);
+const poster = data.type === 'video' ? await getImage({ src: data.poster, format: 'webp', width: 1600 }) : undefined;
+---
+
+<Base title={`${data.title} · Lab · klykov.me`} description={data.alt} alternates={alternates} header={false}>
+  <div class="experiment">
+    <div class="top">
+      <a class="back" href={sectionUrl('lab', item.lang)}><span aria-hidden="true">←</span> {ui.pages.lab}</a>
+      <span class="counter">{twoDigits(position)} / {twoDigits(total)}</span>
+    </div>
+
+    <div class="stage" style={`view-transition-name: lab-${item.key}`}>
+      {
+        data.type === 'imagen' ? (
+          <Picture
+            src={data.media}
+            alt={data.alt}
+            formats={['avif', 'webp']}
+            widths={[800, 1200, 1600, 2400]}
+            sizes="(min-width: 64rem) calc(100vw - 25rem), 100vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+        ) : (
+          <video
+            controls
+            playsinline
+            preload="metadata"
+            poster={poster!.src}
+            width={data.poster.width}
+            height={data.poster.height}
+            aria-label={data.alt}
+          >
+            {data.webm && <source src={videoUrl(item.key, data.webm)} type="video/webm" />}
+            <source src={videoUrl(item.key, data.media)} type="video/mp4" />
+            <p>{ui.lab.videoFallback}</p>
+          </video>
+        )
+      }
+    </div>
+
+    <div class="body">
+      <div class="heading">
+        <p class="meta">
+          {ui.lab.types[data.type]} · {data.tool} · <time datetime={isoDate(data.date)}>{formatDate(data.date)}</time>
+        </p>
+        <h1>{data.title}</h1>
+      </div>
+
+      <section class="block" aria-labelledby="prompt-label">
+        <h2 class="label" id="prompt-label">{ui.lab.prompt}</h2>
+        <p class="prompt" data-prompt>{data.prompt}</p>
+        <button type="button" class="pill" data-copy-prompt data-done={ui.lab.promptCopied} hidden>
+          {ui.lab.copyPrompt}
+        </button>
+      </section>
+
+      <section class="block" aria-labelledby="learned-label">
+        <h2 class="label" id="learned-label">{ui.lab.learned}</h2>
+        <div class="learned"><Content /></div>
+      </section>
+    </div>
+
+    {
+      prev && next && (
+        <nav class="pager" aria-label={ui.lab.pager}>
+          <div class="pager-links">
+            <a class="pill" href={prev.url} rel="prev" data-prev>
+              <span aria-hidden="true">←</span> {ui.lab.prev}
+            </a>
+            <a class="pill" href={next.url} rel="next" data-next>
+              {ui.lab.next} <span aria-hidden="true">→</span>
+            </a>
+          </div>
+          <p class="hint" data-keys-hint hidden>{ui.lab.keysHint}</p>
+        </nav>
+      )
+    }
+  </div>
+</Base>
+
+<script>
+  // Copiar prompt
+  const button = document.querySelector<HTMLButtonElement>('[data-copy-prompt]');
+  const prompt = document.querySelector<HTMLElement>('[data-prompt]');
+  if (button && prompt && navigator.clipboard) {
+    button.hidden = false;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(prompt.textContent ?? '');
+        const label = button.textContent;
+        button.textContent = button.dataset.done!;
+        setTimeout(() => (button.textContent = label), 1800);
+      } catch {
+        // Sin permiso para el portapapeles: no hacemos nada.
+      }
+    });
+  }
+
+  // Anterior y siguiente con las flechas, salvo si el foco está en un control.
+  const prev = document.querySelector<HTMLAnchorElement>('[data-prev]');
+  const next = document.querySelector<HTMLAnchorElement>('[data-next]');
+  if (prev && next) {
+    document.querySelector<HTMLElement>('[data-keys-hint]')!.hidden = false;
+    document.addEventListener('keydown', (event) => {
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      const focused = document.activeElement;
+      if (focused?.closest('input, textarea, select, video, audio, [contenteditable], [role="slider"]')) return;
+      if (event.key === 'ArrowLeft') location.href = prev.href;
+      if (event.key === 'ArrowRight') location.href = next.href;
+    });
+  }
+</script>
+
+<style>
+  .experiment {
+    display: grid;
+    grid-template-areas: 'top' 'stage' 'body' 'pager';
+    gap: 1.5rem;
+    padding-bottom: 1rem;
+  }
+
+  .top {
+    grid-area: top;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: max(0.75rem, env(safe-area-inset-top)) var(--gutter-right) 0 var(--gutter-left);
+    margin-bottom: -1rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta);
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5ch;
+    min-height: var(--tap);
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .back:hover {
+    color: var(--text);
+  }
+
+  .counter {
+    color: var(--text-muted);
+  }
+
+  .stage {
+    grid-area: stage;
+    overflow: hidden;
+    margin-inline: max(1rem, env(safe-area-inset-left)) max(1rem, env(safe-area-inset-right));
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+
+  .stage :global(img),
+  .stage video {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .body,
+  .pager {
+    padding-inline: var(--gutter-left) var(--gutter-right);
+  }
+
+  .body {
+    grid-area: body;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .heading,
+  .block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .meta,
+  .label,
+  .hint {
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+  }
+
+  .meta {
+    color: var(--text-muted);
+  }
+
+  h1 {
+    font-size: clamp(2.25rem, 1.9213rem + 1.3483vw, 3rem); /* 36 → 48 */
+    line-height: 1;
+  }
+
+  .label {
+    font-weight: 400;
+    color: var(--text-faint);
+  }
+
+  .prompt {
+    padding: 0.875rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta);
+    line-height: 1.6;
+    color: var(--text-soft);
+    overflow-wrap: anywhere;
+  }
+
+  .learned {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--text-soft);
+  }
+
+  .learned :global(* + *) {
+    margin-top: 0.75rem;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5ch;
+    align-self: flex-start;
+    min-height: var(--tap);
+    padding: 0 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .pill:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .pill[hidden],
+  .hint[hidden] {
+    display: none;
+  }
+
+  .pager {
+    grid-area: pager;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .pager-links {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .pager .pill {
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+  }
+
+  .hint {
+    display: none;
+    font-size: 0.6875rem;
+    color: var(--text-faint);
+  }
+
+  /* Escritorio: el medio ocupa la pantalla y el panel va a la derecha. */
+  @media (min-width: 64rem) {
+    .experiment {
+      grid-template-columns: minmax(0, 1fr) 25rem;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        'stage top'
+        'stage body'
+        'stage pager';
+      gap: 1.5rem 0;
+      height: 100svh;
+      padding-bottom: 0;
+    }
+
+    .top,
+    .body,
+    .pager {
+      padding-inline: 2.5rem;
+    }
+
+    .top {
+      padding-top: 2rem;
+      margin-bottom: 0;
+    }
+
+    .body {
+      justify-content: center;
+      overflow-y: auto;
+    }
+
+    .pager {
+      padding-bottom: 2rem;
+    }
+
+    .stage {
+      margin: 2rem 0 2rem 2rem;
+      border-radius: 1rem;
+    }
+
+    .stage :global(picture),
+    .stage :global(img),
+    .stage video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .hint:not([hidden]) {
+      display: block;
+    }
+  }
+</style>

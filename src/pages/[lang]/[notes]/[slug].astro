@@ -4,16 +4,19 @@ import Base from '../../../layouts/Base.astro';
 import type { Locale } from '../../../i18n/config';
 import { sections, sectionUrl } from '../../../i18n/routes';
 import { fill, t } from '../../../i18n/ui';
-import { alternatesOf, formatDate, getNotes, isoDate, type Note } from '../../../lib/notes';
+import { alternatesOf, neighbors } from '../../../lib/content';
+import { formatDate, isoDate } from '../../../lib/format';
+import { getNotes, type Note } from '../../../lib/notes';
 import '../../../styles/prose.css';
 
 export async function getStaticPaths() {
   const all = await getNotes();
   return all.map((note) => {
-    const sameLang = all.filter((n) => n.lang === note.lang);
-    const i = sameLang.indexOf(note);
     // Siguiente = la anterior en el tiempo; desde la más antigua se vuelve a la más reciente.
-    const next = sameLang.length > 1 ? sameLang[(i + 1) % sameLang.length] : undefined;
+    const { next } = neighbors(
+      all.filter((n) => n.lang === note.lang),
+      note,
+    );
     return {
       params: { lang: note.lang, notes: sections.notes[note.lang], slug: note.slug },
       props: { note, next, alternates: alternatesOf(note, all) },

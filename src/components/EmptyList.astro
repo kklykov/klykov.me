@@ -1,0 +1,52 @@
+---
+// Listado vacío. En otros idiomas, enlaza a la versión en español si allí hay contenido.
+import { defaultLocale } from '../i18n/config';
+
+interface Props {
+  message: string;
+  link?: { href: string; label: string };
+}
+
+const { message, link } = Astro.props;
+---
+
+<div class="empty">
+  <p>{message}</p>
+  {
+    link && (
+      <p>
+        <a href={link.href} hreflang={defaultLocale}>
+          {link.label} <span aria-hidden="true">→</span>
+        </a>
+      </p>
+    )
+  }
+</div>
+
+<style>
+  .empty {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-block: 3rem;
+    border-top: 1px solid var(--line);
+    color: var(--text-muted);
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5ch;
+    min-height: var(--tap);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--accent);
+  }
+
+  span {
+    color: var(--accent);
+  }
+</style>
