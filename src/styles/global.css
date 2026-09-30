@@ -91,6 +91,21 @@ a {
   border-radius: var(--radius-sm);
 }
 
+/* Zona táctil de al menos 44 × 44 px sin cambiar la maquetación */
+.tap {
+  position: relative;
+}
+
+.tap::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, var(--tap));
+  height: max(100%, var(--tap));
+  translate: -50% -50%;
+}
+
 /* Solo para lectores de pantalla */
 .visually-hidden:not(:focus-within, :active) {
   position: absolute;

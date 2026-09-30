@@ -1,0 +1,110 @@
+---
+import { locales, type Locale } from '../i18n/config';
+import { homeUrl, parsePath, sectionUrl, type Section } from '../i18n/routes';
+import { t } from '../i18n/ui';
+
+interface Props {
+  lang: Locale;
+  /** La misma página en cada idioma. Si falta uno, el selector lleva a su portada. */
+  alternates: Partial<Record<Locale, string>>;
+}
+
+const { lang, alternates } = Astro.props;
+const ui = t(lang);
+const { pathname } = Astro.url;
+const { section, rest } = parsePath(pathname);
+
+// "page" en la portada de la sección; "true" en sus páginas interiores.
+const current = (key: Section) => (section === key ? (rest ? 'true' : 'page') : undefined);
+
+const nav = [
+  { key: 'notes', label: ui.nav.notes },
+  { key: 'lab', label: ui.nav.lab },
+] as const;
+---
+
+<header class="site-header">
+  <a class="brand tap" href={homeUrl(lang)} aria-current={pathname === homeUrl(lang) ? 'page' : undefined}>
+    klykov.me
+  </a>
+  <nav aria-label={ui.nav.label}>
+    <ul role="list">
+      {
+        nav.map((item) => (
+          <li>
+            <a class="tap" href={sectionUrl(item.key, lang)} aria-current={current(item.key)}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="lang">
+      {
+        locales.map((locale, i) => (
+          <>
+            {i > 0 && <span aria-hidden="true">/</span>}
+            {locale === lang ? (
+              <span aria-hidden="true">{locale.toUpperCase()}</span>
+            ) : (
+              <a class="tap" href={alternates[locale] ?? homeUrl(locale)} hreflang={locale} lang={locale}>
+                {locale.toUpperCase()}
+                <span class="visually-hidden"> ({t(locale).langName})</span>
+              </a>
+            )}
+          </>
+        ))
+      }
+    </div>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding-block: var(--header-pad-y);
+    padding-inline: var(--gutter-left) var(--gutter-right);
+    padding-top: max(var(--header-pad-y), env(safe-area-inset-top));
+    font-family: var(--font-mono);
+    font-size: var(--fs-nav);
+    color: var(--text-muted);
+  }
+
+  nav,
+  ul {
+    display: flex;
+    align-items: center;
+    gap: clamp(1.25rem, 0.9213rem + 1.3483vw, 2rem); /* 20 → 32 */
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--text);
+  }
+
+  .brand {
+    color: var(--text);
+  }
+
+  li a[aria-current] {
+    color: var(--accent);
+  }
+
+  .lang {
+    display: flex;
+    gap: 0.5ch;
+  }
+</style>

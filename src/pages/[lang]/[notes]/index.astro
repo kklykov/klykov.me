@@ -1,0 +1,18 @@
+---
+import PageHeader from '../../../components/PageHeader.astro';
+import Base from '../../../layouts/Base.astro';
+import { locales, type Locale } from '../../../i18n/config';
+import { sections } from '../../../i18n/routes';
+import { t } from '../../../i18n/ui';
+
+// El segmento cambia con el idioma: /es/notas/, /en/notes/.
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang, notes: sections.notes[lang] } }));
+}
+
+const ui = t(Astro.params.lang as Locale);
+---
+
+<Base title={`${ui.pages.notes} · klykov.me`}>
+  <PageHeader>{ui.pages.notes}</PageHeader>
+</Base>

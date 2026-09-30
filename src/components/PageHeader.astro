@@ -1,0 +1,28 @@
+---
+// Título grande de las páginas de sección, con el punto en el color de acento.
+---
+
+<div class="page-header">
+  <h1><slot /><span class="dot">.</span></h1>
+</div>
+
+<style>
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.25rem, 1.0309rem + 0.8989vw, 1.75rem); /* 20 → 28 */
+    padding-top: clamp(2.5rem, 1.6236rem + 3.5955vw, 4.5rem); /* 40 → 72 */
+    padding-bottom: clamp(2rem, 1.5618rem + 1.7978vw, 3rem); /* 32 → 48 */
+    padding-inline: var(--gutter-left) var(--gutter-right);
+  }
+
+  h1 {
+    font-size: var(--fs-display);
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+  }
+
+  .dot {
+    color: var(--accent);
+  }
+</style>

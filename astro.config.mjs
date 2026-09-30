@@ -1,9 +1,28 @@
 // @ts-check
+import { rename, rm } from 'node:fs/promises';
 import { defineConfig, fontProviders } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import { defaultLocale, locales } from './src/i18n/config.ts';
 
 const fonts = './src/styles/fonts';
+
+/**
+ * Cloudflare sirve el 404.html más cercano a la URL pedida. Astro genera
+ * /<idioma>/404/index.html; se mueve a /404.html (idioma por defecto) y a /<idioma>/404.html.
+ * @type {import('astro').AstroIntegration}
+ */
+const localized404 = {
+  name: 'localized-404',
+  hooks: {
+    'astro:build:done': async ({ dir }) => {
+      for (const lang of locales) {
+        const target = lang === defaultLocale ? '404.html' : `${lang}/404.html`;
+        await rename(new URL(`${lang}/404/index.html`, dir), new URL(target, dir));
+        await rm(new URL(`${lang}/404/`, dir), { recursive: true });
+      }
+    },
+  },
+};
 
 // https://astro.build/config
 export default defineConfig({
@@ -23,6 +42,7 @@ export default defineConfig({
   redirects: {
     '/': `/${defaultLocale}/`,
   },
+  integrations: [localized404],
 
   // Autoalojadas, woff2 con subset latino. Cada familia define su variable CSS.
   fonts: [

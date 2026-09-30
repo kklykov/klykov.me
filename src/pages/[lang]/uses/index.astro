@@ -1,0 +1,16 @@
+---
+import PageHeader from '../../../components/PageHeader.astro';
+import Base from '../../../layouts/Base.astro';
+import { locales, type Locale } from '../../../i18n/config';
+import { t } from '../../../i18n/ui';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const ui = t(Astro.params.lang as Locale);
+---
+
+<Base title={`${ui.pages.uses} · klykov.me`}>
+  <PageHeader>{ui.pages.uses}</PageHeader>
+</Base>

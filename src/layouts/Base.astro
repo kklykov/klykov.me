@@ -1,24 +1,31 @@
 ---
 import { Font } from 'astro:assets';
-import { defaultLocale, locales as allLocales, stripLocale, type Locale } from '../i18n/config';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { defaultLocale, type Locale } from '../i18n/config';
+import { alternatesFor } from '../i18n/routes';
+import { t } from '../i18n/ui';
 import '../styles/tokens.css';
 import '../styles/global.css';
 
 interface Props {
   title: string;
   description?: string;
-  /** Idiomas en los que existe esta página. Si falta una traducción, no se anuncia. */
-  locales?: readonly Locale[];
+  /**
+   * Ruta de esta página en cada idioma. Por defecto, la misma ruta traducida.
+   * Si falta un idioma, no se anuncia con hreflang y el selector lleva a su portada.
+   * Sin la del idioma actual (p. ej. en la 404), no hay canónica.
+   */
+  alternates?: Partial<Record<Locale, string>>;
 }
 
-const { title, description, locales = allLocales } = Astro.props;
-
 const lang = (Astro.currentLocale ?? defaultLocale) as Locale;
-const path = stripLocale(Astro.url.pathname);
-const urlFor = (locale: Locale) => new URL(`/${locale}${path}`, Astro.site).href;
+const { title, description, alternates = alternatesFor(Astro.url.pathname) } = Astro.props;
 
-const alternates = locales.length > 1 ? locales : [];
-const xDefault = locales.includes(defaultLocale) ? defaultLocale : locales[0];
+const absolute = (path: string) => new URL(path, Astro.site).href;
+const canonical = alternates[lang];
+const languages = Object.entries(alternates) as [Locale, string][];
+const xDefault = alternates[defaultLocale] ?? languages[0]?.[1];
 ---
 
 <!doctype html>
@@ -29,15 +36,60 @@ const xDefault = locales.includes(defaultLocale) ? defaultLocale : locales[0];
     <meta name="color-scheme" content="dark" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
-    <link rel="canonical" href={urlFor(lang)} />
-    {alternates.map((locale) => <link rel="alternate" hreflang={locale} href={urlFor(locale)} />)}
-    {alternates.length > 0 && <link rel="alternate" hreflang="x-default" href={urlFor(xDefault)} />}
+    {canonical && <link rel="canonical" href={absolute(canonical)} />}
+    {
+      languages.length > 1 && (
+        <>
+          {languages.map(([locale, path]) => (
+            <link rel="alternate" hreflang={locale} href={absolute(path)} />
+          ))}
+          <link rel="alternate" hreflang="x-default" href={absolute(xDefault!)} />
+        </>
+      )
+    }
 
     <Font cssVariable="--font-serif" preload={[{ style: 'normal' }]} />
     <Font cssVariable="--font-sans" />
     <Font cssVariable="--font-mono" />
   </head>
   <body>
-    <slot />
+    <a class="skip-link" href="#contenido">{t(lang).skipToContent}</a>
+    <Header lang={lang} alternates={alternates} />
+    <main id="contenido">
+      <slot />
+    </main>
+    <Footer lang={lang} />
   </body>
 </html>
+
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1;
+  }
+
+  .skip-link {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 10;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: var(--on-accent);
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta);
+    text-decoration: none;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .skip-link:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+</style>

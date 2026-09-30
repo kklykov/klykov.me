@@ -1,0 +1,64 @@
+---
+import PageHeader from '../../components/PageHeader.astro';
+import Base from '../../layouts/Base.astro';
+import { locales, type Locale } from '../../i18n/config';
+import { homeUrl, sectionUrl } from '../../i18n/routes';
+import { t } from '../../i18n/ui';
+
+// El build mueve cada una a /404.html o /<idioma>/404.html (ver astro.config.mjs).
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Locale;
+const ui = t(lang);
+
+const links = [
+  { href: homeUrl(lang), label: ui.notFound.home },
+  { href: sectionUrl('notes', lang), label: ui.nav.notes },
+  { href: sectionUrl('lab', lang), label: ui.nav.lab },
+];
+---
+
+<Base title={`${ui.notFound.title} · klykov.me`} alternates={{}}>
+  <PageHeader>{ui.notFound.text}</PageHeader>
+  <ul class="links" role="list">
+    {
+      links.map((link) => (
+        <li>
+          <a href={link.href}>
+            {link.label} <span aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</Base>
+
+<style>
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    margin: 0;
+    padding: 0 var(--gutter-right) 0 var(--gutter-left);
+    list-style: none;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--tap);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--accent);
+  }
+
+  span {
+    color: var(--accent);
+  }
+</style>

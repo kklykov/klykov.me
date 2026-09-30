@@ -36,20 +36,23 @@ src/
 │   ├── notas/<slug>/es.md   # una carpeta por nota, un archivo por idioma
 │   └── lab/<slug>/es.md     # + imagen/vídeo junto al .md
 ├── data/
+│   ├── links.ts             # enlaces del pie (email, GitHub, LinkedIn…)
 │   ├── timeline.yaml        # capítulos de la portada
 │   └── uses.yaml            # contenido de /uses
 ├── ai/
 │   ├── cv.md                # CV público (sin datos privados)
 │   └── system-prompt.md     # system prompt de la versión IA
-├── i18n/                    # textos de interfaz y utilidades de idioma
+├── i18n/                    # idiomas (config.ts), rutas por idioma (routes.ts), textos de interfaz (ui.ts)
 ├── styles/                  # tokens.css, global.css, fonts/ (woff2 + licencias OFL)
 ├── layouts/Base.astro
-├── components/              # Header, Footer, Timeline/*, Chat/*, …
+├── components/              # Header, Footer, PageHeader, Timeline/*, Chat/*, …
 └── pages/
-    ├── [lang]/…             # portada, notas, lab, uses
-    ├── api/chat.ts          # único endpoint dinámico
-    └── 404.astro
+    ├── [lang]/…             # portada, [notes] (/es/notas/, /en/notes/), lab, uses y 404
+    └── api/chat.ts          # único endpoint dinámico
 ```
+
+- Las URLs se construyen siempre con `homeUrl` y `sectionUrl` de `src/i18n/routes.ts`; nunca a mano.
+- La 404 se genera por idioma y el build la mueve a `/404.html` y `/en/404.html` (integración en `astro.config.mjs`); Cloudflare sirve la más cercana a la URL pedida.
 
 ## Fuentes de la verdad
 

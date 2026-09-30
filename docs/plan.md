@@ -16,9 +16,9 @@ Fases pequeñas y en orden. Se trabaja directamente en `main`. Al terminar cada 
 
 ## Fase 1 · Cabecera, pie y páginas vacías
 
-- [ ] `Header` y `Footer` según el artefacto de diseño y `docs/diseno.md`, con selector de idioma.
-- [ ] Páginas vacías: portada, notas, lab, uses y 404, en ambos idiomas.
-- [ ] Textos de interfaz en `src/i18n/`.
+- [x] `Header` y `Footer` según el artefacto de diseño y `docs/diseno.md`, con selector de idioma.
+- [x] Páginas vacías: portada, notas, lab, uses y 404, en ambos idiomas.
+- [x] Textos de interfaz en `src/i18n/`.
 
 ## Fase 2 · Notas
 
