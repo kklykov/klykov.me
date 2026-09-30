@@ -1,5 +1,6 @@
 import { defineCollection } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { file, glob } from 'astro/loaders';
+import { load } from 'js-yaml';
 import { z } from 'astro/zod';
 
 export const tags = ['UX', 'DX', 'IA', 'Arte', 'Proyecto'] as const;
@@ -55,4 +56,37 @@ const lab = defineCollection({
   },
 });
 
-export const collections = { notas, lab };
+// /uses: un único documento (src/data/uses.yaml). Textos por idioma { es, en };
+// un texto plano vale para ambos (nombres de producto, valores técnicos).
+const localized = z.strictObject({ es: z.string(), en: z.string() });
+const text = z.union([z.string(), localized]);
+const row = z.object({ name: text, category: localized, why: localized });
+const sectionBase = { id: z.string().regex(/^[a-z0-9-]+$/), title: localized, intro: localized };
+
+const usesSection = z.union([
+  z.object({ ...sectionBase, kind: z.literal('list').optional(), items: z.array(row).min(1) }),
+  z.object({
+    ...sectionBase,
+    kind: z.literal('spec'),
+    file: z.string(),
+    updated: z.string(),
+    illustration: z.literal('keyboard').optional(),
+    items: z.array(z.object({ key: localized, value: text })).min(1),
+  }),
+  z.object({
+    ...sectionBase,
+    kind: z.literal('coffee'),
+    recipe: z.object({ dose: z.string(), yield: z.string(), time: z.string(), temp: z.string(), coffee: text }),
+    items: z.array(row).default([]),
+  }),
+]);
+
+const uses = defineCollection({
+  loader: file('src/data/uses.yaml', { parser: (yaml) => [{ id: 'uses', ...(load(yaml) as object) }] }),
+  schema: z.object({ updated: z.string(), sections: z.array(usesSection).min(1) }),
+});
+
+export type UsesSection = z.infer<typeof usesSection>;
+export type LocalizedText = z.infer<typeof text>;
+
+export const collections = { notas, lab, uses };

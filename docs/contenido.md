@@ -151,6 +151,10 @@ sections:
 
 Secciones: Desarrollo, Esta web, IA y creatividad, Hardware (`spec`), Teclados (`spec` + ilustración), Periféricos, Café (`coffee`).
 
+- Tipos de sección: lista (sin `kind`: `items` con `name`, `category`, `why`), `spec` (`file`, `updated`, `items` con `key` y `value`; `illustration: keyboard` añade el teclado) y `coffee` (`recipe` y, opcionalmente, `items` como una lista).
+- `name` y `value` pueden ser un texto (igual en ambos idiomas) o `{ es, en }`.
+- Un texto con comas dentro de `{ es: …, en: … }` va entre comillas: si no, YAML lo corta. Si se cuela una clave de más, el build falla.
+
 ## Contexto de la versión IA
 
 - `src/ai/cv.md`: CV en Markdown, **solo con datos públicos**. Nada de teléfono, dirección, salarios ni datos de clientes.

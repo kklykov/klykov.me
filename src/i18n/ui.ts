@@ -58,6 +58,14 @@ const es = {
     keysHint: 'También con las flechas ← → del teclado',
     videoFallback: 'Tu navegador no puede reproducir este vídeo.',
   },
+  uses: {
+    meta: '/uses · actualizado {date}',
+    intro: 'Herramientas, hardware y café. Con el porqué de cada cosa, que es lo que de verdad importa.',
+    index: 'Secciones',
+    updated: 'actualizado {date}',
+    espresso: 'Mi espresso ahora mismo',
+    keyboard: 'Ilustración de un teclado mecánico de 60 % con la tecla Escape en caramelo',
+  },
   tags: {
     UX: 'UX',
     DX: 'DX',
@@ -130,6 +138,14 @@ const en: Ui = {
     next: 'Next',
     keysHint: 'Also with the ← → arrow keys',
     videoFallback: 'Your browser cannot play this video.',
+  },
+  uses: {
+    meta: '/uses · updated {date}',
+    intro: 'Tools, hardware and coffee. With the why behind each one, which is what really matters.',
+    index: 'Sections',
+    updated: 'updated {date}',
+    espresso: 'My espresso right now',
+    keyboard: 'Illustration of a 60% mechanical keyboard with the Escape key in caramel',
   },
   tags: {
     UX: 'UX',

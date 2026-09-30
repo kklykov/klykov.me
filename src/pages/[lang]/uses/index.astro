@@ -1,16 +1,445 @@
 ---
+import Keyboard from '../../../components/Keyboard.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import Base from '../../../layouts/Base.astro';
 import { locales, type Locale } from '../../../i18n/config';
 import { t } from '../../../i18n/ui';
+import { getUses, inLang } from '../../../lib/uses';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
 }
 
-const ui = t(Astro.params.lang as Locale);
+const lang = Astro.params.lang as Locale;
+const ui = t(lang);
+const { updated, sections } = await getUses();
 ---
 
-<Base title={`${ui.pages.uses} · klykov.me`}>
-  <PageHeader>{ui.pages.uses}</PageHeader>
+<Base title={`${ui.pages.uses} · klykov.me`} description={ui.uses.intro}>
+  <PageHeader intro={ui.uses.intro}>
+    <Fragment slot="meta">{ui.uses.meta.replace('{date}', updated)}</Fragment>
+    {ui.pages.uses}
+  </PageHeader>
+
+  <div class="uses" data-uses>
+    <nav class="index" aria-label={ui.uses.index} data-index>
+      {
+        sections.map((section) => (
+          <a href={`#${section.id}`} data-id={section.id}>
+            <span class="bar" aria-hidden="true" />
+            {section.title[lang]}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="content">
+      {
+        sections.map((section) => (
+          <section id={section.id} aria-labelledby={`${section.id}-t`}>
+            <div class="section-head">
+              <h2 id={`${section.id}-t`}>{section.title[lang]}</h2>
+              <p>{section.intro[lang]}</p>
+            </div>
+
+            {section.kind === 'spec' && (
+              <>
+                {section.illustration === 'keyboard' && (
+                  <div class="illustration">
+                    <Keyboard label={ui.uses.keyboard} />
+                  </div>
+                )}
+                <div class="spec">
+                  <div class="spec-head">
+                    <span class="file">{section.file}</span>
+                    <span>{ui.uses.updated.replace('{date}', section.updated)}</span>
+                  </div>
+                  <dl>
+                    {section.items.map((item) => (
+                      <div>
+                        <dt>{item.key[lang]}</dt>
+                        <span class="leader" aria-hidden="true" />
+                        <dd>{inLang(item.value, lang)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              </>
+            )}
+
+            {section.kind === 'coffee' && (
+              <div class="coffee">
+                <p class="coffee-label">{ui.uses.espresso}</p>
+                <p class="recipe">
+                  <span>{section.recipe.dose}</span>
+                  <span class="accent" aria-hidden="true">
+                    →
+                  </span>
+                  <span>{section.recipe.yield}</span>
+                  <span class="extra">
+                    · {section.recipe.time} · {section.recipe.temp}
+                  </span>
+                </p>
+                <p class="coffee-text">{inLang(section.recipe.coffee, lang)}</p>
+              </div>
+            )}
+
+            {section.kind !== 'spec' &&
+              section.items.map((item) => (
+                <div class="row">
+                  <p class="name">
+                    <span>{inLang(item.name, lang)}</span>
+                    <span class="category">{item.category[lang]}</span>
+                  </p>
+                  <p class="why">{item.why[lang]}</p>
+                </div>
+              ))}
+          </section>
+        ))
+      }
+    </div>
+  </div>
 </Base>
+
+<script>
+  // Sección activa del índice. Sin JS, los enlaces son anclas normales.
+  const index = document.querySelector<HTMLElement>('[data-index]');
+  const links = new Map([...document.querySelectorAll<HTMLAnchorElement>('[data-index] a')].map((a) => [a.dataset.id!, a]));
+  const visible = new Set<string>();
+  const order = [...links.keys()];
+
+  const activate = (id: string) => {
+    for (const [key, link] of links) {
+      if (key === id) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    }
+    // En móvil el índice es una barra horizontal: la sección activa se mantiene a la vista.
+    const link = links.get(id)!;
+    if (index && index.scrollWidth > index.clientWidth) {
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      index.scrollTo({ left: link.offsetLeft - 24, behavior: reduce ? 'auto' : 'smooth' });
+    }
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) visible.add(entry.target.id);
+        else visible.delete(entry.target.id);
+      }
+      const current = order.find((id) => visible.has(id));
+      if (current) activate(current);
+    },
+    { rootMargin: '-15% 0px -70% 0px' },
+  );
+
+  for (const id of order) observer.observe(document.getElementById(id)!);
+</script>
+
+<style>
+  /* El desplazamiento suave de las anclas del índice lo hace el navegador. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html:has([data-uses])) {
+      scroll-behavior: smooth;
+    }
+  }
+
+  .uses {
+    padding-inline: var(--gutter-left) var(--gutter-right);
+  }
+
+  /* Móvil: barra de secciones fija arriba, con desplazamiento horizontal. */
+  .index {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    gap: 0.5rem;
+    margin-inline: calc(var(--gutter-left) * -1) calc(var(--gutter-right) * -1);
+    padding: 0.75rem var(--gutter-right) 0.75rem var(--gutter-left);
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(10px);
+    mask-image: linear-gradient(to right, var(--bg) 82%, transparent);
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+  }
+
+  .index a {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding: 0 0.875rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .index a:hover {
+    color: var(--text);
+  }
+
+  .index a[aria-current] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .bar {
+    display: none;
+  }
+
+  section {
+    padding-top: 2.5rem;
+    scroll-margin-top: 4.5rem;
+  }
+
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: clamp(2.5rem, 2.0618rem + 1.7978vw, 3.5rem); /* 40 → 56 */
+    line-height: 1;
+  }
+
+  .section-head p {
+    font-size: clamp(0.9375rem, 0.8827rem + 0.2247vw, 1.0625rem); /* 15 → 17 */
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  /* Filas: nombre y categoría, y el porqué */
+  .row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding-block: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .name {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-size: 1.0625rem;
+    font-weight: 500;
+  }
+
+  .category {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    color: var(--text-faint);
+  }
+
+  .why {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  /* Fichas técnicas */
+  .illustration {
+    padding: 0.5rem 0 1.5rem;
+  }
+
+  .spec {
+    padding: 1.25rem 1.25rem 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    font-family: var(--font-mono);
+  }
+
+  .spec-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--line);
+    font-size: var(--fs-small);
+    color: var(--text-faint);
+  }
+
+  .file {
+    color: var(--accent);
+  }
+
+  dl {
+    margin: 0;
+  }
+
+  dl div {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding-block: 0.75rem;
+  }
+
+  dt {
+    flex-shrink: 0;
+    font-size: var(--fs-meta);
+    color: var(--text-muted);
+  }
+
+  .leader {
+    flex-grow: 1;
+    min-width: 1rem;
+    border-bottom: 1px dotted var(--line-strong);
+    transform: translateY(-4px);
+  }
+
+  dd {
+    font-size: 0.875rem;
+    color: var(--text);
+    text-align: right;
+  }
+
+  /* Tarjeta de café */
+  .coffee {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    padding: 1.5rem 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+  }
+
+  .coffee-label {
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    color: var(--accent);
+  }
+
+  .recipe {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1.25rem;
+    font-family: var(--font-serif);
+    font-size: clamp(2.75rem, 2.2022rem + 2.2472vw, 4rem); /* 44 → 64 */
+    line-height: 1;
+  }
+
+  .accent {
+    color: var(--accent);
+  }
+
+  .extra {
+    font-family: var(--font-mono);
+    font-size: 1.125rem;
+    color: var(--text-muted);
+  }
+
+  .coffee-text {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+
+  /* Escritorio: índice en columna fija y filas en dos columnas. */
+  @media (min-width: 64rem) {
+    .uses {
+      display: grid;
+      grid-template-columns: 12.5rem minmax(0, 51.25rem);
+      gap: 6rem;
+    }
+
+    .index {
+      top: 2.5rem;
+      align-self: start;
+      flex-direction: column;
+      gap: 0;
+      margin: 0;
+      padding: 3.5rem 0 0;
+      overflow: visible;
+      border: 0;
+      background: none;
+      backdrop-filter: none;
+      mask-image: none;
+      font-size: var(--fs-meta);
+    }
+
+    .index a,
+    .index a[aria-current] {
+      gap: 0.625rem;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: none;
+    }
+
+    .index a[aria-current] {
+      color: var(--text);
+    }
+
+    .bar {
+      display: block;
+      width: 20px;
+      height: 1px;
+      margin-right: -20px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--duration) ease;
+    }
+
+    .index a[aria-current] .bar {
+      margin-right: 0;
+      transform: scaleX(1);
+    }
+
+    section {
+      padding-top: 3.5rem;
+      scroll-margin-top: 1.5rem;
+    }
+
+    .section-head {
+      margin-bottom: 1.25rem;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 15rem minmax(0, 1fr);
+      gap: 2rem;
+      padding-block: 1.375rem;
+    }
+
+    .name {
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 0.25rem;
+    }
+
+    .category {
+      font-size: var(--fs-small);
+    }
+
+    .why {
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .illustration {
+      padding-bottom: 2rem;
+    }
+
+    .spec {
+      padding: 1.5rem 2rem 0.5rem;
+    }
+
+    .coffee {
+      padding: 1.75rem 2rem;
+    }
+  }
+</style>

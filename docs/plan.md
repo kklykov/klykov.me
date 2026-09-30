@@ -36,9 +36,9 @@ Fases pequeñas y en orden. Se trabaja directamente en `main`. Al terminar cada 
 
 ## Fase 4 · /uses
 
-- [ ] `uses.yaml` con todas las secciones y sus textos entre corchetes.
-- [ ] Filas, fichas técnicas, ilustración del teclado y tarjeta de café.
-- [ ] Índice con sección activa (escritorio y móvil).
+- [x] `uses.yaml` con todas las secciones y sus textos entre corchetes.
+- [x] Filas, fichas técnicas, ilustración del teclado y tarjeta de café.
+- [x] Índice con sección activa (escritorio y móvil).
 
 ## Fase 5 · Portada estática
 

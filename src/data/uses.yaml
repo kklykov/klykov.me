@@ -1,0 +1,145 @@
+# Contenido de /uses (ver docs/contenido.md).
+# Lo que va entre corchetes lo rellena el autor. Los nombres de producto no se traducen; los porqués sí.
+updated: "[fecha]"
+
+sections:
+  - id: desarrollo
+    title: { es: Desarrollo, en: Development }
+    intro: { es: Lo que abro cada día., en: "[traducción]" }
+    items:
+      - name: Claude Code
+        category: { es: Asistente, en: Assistant }
+        why:
+          es: "A diario, en el trabajo y en proyectos personales. [Cómo lo tienes configurado: CLAUDE.md, comandos, hooks.]"
+          en: "[traducción]"
+      - name: "[Editor]"
+        category: { es: Editor, en: Editor }
+        why: { es: "[Por qué este y no otro.]", en: "[traducción]" }
+      - name: "[Terminal]"
+        category: { es: Terminal, en: Terminal }
+        why: { es: "[Por qué.]", en: "[traducción]" }
+      - name: "[Fuente y tema]"
+        category: { es: Entorno, en: Environment }
+        why: { es: "[Lo que te hace sentir en casa al programar.]", en: "[traducción]" }
+
+  - id: web
+    title: { es: Esta web, en: This site }
+    intro: { es: "Lo que predico, aplicado aquí.", en: "[traducción]" }
+    items:
+      - name: "[Framework]"
+        category: { es: Base, en: Foundation }
+        why: { es: "[Por qué: ligera, estática, buena DX.]", en: "[traducción]" }
+      - name: Instrument Serif · IBM Plex
+        category: { es: Tipografía, en: Typography }
+        why:
+          es: Una serif con carácter para los titulares y una familia sans y mono muy legible para el resto.
+          en: "[traducción]"
+      - name: { es: API de Claude, en: Claude API }
+        category: { es: Versión IA, en: AI version }
+        why:
+          es: El chat del capítulo IA responde con mi CV y mis notas como contexto.
+          en: "[traducción]"
+      - name: "[Hosting]"
+        category: { es: Despliegue, en: Deployment }
+        why: { es: "[Por qué.]", en: "[traducción]" }
+
+  - id: ia
+    title: { es: IA y creatividad, en: AI and creativity }
+    intro: { es: Lo que uso en el Lab., en: "[traducción]" }
+    items:
+      - name: Midjourney
+        category: { es: Imagen, en: Image }
+        why: { es: Donde empecé con la IA generativa de imagen., en: "[traducción]" }
+      - name: "[Herramienta de vídeo]"
+        category: { es: Vídeo, en: Video }
+        why: { es: "[Por qué.]", en: "[traducción]" }
+      - name: "[Herramienta de dibujo]"
+        category: { es: Dibujo, en: Drawing }
+        why: { es: "[Lápiz, tableta o app: lo que uses para dibujar.]", en: "[traducción]" }
+
+  - id: hardware
+    kind: spec
+    title: { es: Hardware, en: Hardware }
+    intro:
+      es: Montado por mí, pieza a pieza. El hardware de PC me apasiona desde pequeño.
+      en: "[traducción]"
+    file: build.txt
+    updated: "[fecha]"
+    items:
+      - key: { es: Procesador, en: CPU }
+        value: "[modelo]"
+      - key: { es: Tarjeta gráfica, en: Graphics card }
+        value: "[modelo]"
+      - key: { es: Placa base, en: Motherboard }
+        value: "[modelo]"
+      - key: { es: Memoria, en: Memory }
+        value: "[capacidad · velocidad]"
+      - key: { es: Almacenamiento, en: Storage }
+        value: "[unidades]"
+      - key: { es: Refrigeración, en: Cooling }
+        value: "[aire / líquida · modelo]"
+      - key: { es: Fuente, en: Power supply }
+        value: "[potencia · certificación]"
+      - key: { es: Caja, en: Case }
+        value: "[modelo]"
+
+  - id: teclados
+    kind: spec
+    illustration: keyboard
+    title: { es: Teclados, en: Keyboards }
+    intro: { es: "El último rabbit hole: teclados mecánicos custom.", en: "[traducción]" }
+    file: teclado.txt
+    updated: "[fecha]"
+    items:
+      - key: { es: Carcasa, en: Case }
+        value: "[modelo · material]"
+      - key: { es: Layout, en: Layout }
+        value: "[60 % / 65 % / TKL…]"
+      - key: { es: PCB, en: PCB }
+        value: "[modelo · hot-swap o soldada]"
+      - key: { es: Placa, en: Plate }
+        value: "[material]"
+      - key: { es: Switches, en: Switches }
+        value: "[modelo · lubricados o no]"
+      - key: { es: Estabilizadores, en: Stabilizers }
+        value: "[modelo]"
+      - key: { es: Keycaps, en: Keycaps }
+        value: "[set · perfil]"
+
+  - id: perifericos
+    title: { es: Periféricos, en: Peripherals }
+    intro: { es: Lo que toco y miro cada día., en: "[traducción]" }
+    items:
+      - name: "[Monitor]"
+        category: { es: Pantalla, en: Display }
+        why: { es: "[Por qué.]", en: "[traducción]" }
+      - name: "[Ratón]"
+        category: { es: Ratón, en: Mouse }
+        why: { es: "[Por qué.]", en: "[traducción]" }
+      - name: "[Auriculares]"
+        category: { es: Audio, en: Audio }
+        why: { es: "[Por qué.]", en: "[traducción]" }
+
+  - id: cafe
+    kind: coffee
+    title: { es: Café, en: Coffee }
+    intro: { es: "Desde 2019, espresso y filtro en casa.", en: "[traducción]" }
+    recipe:
+      dose: "[18] g"
+      yield: "[36] g"
+      time: "[28] s"
+      temp: "[93] °C"
+      coffee: { es: "[Café actual: tostador, origen y proceso.]", en: "[traducción]" }
+    items:
+      - name: "[Cafetera]"
+        category: { es: Espresso, en: Espresso }
+        why: { es: "[Por qué.]", en: "[traducción]" }
+      - name: "[Molinillo]"
+        category: { es: Molienda, en: Grinder }
+        why: { es: "[Por qué: lo más importante del equipo.]", en: "[traducción]" }
+      - name: "[Método]"
+        category: { es: Filtro, en: Filter }
+        why: { es: "[V60, Aeropress, Chemex…]", en: "[traducción]" }
+      - name: "[Báscula]"
+        category: { es: Precisión, en: Scale }
+        why: { es: "[Por qué.]", en: "[traducción]" }

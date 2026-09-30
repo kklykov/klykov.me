@@ -1,0 +1,75 @@
+---
+// Teclado 60 % en SVG. Cada fila son anchos de tecla en unidades (1u = 40 px con 6 px de separación).
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+
+const rows = [
+  [1, ...Array(12).fill(1), 2],
+  [1.5, ...Array(12).fill(1), 1.5],
+  [1.75, ...Array(11).fill(1), 2.25],
+  [2.25, ...Array(10).fill(1), 2.75],
+  [1.25, 1.25, 1.25, 6.25, 1.25, 1.25, 1.25, 1.25],
+];
+
+const PITCH = 40;
+const GAP = 6;
+const keys = rows.flatMap((row, r) => {
+  let x = 3;
+  return row.map((units, i) => {
+    const key = { x, y: 3 + r * PITCH, width: units * PITCH - GAP, escape: r === 0 && i === 0 };
+    x += units * PITCH;
+    return key;
+  });
+});
+---
+
+<svg viewBox="0 0 600 200" role="img" aria-label={label}>
+  {
+    keys.map((k) => (
+      <g class:list={{ escape: k.escape }}>
+        <rect class="key" x={k.x} y={k.y} width={k.width} height="34" rx="6" />
+        <rect class="cap" x={k.x + 6} y={k.y + 4} width={k.width - 12} height="22" rx="4" />
+        {k.escape && (
+          <text x={k.x + k.width / 2} y={k.y + 22} text-anchor="middle">
+            esc
+          </text>
+        )}
+      </g>
+    ))
+  }
+</svg>
+
+<style>
+  svg {
+    width: 100%;
+    max-width: 37.5rem;
+  }
+
+  .key {
+    fill: var(--surface);
+    stroke: var(--line-strong);
+  }
+
+  .cap {
+    fill: none;
+    stroke: var(--line);
+  }
+
+  .escape .key {
+    fill: var(--accent);
+    stroke: var(--accent);
+  }
+
+  .escape .cap {
+    stroke: var(--bg);
+  }
+
+  text {
+    fill: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+</style>
