@@ -43,13 +43,16 @@ src/
 │   ├── cv.md                # CV público (sin datos privados)
 │   └── system-prompt.md     # system prompt de la versión IA
 ├── i18n/                    # idiomas (config.ts), rutas por idioma (routes.ts), textos de interfaz (ui.ts)
-├── lib/                     # notes.ts, lab.ts, uses.ts (carga de cada colección), content.ts (común), format.ts (fechas), code.ts (Shiki)
+├── lib/                     # notes.ts, lab.ts, uses.ts (carga de cada colección), content.ts (común), format.ts (fechas), code.ts (Shiki), chat/ (contrato, límites y contexto del chat)
 ├── styles/                  # tokens.css, global.css, prose.css (Markdown), lab.css (View Transitions), fonts/
 ├── layouts/Base.astro
-├── components/              # Header, Footer, LangSwitch, PageHeader, Filters, EmptyList, Keyboard, Timeline/* (Hero, Timeline, Chapter, Wink, Outro), Chat/*, …
+├── components/              # Header, Footer, LangSwitch, PageHeader, Filters, EmptyList, Keyboard, Timeline/* (Hero, Timeline, Chapter, Wink, Outro), Chat/* (Chat.astro + chat.ts, cargado con import())
 └── pages/
     ├── [lang]/…             # portada, [notes] (listado, [slug], rss.xml), lab (listado, [slug]), uses y 404
     └── api/chat.ts          # único endpoint dinámico
+src/middleware.ts            # devuelve las 404 del Worker a los assets (404 por idioma)
+src/env.d.ts                 # tipos mínimos del Worker (KV, secreto, ASSETS)
+public/                      # favicon, apple-touch-icon, og/ (imágenes para compartir), robots.txt
 ```
 
 - Las URLs se construyen siempre con `homeUrl` y `sectionUrl` de `src/i18n/routes.ts`; nunca a mano.

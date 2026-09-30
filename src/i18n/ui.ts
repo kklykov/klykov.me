@@ -60,6 +60,7 @@ const es = {
   },
   home: {
     tagline: 'Desarrollador · UX · DX · IA · arte',
+    ogAlt: 'klykov.me: De las tablas a la IA. Lo útil por encima de lo bonito.',
     title: { line1: 'De las tablas', line2: 'a la ', em: 'IA', end: '.' },
     intro: 'Más de diez años viendo cambiar la forma de hacer web. Siete capítulos, una sola idea: lo útil por encima de lo bonito.',
     scroll: 'Desliza ↓',
@@ -184,6 +185,7 @@ const en: Ui = {
   },
   home: {
     tagline: 'Developer · UX · DX · AI · art',
+    ogAlt: 'klykov.me: From tables to AI. Useful over pretty.',
     title: { line1: 'From tables', line2: 'to ', em: 'AI', end: '.' },
     intro: 'More than ten years watching the way we build for the web change. Seven chapters, one idea: useful over pretty.',
     scroll: 'Scroll ↓',

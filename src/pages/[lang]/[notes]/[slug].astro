@@ -37,7 +37,7 @@ const { Content } = await render(note.entry);
 const tagList = (list: typeof data.tags) => list.map((tag) => ui.tags[tag]).join(' · ');
 ---
 
-<Base title={`${data.title} · klykov.me`} description={data.description} alternates={alternates}>
+<Base title={`${data.title} · klykov.me`} description={data.description} alternates={alternates} type="article">
   <div class="progress" aria-hidden="true"></div>
 
   <div class="note">

@@ -5,13 +5,13 @@ updated: "[fecha]"
 sections:
   - id: desarrollo
     title: { es: Desarrollo, en: Development }
-    intro: { es: Lo que abro cada día., en: "[traducción]" }
+    intro: { es: Lo que abro cada día., en: What I open every day. }
     items:
       - name: Claude Code
         category: { es: Asistente, en: Assistant }
         why:
           es: "A diario, en el trabajo y en proyectos personales. [Cómo lo tienes configurado: CLAUDE.md, comandos, hooks.]"
-          en: "[traducción]"
+          en: "Every day, at work and on personal projects. [How you have it set up: CLAUDE.md, commands, hooks.]"
       - name: "[Editor]"
         category: { es: Editor, en: Editor }
         why: { es: "[Por qué este y no otro.]", en: "[traducción]" }
@@ -24,7 +24,7 @@ sections:
 
   - id: web
     title: { es: Esta web, en: This site }
-    intro: { es: "Lo que predico, aplicado aquí.", en: "[traducción]" }
+    intro: { es: "Lo que predico, aplicado aquí.", en: "What I preach, applied here." }
     items:
       - name: "[Framework]"
         category: { es: Base, en: Foundation }
@@ -33,23 +33,23 @@ sections:
         category: { es: Tipografía, en: Typography }
         why:
           es: Una serif con carácter para los titulares y una familia sans y mono muy legible para el resto.
-          en: "[traducción]"
+          en: A serif with character for the headlines and a very readable sans and mono family for everything else.
       - name: { es: API de Claude, en: Claude API }
         category: { es: Versión IA, en: AI version }
         why:
           es: El chat del capítulo IA responde con mi CV y mis notas como contexto.
-          en: "[traducción]"
+          en: The chat in the AI chapter answers with my CV and my notes as context.
       - name: "[Hosting]"
         category: { es: Despliegue, en: Deployment }
         why: { es: "[Por qué.]", en: "[traducción]" }
 
   - id: ia
     title: { es: IA y creatividad, en: AI and creativity }
-    intro: { es: Lo que uso en el Lab., en: "[traducción]" }
+    intro: { es: Lo que uso en el Lab., en: What I use in the Lab. }
     items:
       - name: Midjourney
         category: { es: Imagen, en: Image }
-        why: { es: Donde empecé con la IA generativa de imagen., en: "[traducción]" }
+        why: { es: Donde empecé con la IA generativa de imagen., en: Where I started with generative image AI. }
       - name: "[Herramienta de vídeo]"
         category: { es: Vídeo, en: Video }
         why: { es: "[Por qué.]", en: "[traducción]" }
@@ -62,7 +62,7 @@ sections:
     title: { es: Hardware, en: Hardware }
     intro:
       es: Montado por mí, pieza a pieza. El hardware de PC me apasiona desde pequeño.
-      en: "[traducción]"
+      en: "Built by me, piece by piece. I have loved PC hardware since I was a kid."
     file: build.txt
     updated: "[fecha]"
     items:
@@ -87,7 +87,7 @@ sections:
     kind: spec
     illustration: keyboard
     title: { es: Teclados, en: Keyboards }
-    intro: { es: "El último rabbit hole: teclados mecánicos custom.", en: "[traducción]" }
+    intro: { es: "El último rabbit hole: teclados mecánicos custom.", en: "The latest rabbit hole: custom mechanical keyboards." }
     file: teclado.txt
     updated: "[fecha]"
     items:
@@ -108,7 +108,7 @@ sections:
 
   - id: perifericos
     title: { es: Periféricos, en: Peripherals }
-    intro: { es: Lo que toco y miro cada día., en: "[traducción]" }
+    intro: { es: Lo que toco y miro cada día., en: What I touch and look at every day. }
     items:
       - name: "[Monitor]"
         category: { es: Pantalla, en: Display }
@@ -123,7 +123,7 @@ sections:
   - id: cafe
     kind: coffee
     title: { es: Café, en: Coffee }
-    intro: { es: "Desde 2019, espresso y filtro en casa.", en: "[traducción]" }
+    intro: { es: "Desde 2019, espresso y filtro en casa.", en: "Espresso and filter at home since 2019." }
     recipe:
       dose: "[18] g"
       yield: "[36] g"

@@ -8,7 +8,7 @@
   title: { es: "Antes\ndel código", en: "Before\ncode" }
   text:
     es: Videojuegos y dibujo desde muy pequeño. Pantallas por un lado, lápiz y papel por otro.
-    en: "[traducción]"
+    en: "Video games and drawing from a very young age. Screens on one side, pencil and paper on the other."
   wink: level
   snippet:
     code: |
@@ -23,7 +23,7 @@
   title: { es: "HTML\ny CSS", en: "HTML\nand CSS" }
   text:
     es: Páginas maquetadas con tablas y CSS a mano. Cada píxel era una celda.
-    en: "[traducción]"
+    en: "Pages laid out with tables and hand-written CSS. Every pixel was a cell."
   wink: grid
   snippet:
     file: index.html
@@ -42,7 +42,7 @@
   title: { es: jQuery, en: jQuery }
   text:
     es: El DOM por fin se dejaba domar. Un $ para todo.
-    en: "[traducción]"
+    en: "The DOM could finally be tamed. One $ for everything."
   wink: web2
   snippet:
     file: app.js
@@ -60,7 +60,7 @@
   title: { es: MVC, en: MVC }
   text:
     es: Separar datos, lógica y vista. El orden empezó a llamarse arquitectura.
-    en: "[traducción]"
+    en: "Separating data, logic and view. Order started to be called architecture."
   wink: mvc
   snippet:
     file: PostsController.js
@@ -79,7 +79,7 @@
   title: { es: "Micro\nservicios", en: "Micro\nservices" }
   text:
     es: Partir el sistema en piezas pequeñas y descubrir lo que cuesta que hablen entre sí.
-    en: "[traducción]"
+    en: "Splitting the system into small pieces and finding out how hard it is to get them talking to each other."
   wink: services
   snippet:
     file: gateway.yaml
@@ -96,7 +96,7 @@
   title: { es: "Frameworks\nJS", en: "JS\nframeworks" }
   text:
     es: Componentes, estado y un build para cada cosa. La DX pasó a primer plano.
-    en: "[traducción]"
+    en: "Components, state and a build for everything. DX moved to the foreground."
   wink: component
   snippet:
     file: Note.jsx
@@ -112,4 +112,4 @@
   title: { es: IA, en: AI }
   text:
     es: Claude Code en el día a día, en el trabajo y en casa. Y una versión de mí con la que puedes hablar.
-    en: "[traducción]"
+    en: "Claude Code every day, at work and at home. And a version of me you can talk to."
