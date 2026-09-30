@@ -4,7 +4,11 @@ import type { Locale } from '../i18n/config';
 
 export async function getUses() {
   const entry = await getEntry('uses', 'uses');
-  if (!entry) throw new Error('Falta src/data/uses.yaml');
+  if (!entry) {
+    throw new Error(
+      'No se ha podido cargar src/data/uses.yaml: revisa el terminal (formato o esquema). En desarrollo, reinicia el servidor.',
+    );
+  }
   return entry.data;
 }
 
