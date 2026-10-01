@@ -421,7 +421,7 @@ const first = chapters[0];
   }
 
   /* Sin scroll-margin: la barra se superpone al margen superior del capítulo (como en el diseño),
-     así cada capítulo de 100svh cabe entero en pantalla al llegar con el índice o al deslizar. */
+     así el contenido de cada capítulo cabe entero en pantalla al llegar con el índice o al deslizar. */
 
   /* ——— Escritorio: barra superior y menú, solo en horizontal ——— */
   .dbar,
@@ -561,7 +561,13 @@ const first = chapters[0];
     }
 
     :global(.chapter) {
-      padding-bottom: max(3rem, calc(env(safe-area-inset-bottom) + 1.5rem));
+      padding-bottom: calc(max(3rem, calc(env(safe-area-inset-bottom) + 1.5rem)) + var(--bars));
+    }
+
+    /* Con el chat abierto, sin ajuste: el teclado cambia el área visible y el ajuste podría
+       devolver la página al inicio del capítulo, con el campo de texto debajo del teclado. */
+    :global(html:has([data-chapter][data-chat-open])) {
+      scroll-snap-type: none;
     }
   }
 </style>

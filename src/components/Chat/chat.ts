@@ -124,6 +124,38 @@ export function openChat(root: HTMLElement) {
     form.removeAttribute('data-busy');
   }
 
+  // Móvil: al abrirse el teclado, el navegador centra el campo y deja un hueco debajo. El formulario
+  // se coloca justo encima del teclado y, al cerrarse, la página vuelve a donde estaba.
+  // En la línea temporal horizontal no: ahí desplazar la página mueve la pista.
+  function followKeyboard() {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    const timeline = root.closest<HTMLElement>('[data-timeline]');
+    let full = 0; // alto visible antes de abrirse el teclado
+    let before = 0; // desplazamiento de la página antes de abrirse el teclado
+    let lifted = false;
+
+    input.addEventListener('focus', () => {
+      if (lifted) return;
+      full = viewport.height;
+      before = scrollY;
+    });
+    viewport.addEventListener('resize', () =>
+      requestAnimationFrame(() => {
+        if (timeline?.dataset.mode === 'horizontal') return;
+        const keyboard = full - viewport.height > 150; // más que las barras del navegador
+        if (keyboard && document.activeElement === input) {
+          const gap = form.getBoundingClientRect().bottom + 16 - (viewport.offsetTop + viewport.height);
+          if (Math.abs(gap) > 1) scrollBy({ top: gap, behavior: 'instant' });
+          lifted = true;
+        } else if (lifted && !keyboard) {
+          scrollTo({ top: before, behavior: 'instant' });
+          lifted = false;
+        }
+      }),
+    );
+  }
+
   if (!initialized.has(root)) {
     initialized.add(root);
     $('[data-chat-close]').addEventListener('click', close);
@@ -137,6 +169,7 @@ export function openChat(root: HTMLElement) {
     panel.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') close();
     });
+    followKeyboard();
   }
   open();
 }

@@ -40,9 +40,11 @@ const ui = t(lang).home;
     flex-direction: column;
     justify-content: space-between;
     gap: 2rem;
-    min-height: 100svh;
+    /* Como los capítulos (Chapter.astro): alto con las barras del navegador ocultas y su diferencia abajo. */
+    min-height: 100lvh;
     /* La barra va donde la cabecera del resto de páginas: misma altura, tamaño y color. */
-    padding: max(var(--header-pad-y), env(safe-area-inset-top)) var(--gutter-right) 2.5rem var(--gutter-left);
+    padding: max(var(--header-pad-y), env(safe-area-inset-top)) var(--gutter-right) calc(2.5rem + 100lvh - 100svh)
+      var(--gutter-left);
     font-family: var(--font-mono);
     font-size: var(--fs-nav);
     color: var(--text-muted);

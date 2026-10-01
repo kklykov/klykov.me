@@ -82,13 +82,16 @@ const textWithHeading = !data.snippet;
   }
 
   .chapter {
+    /* Alto de pantalla con las barras del navegador ocultas (lvh): al ocultarse no asoma el capítulo
+       siguiente. Lo que ocupan las barras (--bars) va al margen inferior, así el contenido cabe con ellas (svh). */
+    --bars: calc(100lvh - 100svh);
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    min-height: 100svh;
-    padding: 4.5rem var(--gutter-right) 3rem var(--gutter-left);
+    min-height: 100lvh;
+    padding: 4.5rem var(--gutter-right) calc(3rem + var(--bars)) var(--gutter-left);
   }
 
   .number {
