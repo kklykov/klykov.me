@@ -225,7 +225,7 @@ const first = chapters[0];
 
     // Escritorio: ir a un capítulo es desplazarse a su punto del recorrido.
     function goTo(i: number, smooth = !reduce.matches) {
-      scrollTo({ top: start + (i / last) * travel, behavior: smooth ? 'smooth' : 'auto' });
+      scrollTo({ top: start + (i / last) * travel, behavior: smooth ? 'smooth' : 'instant' });
     }
 
     ticks.forEach((tick, i) => tick.addEventListener('click', () => goTo(i)));
@@ -238,11 +238,12 @@ const first = chapters[0];
     });
 
     // Anclas #capitulo-0X: en horizontal, al punto del recorrido.
-    function followHash() {
+    // Al cargar, directo; al pulsar un ancla ("Desliza ↓"), con desplazamiento suave.
+    function followHash(smooth = false) {
       const i = chapters.findIndex((c) => `#${c.id}` === location.hash);
-      if (mode === 'horizontal' && i >= 0) goTo(i, false);
+      if (mode === 'horizontal' && i >= 0) goTo(i, smooth && !reduce.matches);
     }
-    addEventListener('hashchange', followHash);
+    addEventListener('hashchange', () => followHash(true));
 
     // Móvil: índice desplegable
     function closeIndex(focus = true) {
@@ -541,6 +542,13 @@ const first = chapters[0];
   .tick:focus-visible .tick-name {
     opacity: 1;
     transform: none;
+  }
+
+  /* Anclas de la portada ("Desliza ↓", índice de móvil) con desplazamiento suave */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html:has([data-timeline])) {
+      scroll-behavior: smooth;
+    }
   }
 
   /* Móvil: capítulos a pantalla completa con ajuste suave al desplazarse */

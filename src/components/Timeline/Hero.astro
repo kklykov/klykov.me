@@ -29,7 +29,9 @@ const ui = t(lang).home;
     <p class="intro">{ui.intro}</p>
   </div>
 
-  <span class="scroll" aria-hidden="true">{ui.scroll}</span>
+  <a class="scroll" href="#capitulo-00">
+    <span>{ui.scroll}<span class="visually-hidden"> {ui.scrollTo}</span> <span aria-hidden="true">↓</span></span>
+  </a>
 </section>
 
 <style>
@@ -39,9 +41,10 @@ const ui = t(lang).home;
     justify-content: space-between;
     gap: 2rem;
     min-height: 100svh;
-    padding: max(3.5rem, env(safe-area-inset-top)) var(--gutter-right) 2.5rem var(--gutter-left);
+    /* La barra va donde la cabecera del resto de páginas: misma altura, tamaño y color. */
+    padding: max(var(--header-pad-y), env(safe-area-inset-top)) var(--gutter-right) 2.5rem var(--gutter-left);
     font-family: var(--font-mono);
-    font-size: var(--fs-meta);
+    font-size: var(--fs-nav);
     color: var(--text-muted);
   }
 
@@ -131,6 +134,20 @@ const ui = t(lang).home;
     color: var(--accent);
   }
 
+  /* "Desliza ↓": ancla al capítulo 00, con el estilo de los enlaces secundarios. */
+  .scroll {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    min-height: var(--tap);
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .scroll:hover {
+    color: var(--text);
+  }
+
   .intro {
     max-width: 28.75rem;
     font-family: var(--font-sans);
@@ -148,9 +165,7 @@ const ui = t(lang).home;
         'bar bar'
         'title title'
         'intro scroll';
-      padding-top: max(2.5rem, env(safe-area-inset-top));
       padding-bottom: 3rem;
-      font-size: 0.875rem;
     }
 
     .bar {
