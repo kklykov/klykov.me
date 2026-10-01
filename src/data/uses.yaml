@@ -1,6 +1,6 @@
 # Contenido de /uses (ver docs/contenido.md).
 # Lo que va entre corchetes lo rellena el autor. Los nombres de producto no se traducen; los porqués sí.
-updated: "[fecha]"
+updated: "2026-09-30"
 
 sections:
   - id: desarrollo
@@ -10,25 +10,22 @@ sections:
       - name: Claude Code
         category: { es: Asistente, en: Assistant }
         why:
-          es: "A diario, en el trabajo y en proyectos personales. [Cómo lo tienes configurado: CLAUDE.md, comandos, hooks.]"
-          en: "Every day, at work and on personal projects. [How you have it set up: CLAUDE.md, commands, hooks.]"
-      - name: "[Editor]"
+          es: "A diario, en el trabajo y en proyectos personales. Con un CLAUDE.md por proyecto y comandos propios para lo repetitivo, como traducir las notas de esta web."
+          en: "Every day, at work and on personal projects. With a CLAUDE.md per project and custom commands for repetitive work, like translating the notes on this site."
+      - name: "Cursor"
         category: { es: Editor, en: Editor }
-        why: { es: "[Por qué este y no otro.]", en: "[traducción]" }
-      - name: "[Terminal]"
+        why: { es: "Empecé con VS Code y me pasé a Cursor por lo rápido que dejaba probar modelos nuevos. Hoy lo uso junto a Claude Code y sigo en él por comodidad, con todo ya montado.", en: "I started with VS Code and switched to Cursor because it let me try new models so quickly. Today I use it alongside Claude Code, and I stick with it because everything is already set up." }
+      - name: "Warp / Git bash"
         category: { es: Terminal, en: Terminal }
-        why: { es: "[Por qué.]", en: "[traducción]" }
-      - name: "[Fuente y tema]"
-        category: { es: Entorno, en: Environment }
-        why: { es: "[Lo que te hace sentir en casa al programar.]", en: "[traducción]" }
+        why: { es: "Warp para el día a día; Git Bash cuando necesito un entorno Unix en Windows.", en: "Warp for everyday work; Git Bash when I need a Unix environment on Windows." }
 
   - id: web
     title: { es: Esta web, en: This site }
     intro: { es: "Lo que predico, aplicado aquí.", en: "What I preach, applied here." }
     items:
-      - name: "[Framework]"
+      - name: "Astro"
         category: { es: Base, en: Foundation }
-        why: { es: "[Por qué: ligera, estática, buena DX.]", en: "[traducción]" }
+        why: { es: "Cero JavaScript por defecto, contenido en Markdown y una DX excelente. Justo lo que necesita una web personal.", en: "Zero JavaScript by default, content in Markdown and excellent DX. Exactly what a personal site needs." }
       - name: Instrument Serif · IBM Plex
         category: { es: Tipografía, en: Typography }
         why:
@@ -39,23 +36,20 @@ sections:
         why:
           es: El chat del capítulo IA responde con mi CV y mis notas como contexto.
           en: The chat in the AI chapter answers with my CV and my notes as context.
-      - name: "[Hosting]"
+      - name: "Cloudflare"
         category: { es: Despliegue, en: Deployment }
-        why: { es: "[Por qué.]", en: "[traducción]" }
+        why: { es: "Se publica sola con cada push, se sirve desde una CDN global y el plan gratuito no limita la transferencia. Para una web personal que no da dinero, es perfecto.", en: "It deploys itself on every push, it is served from a global CDN and the free plan does not cap bandwidth. For a personal site that makes no money, it is perfect." }
 
   - id: ia
     title: { es: IA y creatividad, en: AI and creativity }
-    intro: { es: Lo que uso en el Lab., en: What I use in the Lab. }
+    intro: { es: Con lo que creo., en: What I create with. }
     items:
       - name: Midjourney
         category: { es: Imagen, en: Image }
         why: { es: Donde empecé con la IA generativa de imagen., en: Where I started with generative image AI. }
-      - name: "[Herramienta de vídeo]"
-        category: { es: Vídeo, en: Video }
-        why: { es: "[Por qué.]", en: "[traducción]" }
-      - name: "[Herramienta de dibujo]"
+      - name: { es: Lápiz y papel, en: Pencil and paper }
         category: { es: Dibujo, en: Drawing }
-        why: { es: "[Lápiz, tableta o app: lo que uses para dibujar.]", en: "[traducción]" }
+        why: { es: "Lo primero con lo que creé algo, mucho antes del código.", en: "The first things I ever made something with, long before code." }
 
   - id: hardware
     kind: spec
@@ -64,24 +58,23 @@ sections:
       es: Montado por mí, pieza a pieza. El hardware de PC me apasiona desde pequeño.
       en: "Built by me, piece by piece. I have loved PC hardware since I was a kid."
     file: build.txt
-    updated: "[fecha]"
     items:
       - key: { es: Procesador, en: CPU }
-        value: "[modelo]"
+        value: "AMD Ryzen 9 9950X3D"
       - key: { es: Tarjeta gráfica, en: Graphics card }
-        value: "[modelo]"
+        value: "Asus Prime RTX 5080"
       - key: { es: Placa base, en: Motherboard }
-        value: "[modelo]"
+        value: "MSI PRO X870E-P WiFi"
       - key: { es: Memoria, en: Memory }
-        value: "[capacidad · velocidad]"
+        value: "64 GB DDR5 6000 Mhz · Corsair Vengeance"
       - key: { es: Almacenamiento, en: Storage }
-        value: "[unidades]"
+        value: "4 TB · Samsung SSD 990 PRO"
       - key: { es: Refrigeración, en: Cooling }
-        value: "[aire / líquida · modelo]"
+        value: "CORSAIR iCUE LINK TITAN 360 RX"
       - key: { es: Fuente, en: Power supply }
-        value: "[potencia · certificación]"
+        value: "1000 W 80 PLUS Platinum · Corsair HX1000i"
       - key: { es: Caja, en: Case }
-        value: "[modelo]"
+        value: "Corsair iCUE 4000X RGB"
 
   - id: teclados
     kind: spec
@@ -89,57 +82,61 @@ sections:
     title: { es: Teclados, en: Keyboards }
     intro: { es: "El último rabbit hole: teclados mecánicos custom.", en: "The latest rabbit hole: custom mechanical keyboards." }
     file: teclado.txt
-    updated: "[fecha]"
     items:
       - key: { es: Carcasa, en: Case }
-        value: "[modelo · material]"
+        value: { es: Keychron Q1 Pro · aluminio CNC, en: Keychron Q1 Pro · CNC aluminum }
       - key: { es: Layout, en: Layout }
-        value: "[60 % / 65 % / TKL…]"
+        value: { es: 75 % ISO español · con rueda, en: 75% Spanish ISO · with knob }
+      - key: { es: Montaje, en: Mount }
+        value: Gasket
       - key: { es: PCB, en: PCB }
-        value: "[modelo · hot-swap o soldada]"
+        value: { es: "Hot-swap, 3 y 5 pines · QMK/VIA · inalámbrico", en: "Hot-swap, 3 and 5 pin · QMK/VIA · wireless" }
       - key: { es: Placa, en: Plate }
-        value: "[material]"
+        value: { es: Policarbonato (PC), en: Polycarbonate (PC) }
       - key: { es: Switches, en: Switches }
-        value: "[modelo · lubricados o no]"
+        value: Keychron K Pro Red
       - key: { es: Estabilizadores, en: Stabilizers }
-        value: "[modelo]"
+        value: { es: Atornillados a la PCB, en: PCB screw-in }
       - key: { es: Keycaps, en: Keycaps }
-        value: "[set · perfil]"
+        value: { es: PBT double-shot · perfil KSA, en: Double-shot PBT · KSA profile }
 
   - id: perifericos
     title: { es: Periféricos, en: Peripherals }
     intro: { es: Lo que toco y miro cada día., en: What I touch and look at every day. }
     items:
-      - name: "[Monitor]"
+      - name: "Dell S2722QC 4K IPS + ASUS ROG PG27UCDM 4K OLED"
         category: { es: Pantalla, en: Display }
-        why: { es: "[Por qué.]", en: "[traducción]" }
-      - name: "[Ratón]"
+        why: { es: "Una IPS 4K para leer código con nitidez y una OLED 4K para jugar y ver series y películas con negros de verdad.", en: "A 4K IPS for crisp code and a 4K OLED for gaming and watching shows and movies with true blacks." }
+      - name: "SteelSeries Prime Wireless"
         category: { es: Ratón, en: Mouse }
-        why: { es: "[Por qué.]", en: "[traducción]" }
-      - name: "[Auriculares]"
+        why: { es: "Barato, ligero, preciso y sin cables. Sirve igual para trabajar que para jugar.", en: "Cheap, light, accurate and wireless. Just as good for work as for gaming." }
+      - name: "Beyerdynamic DT 900 PRO X + FiiO K11"
         category: { es: Audio, en: Audio }
-        why: { es: "[Por qué.]", en: "[traducción]" }
+        why: { es: "Auriculares abiertos para pasar horas sin fatiga y un DAC de escritorio para sacarles todo el partido sin depender de la tarjeta de sonido.", en: "Open-back headphones for long hours without fatigue, and a desktop DAC to get the most out of them without relying on the sound card." }
 
   - id: cafe
     kind: coffee
     title: { es: Café, en: Coffee }
     intro: { es: "Desde 2019, espresso y filtro en casa.", en: "Espresso and filter at home since 2019." }
     recipe:
-      dose: "[18] g"
-      yield: "[36] g"
-      time: "[28] s"
-      temp: "[93] °C"
-      coffee: { es: "[Café actual: tostador, origen y proceso.]", en: "[traducción]" }
+      dose: "20g"
+      yield: "40g"
+      time: "25-28s"
+      temp: "94°C"
+      coffee: { es: "Suscripción café espresso de especialidad Right Side Coffee", en: "Right Side Coffee specialty espresso subscription" }
     items:
-      - name: "[Cafetera]"
+      - name: "Sage Barista Pro"
         category: { es: Espresso, en: Espresso }
-        why: { es: "[Por qué.]", en: "[traducción]" }
-      - name: "[Molinillo]"
-        category: { es: Molienda, en: Grinder }
-        why: { es: "[Por qué: lo más importante del equipo.]", en: "[traducción]" }
-      - name: "[Método]"
-        category: { es: Filtro, en: Filter }
-        why: { es: "[V60, Aeropress, Chemex…]", en: "[traducción]" }
-      - name: "[Báscula]"
-        category: { es: Precisión, en: Scale }
-        why: { es: "[Por qué.]", en: "[traducción]" }
+        why: { es: "Ideal para empezar, buena relación calidad precio, compacta y duradera", en: "Great for getting started: good value for money, compact and durable" }
+      - name: "Eureka Mignon Zero"
+        category: { es: Molinillo, en: Grinder }
+        why: { es: "Flat burr de 55mm, silenciosa, rápida y casi cero retención.", en: "55mm flat burrs, quiet, fast and almost zero retention." }
+      - name: "V60"
+        category: { es: Filtro, en: Pour-over }
+        why: { es: "Simple, efectivo y flexible con la receta que utilices.", en: "Simple, effective and flexible with whatever recipe you use." }
+      - name: Timemore Fish Smart
+        category: { es: Hervidor, en: Kettle }
+        why: { es: "Cuello de cisne para controlar el vertido y temperatura exacta.", en: "A gooseneck to control the pour, and an exact temperature." }
+      - name: "Timemore Black Mirror Nano"
+        category: { es: Báscula, en: Scale }
+        why: { es: "Precisa y rápida, ideal para espresso o filtro con V60.", en: "Accurate and fast, ideal for espresso or V60 pour-over." }

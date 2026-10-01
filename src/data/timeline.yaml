@@ -108,7 +108,7 @@
 - id: "06"
   code: ">06"
   font: serif
-  year: { es: "[año] → hoy", en: "[año] → today" }
+  year: { es: "2023 → hoy", en: "2023 → today" }
   title: { es: IA, en: AI }
   text:
     es: Claude Code en el día a día, en el trabajo y en casa. Y una versión de mí con la que puedes hablar.

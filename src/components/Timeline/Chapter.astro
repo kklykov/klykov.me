@@ -2,7 +2,7 @@
 // Un capítulo de la línea temporal. Completo y legible sin JS; la versión horizontal es una mejora.
 import type { CollectionEntry } from 'astro:content';
 import type { Locale } from '../../i18n/config';
-import { inLang } from '../../lib/content';
+import { localize } from '../../i18n/localize';
 import Wink from './Wink.astro';
 
 interface Props {
@@ -31,7 +31,7 @@ const textWithHeading = !data.snippet;
 
   <div class="content">
     <div class="heading">
-      <p class="label"><span class="code">{data.code}</span> · {inLang(data.year, lang)}</p>
+      <p class="label"><span class="code">{data.code}</span> · {localize(data.year, lang)}</p>
       <h2 id={titleId}>{data.title[lang]}</h2>
       {textWithHeading && <p class="text">{data.text[lang]}</p>}
     </div>

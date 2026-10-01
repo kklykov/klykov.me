@@ -136,7 +136,7 @@ Los textos iniciales de cada capítulo (título, párrafo, fragmento de código 
 `src/data/uses.yaml`. Los nombres de producto no se traducen; los porqués sí.
 
 ```yaml
-updated: "[fecha]"
+updated: "2026-09-30"     # fecha general; se muestra como "30 sep 2026" / "Sep 30, 2026"
 sections:
   - id: desarrollo
     title: { es: Desarrollo, en: Development }
@@ -158,9 +158,9 @@ sections:
 
 Secciones: Desarrollo, Esta web, IA y creatividad, Hardware (`spec`), Teclados (`spec` + ilustración), Periféricos, Café (`coffee`).
 
-- Tipos de sección: lista (sin `kind`: `items` con `name`, `category`, `why`), `spec` (`file`, `updated`, `items` con `key` y `value`; `illustration: keyboard` añade el teclado) y `coffee` (`recipe` y, opcionalmente, `items` como una lista).
-- `name` y `value` pueden ser un texto (igual en ambos idiomas) o `{ es, en }`.
-- Un texto con comas dentro de `{ es: …, en: … }` va entre comillas: si no, YAML lo corta. Si se cuela una clave de más, el build falla.
+- Tipos de sección: lista (sin `kind`: `items` con `name`, `category`, `why`), `spec` (`file` e `items` con `key` y `value`; `illustration: keyboard` añade el teclado) y `coffee` (`recipe` y, opcionalmente, `items` como una lista).
+- Todos los campos de texto (`title`, `intro`, `name`, `category`, `why`, `key`, `value`, `recipe.coffee`) pueden ser un texto plano (igual en ambos idiomas) o `{ es, en }`. En el código se leen con `localize(valor, lang)` de `src/i18n/localize.ts`.
+- Un texto con comas dentro de `{ es: …, en: … }` va entre comillas: si no, YAML lo corta en la coma y solo se ve la primera parte (el esquema no lo detecta).
 
 ## Contexto de la versión IA
 

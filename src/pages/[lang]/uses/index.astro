@@ -3,8 +3,9 @@ import Keyboard from '../../../components/Keyboard.astro';
 import PageHeader from '../../../components/PageHeader.astro';
 import Base from '../../../layouts/Base.astro';
 import { locales, type Locale } from '../../../i18n/config';
+import { localize } from '../../../i18n/localize';
 import { t } from '../../../i18n/ui';
-import { inLang } from '../../../lib/content';
+import { formatShortDate, isoDate } from '../../../lib/format';
 import { getUses } from '../../../lib/uses';
 
 export function getStaticPaths() {
@@ -14,11 +15,14 @@ export function getStaticPaths() {
 const lang = Astro.params.lang as Locale;
 const ui = t(lang);
 const { updated, sections } = await getUses();
+const [metaBefore, metaAfter] = ui.uses.meta.split('{date}');
 ---
 
 <Base title={`${ui.pages.uses} · klykov.me`} description={ui.uses.intro}>
   <PageHeader intro={ui.uses.intro}>
-    <Fragment slot="meta">{ui.uses.meta.replace('{date}', updated)}</Fragment>
+    <Fragment slot="meta">
+      {metaBefore}<time datetime={isoDate(updated)}>{formatShortDate(updated, lang)}</time>{metaAfter}
+    </Fragment>
     {ui.pages.uses}
   </PageHeader>
 
@@ -28,7 +32,7 @@ const { updated, sections } = await getUses();
         sections.map((section) => (
           <a href={`#${section.id}`} data-id={section.id}>
             <span class="bar" aria-hidden="true" />
-            {section.title[lang]}
+            {localize(section.title, lang)}
           </a>
         ))
       }
@@ -39,8 +43,8 @@ const { updated, sections } = await getUses();
         sections.map((section) => (
           <section id={section.id} aria-labelledby={`${section.id}-t`}>
             <div class="section-head">
-              <h2 id={`${section.id}-t`}>{section.title[lang]}</h2>
-              <p>{section.intro[lang]}</p>
+              <h2 id={`${section.id}-t`}>{localize(section.title, lang)}</h2>
+              <p>{localize(section.intro, lang)}</p>
             </div>
 
             {section.kind === 'spec' && (
@@ -51,16 +55,13 @@ const { updated, sections } = await getUses();
                   </div>
                 )}
                 <div class="spec">
-                  <div class="spec-head">
-                    <span class="file">{section.file}</span>
-                    <span>{ui.uses.updated.replace('{date}', section.updated)}</span>
-                  </div>
+                  <p class="spec-head">{section.file}</p>
                   <dl>
                     {section.items.map((item) => (
                       <div>
-                        <dt>{item.key[lang]}</dt>
+                        <dt>{localize(item.key, lang)}</dt>
                         <span class="leader" aria-hidden="true" />
-                        <dd>{inLang(item.value, lang)}</dd>
+                        <dd>{localize(item.value, lang)}</dd>
                       </div>
                     ))}
                   </dl>
@@ -81,7 +82,7 @@ const { updated, sections } = await getUses();
                     · {section.recipe.time} · {section.recipe.temp}
                   </span>
                 </p>
-                <p class="coffee-text">{inLang(section.recipe.coffee, lang)}</p>
+                <p class="coffee-text">{localize(section.recipe.coffee, lang)}</p>
               </div>
             )}
 
@@ -89,10 +90,10 @@ const { updated, sections } = await getUses();
               section.items.map((item) => (
                 <div class="row">
                   <p class="name">
-                    <span>{inLang(item.name, lang)}</span>
-                    <span class="category">{item.category[lang]}</span>
+                    <span>{localize(item.name, lang)}</span>
+                    <span class="category">{localize(item.category, lang)}</span>
                   </p>
-                  <p class="why">{item.why[lang]}</p>
+                  <p class="why">{localize(item.why, lang)}</p>
                 </div>
               ))}
           </section>
@@ -263,16 +264,9 @@ const { updated, sections } = await getUses();
   }
 
   .spec-head {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--line);
     font-size: var(--fs-small);
-    color: var(--text-faint);
-  }
-
-  .file {
     color: var(--accent);
   }
 
