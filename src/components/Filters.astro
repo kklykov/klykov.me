@@ -1,6 +1,7 @@
 ---
 /**
- * Filtros como mejora progresiva. Sin JS no aparecen y se ve todo.
+ * Filtros como mejora progresiva. "Todas" está siempre (seleccionada: sin JS se ve todo), así la fila
+ * ocupa su sitio desde el principio y no empuja la lista. El resto de opciones entra con el JS.
  * Filtra los elementos `[data-filter-item]` según su `data-filter-values` (separados por espacios).
  * Si hay un `[data-filter-count]` con `data-one` y `data-other` (con `{n}`), actualiza el recuento.
  */
@@ -13,10 +14,16 @@ interface Props {
 const { label, options } = Astro.props;
 ---
 
-<div class="filters" role="group" aria-label={label} data-filters hidden>
+<div class="filters" role="group" aria-label={label} data-filters>
   {
     options.map((option, i) => (
-      <button type="button" aria-pressed={i === 0 ? 'true' : 'false'} data-value={option.value}>
+      <button
+        type="button"
+        aria-pressed={i === 0 ? 'true' : 'false'}
+        data-value={option.value}
+        hidden={i > 0}
+        style={i > 0 ? `--i: ${i}` : undefined}
+      >
         {option.label}
       </button>
     ))
@@ -29,7 +36,8 @@ const { label, options } = Astro.props;
   const items = document.querySelectorAll<HTMLElement>('[data-filter-item]');
 
   if (group) {
-    group.hidden = false;
+    for (const button of group.querySelectorAll('button')) button.hidden = false;
+    group.toggleAttribute('data-ready', true);
     group.addEventListener('click', (event) => {
       const button = (event.target as HTMLElement).closest('button');
       if (!button) return;
@@ -55,8 +63,23 @@ const { label, options } = Astro.props;
     scrollbar-width: none;
   }
 
-  .filters[hidden] {
+  button[hidden] {
     display: none;
+  }
+
+  /* Las opciones que llegan con el JS entran hacia la derecha, escalonadas. */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-ready] button:not(:first-child) {
+      animation: chip-in 320ms var(--ease-out) both;
+      animation-delay: calc(var(--i) * 40ms);
+    }
+  }
+
+  @keyframes chip-in {
+    from {
+      opacity: 0;
+      transform: translateX(-8px);
+    }
   }
 
   button {

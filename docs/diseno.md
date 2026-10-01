@@ -8,7 +8,7 @@
 - `clamp()` para interpolar tamaños de letra y márgenes entre las medidas de móvil y de escritorio del artefacto.
 - Solo se animan `transform` y `opacity`.
 - `prefers-reduced-motion: reduce`: sin parallax, sin transiciones, sin efecto de escritura en el chat y sin View Transitions.
-- Sin JS, todo el contenido es visible y navegable. Los filtros y el índice de capítulos se ocultan.
+- Sin JS, todo el contenido es visible y navegable. El índice de capítulos se oculta; de los filtros solo se ve "Todas", seleccionada.
 - Las tipografías de época (Times New Roman, Verdana) son del sistema: no se descargan.
 
 ## Cabecera y pie
@@ -53,7 +53,7 @@
 
 ## Notas y Lab
 
-- Filtros como mejora progresiva, con `aria-pressed`. Sin JS, se ven todas las piezas.
+- Filtros como mejora progresiva, con `aria-pressed`. "Todas" está siempre en el HTML, seleccionada, para que la fila ocupe su sitio desde el principio y no empuje la lista. El resto de opciones aparecen con el JS con una entrada sutil hacia la derecha (`opacity` y `transform`, escalonada; sin animación con movimiento reducido). Sin JS, se ven todas las piezas.
 - Barra de progreso de lectura solo con CSS (`animation-timeline: scroll()`); si no hay soporte, no aparece.
 - Bloques de código con Shiki (incluido en Astro) y un tema propio con los colores del diseño.
 - Experimento: `<video>` con `poster`, `controls`, `playsinline` y `preload="metadata"`. **Nunca** reproducción automática. Anterior y siguiente también con las flechas del teclado (sin capturarlas si el foco está en un control).
