@@ -1,6 +1,7 @@
 <!--
   CV público para la versión IA (ver docs/contenido.md → "Contexto de la versión IA").
   Solo datos públicos: nada de teléfono, dirección, email personal, salarios ni nombres de clientes.
+  Los emails de contacto de la web (hola@ / hello@) sí son públicos.
   Fuente: CV del autor (2023), con su trabajo actual en Parallel. Este comentario no se envía al modelo.
 -->
 
@@ -64,5 +65,6 @@ Español (bilingüe), catalán (alto), inglés (medio) y ruso (medio).
 ## Enlaces
 
 - Web: klykov.me
+- Email: hola@klykov.me (en español) · hello@klykov.me (en inglés)
 - LinkedIn: linkedin.com/in/kklykov
 - GitHub: github.com/kklykov

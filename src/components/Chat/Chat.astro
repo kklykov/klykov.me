@@ -11,7 +11,7 @@ interface Props {
 
 const { lang } = Astro.props;
 const ui = t(lang).chat;
-const errors = Object.fromEntries(Object.entries(ui.errors).map(([code, text]) => [code, text.replace('{email}', links.email)]));
+const errors = Object.fromEntries(Object.entries(ui.errors).map(([code, text]) => [code, text.replace('{email}', links.email[lang])]));
 const strings = JSON.stringify({ greeting: ui.greeting, errors });
 ---
 

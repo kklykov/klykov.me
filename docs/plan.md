@@ -8,9 +8,9 @@ Fases pequeñas y en orden. Se trabaja directamente en `main`. Al terminar cada 
 
 Contenido (buscar `[` en los archivos):
 
-- [ ] Email del pie en `src/data/links.ts` (ahora `[email]`). Recomendado: un alias como `hola@klykov.me` con Cloudflare Email Routing, cuando el dominio esté en Cloudflare, para no publicar el correo personal. También aparece en los errores del chat.
-- [ ] Años de la línea temporal (`[año]`) en `src/data/timeline.yaml`.
-- [ ] `/uses`: modelos, porqués, receta del café y fechas en `src/data/uses.yaml`. Las traducciones que faltan están marcadas como `[traducción]`: se pueden generar con `/traducir` cuando el español esté escrito.
+- [x] Email del pie y del chat: hola@klykov.me (es) y hello@klykov.me (en), en `src/data/links.ts`.
+- [x] Años de la línea temporal (orientativos: el pico de cada tecnología).
+- [x] `/uses` completo en español e inglés.
 - [ ] Nota de ejemplo: revisar el texto (sale del artefacto) y su versión en inglés `en.md`.
 - [ ] Revisar los textos de interfaz en inglés de `src/i18n/ui.ts` (los traduje yo) y las traducciones de la línea temporal y /uses.
 - [x] Piezas iniciales del Lab (`estudio-de-luz`, `horizonte-caramelo`, generadas con código) completadas sin marcadores. Opcional: añadir o sustituir por experimentos reales con `/nuevo-experimento`.
@@ -19,7 +19,7 @@ Chat de la versión IA:
 
 - [x] `src/ai/cv.md` a partir del CV de 2023 (sin teléfono, Skype, email ni nombres de clientes).
 - [x] `src/ai/system-prompt.md` completado a partir de una entrevista con el autor (tono, casos concretos, opiniones y temas).
-- [ ] Secreto `ANTHROPIC_API_KEY` en el Worker `klykov-me` de Cloudflare (Settings → Variables and Secrets). Sin él, el chat responde "Ahora mismo no puedo responder".
+- [x] Secreto `ANTHROPIC_API_KEY` en el Worker de Cloudflare y en `.dev.vars` en local.
 - [ ] Tope de gasto mensual en la consola de Anthropic.
 - [ ] Comprobar en el primer despliegue que Wrangler ha creado la KV `RATE_LIMIT`. Si el despliegue falla por la KV: créala en Cloudflare (Storage & Databases → KV) y pon su `id` en `wrangler.jsonc`.
 
@@ -30,7 +30,7 @@ Revisión en dispositivos reales:
 
 Lanzamiento:
 
-- [ ] Migración del dominio de Vercel a Cloudflare (primero DNS, después el registro) y dominio personalizado `klykov.me` en el Worker.
+- [x] Dominio migrado a Cloudflare: klykov.me sirve la web.
 - [ ] Archivar el repositorio antiguo.
 - [ ] Opcional: cambiar el favicon (`public/favicon.ico`, `public/apple-touch-icon.png`) y las imágenes para compartir (`public/og/`) si no convencen; no están en el artefacto.
 

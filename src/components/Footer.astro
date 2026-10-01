@@ -18,7 +18,7 @@ const year = new Date().getFullYear();
   <p>{ui.footer.madeWith} · {year}</p>
   <nav aria-label={ui.footer.label}>
     <ul role="list">
-      <li><a class="tap" href={`mailto:${links.email}`}>{links.email}</a></li>
+      <li><a class="tap" href={`mailto:${links.email[lang]}`}>{links.email[lang]}</a></li>
       <li><a class="tap" href={links.github}>GitHub</a></li>
       <li><a class="tap" href={links.linkedin}>LinkedIn</a></li>
       <li><a class="tap" href={sectionUrl('uses', lang)} aria-current={onUses ? 'page' : undefined}>/uses</a></li>
