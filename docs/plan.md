@@ -13,7 +13,7 @@ Contenido (buscar `[` en los archivos):
 - [ ] `/uses`: modelos, porqués, receta del café y fechas en `src/data/uses.yaml`. Las traducciones que faltan están marcadas como `[traducción]`: se pueden generar con `/traducir` cuando el español esté escrito.
 - [ ] Nota de ejemplo: revisar el texto (sale del artefacto) y su versión en inglés `en.md`.
 - [ ] Revisar los textos de interfaz en inglés de `src/i18n/ui.ts` (los traduje yo) y las traducciones de la línea temporal y /uses.
-- [ ] Sustituir las piezas de prueba del Lab (`estudio-de-luz`, `horizonte-caramelo`, generadas con código) por experimentos reales con `/nuevo-experimento`.
+- [x] Piezas iniciales del Lab (`estudio-de-luz`, `horizonte-caramelo`, generadas con código) completadas sin marcadores. Opcional: añadir o sustituir por experimentos reales con `/nuevo-experimento`.
 
 Chat de la versión IA:
 
@@ -60,7 +60,7 @@ Lanzamiento:
 
 ## Fase 3 · Lab
 
-- [x] Colección `lab` con imagen y vídeo, y dos piezas de ejemplo (de prueba: ver "Pendiente del autor").
+- [x] Colección `lab` con imagen y vídeo, y dos piezas iniciales generadas con código.
 - [x] Mosaico con filtros.
 - [x] Página de experimento: anterior y siguiente (también con flechas), copiar prompt, vídeo sin reproducción automática.
 - [x] View Transitions entre documentos, solo con CSS.
