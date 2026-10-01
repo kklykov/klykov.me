@@ -356,6 +356,7 @@ const tagList = (list: typeof data.tags) => list.map((tag) => ui.tags[tag]).join
   }
 
   .arrow {
+    font-family: var(--font-sans); /* Instrument Serif no tiene flechas */
     font-size: 1.25rem;
     color: var(--accent);
     transition: transform var(--duration) ease;

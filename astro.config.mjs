@@ -7,6 +7,10 @@ import { codeFrame, codeTheme } from './src/lib/code.ts';
 import { defaultLocale, locales } from './src/i18n/config.ts';
 
 const fonts = './src/styles/fonts';
+// Flechas (← → ↗ ⇄ ✓): no están en el subset latino. Van en archivos aparte que el navegador
+// solo descarga si la página usa alguna; sin ellos salen de una fuente del sistema, descentradas.
+/** @type {[string, string]} */
+const arrows = ['U+2190-21FF', 'U+2713'];
 
 /**
  * Cloudflare sirve el 404.html más cercano a la URL pedida. Astro genera
@@ -74,6 +78,9 @@ export default defineConfig({
         variants: [
           { src: [`${fonts}/ibm-plex-sans-latin-400-normal.woff2`], weight: 400, style: 'normal' },
           { src: [`${fonts}/ibm-plex-sans-latin-500-normal.woff2`], weight: 500, style: 'normal' },
+          // Mismo archivo (fuente variable) para cada peso: el peso debe coincidir con el de la variante latina.
+          { src: [`${fonts}/ibm-plex-sans-arrows.woff2`], weight: 400, style: 'normal', unicodeRange: arrows },
+          { src: [`${fonts}/ibm-plex-sans-arrows.woff2`], weight: 500, style: 'normal', unicodeRange: arrows },
         ],
       },
     },
@@ -86,6 +93,8 @@ export default defineConfig({
         variants: [
           { src: [`${fonts}/ibm-plex-mono-latin-400-normal.woff2`], weight: 400, style: 'normal' },
           { src: [`${fonts}/ibm-plex-mono-latin-500-normal.woff2`], weight: 500, style: 'normal' },
+          { src: [`${fonts}/ibm-plex-mono-arrows-400.woff2`], weight: 400, style: 'normal', unicodeRange: arrows },
+          { src: [`${fonts}/ibm-plex-mono-arrows-500.woff2`], weight: 500, style: 'normal', unicodeRange: arrows },
         ],
       },
     },
