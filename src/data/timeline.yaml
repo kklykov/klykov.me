@@ -19,7 +19,7 @@
 - id: "01"
   code: "<01>"
   font: times
-  year: "[año]"
+  year: "2008"
   title: { es: "HTML\ny CSS", en: "HTML\nand CSS" }
   text:
     es: Páginas maquetadas con tablas y CSS a mano. Cada píxel era una celda.
@@ -38,7 +38,7 @@
 - id: "02"
   code: "$(02)"
   font: verdana
-  year: "[año]"
+  year: "2011"
   title: { es: jQuery, en: jQuery }
   text:
     es: El DOM por fin se dejaba domar. Un $ para todo.
@@ -56,7 +56,7 @@
 - id: "03"
   code: "/03"
   font: mono
-  year: "[año]"
+  year: "2013"
   title: { es: MVC, en: MVC }
   text:
     es: Separar datos, lógica y vista. El orden empezó a llamarse arquitectura.
@@ -75,7 +75,7 @@
 - id: "04"
   code: ":04"
   font: mono
-  year: "[año]"
+  year: "2015"
   title: { es: "Micro\nservicios", en: "Micro\nservices" }
   text:
     es: Partir el sistema en piezas pequeñas y descubrir lo que cuesta que hablen entre sí.
@@ -92,7 +92,7 @@
 - id: "05"
   code: "<05/>"
   font: sans
-  year: "[año]"
+  year: "2017"
   title: { es: "Frameworks\nJS", en: "JS\nframeworks" }
   text:
     es: Componentes, estado y un build para cada cosa. La DX pasó a primer plano.
