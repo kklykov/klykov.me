@@ -35,7 +35,9 @@ export const POST: APIRoute = async ({ request, url }) => {
   const lang = isLocale(body.lang) ? body.lang : defaultLocale;
 
   if (!env.ANTHROPIC_API_KEY) {
-    return import.meta.env.DEV ? simulated(messages.at(-1)!.content) : fail(502, 'upstream');
+    if (import.meta.env.DEV) return simulated(messages.at(-1)!.content);
+    console.error('chat: falta el secreto ANTHROPIC_API_KEY en el Worker');
+    return fail(502, 'upstream');
   }
 
   const limit = await consume(env.RATE_LIMIT, request.headers.get('cf-connecting-ip') ?? 'local');
