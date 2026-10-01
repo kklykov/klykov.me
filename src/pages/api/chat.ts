@@ -15,9 +15,22 @@ const MAX_TOKENS = 400;
 const LANGUAGE: Record<Locale, string> = { es: 'español', en: 'English' };
 
 const noStore = { 'cache-control': 'no-store' };
-const fail = (status: number, code: ErrorCode) => Response.json({ code }, { status, headers: noStore });
+
+/**
+ * Una línea por petición, solo con el resultado y la duración (docs/chat-ia.md → "Privacidad").
+ * Nunca mensajes, respuestas, IP, clave ni objetos de error: pueden llevar cualquiera de ellos dentro.
+ */
+type Outcome = 'ok' | ErrorCode | 'missing_key' | 'stream';
+const log = (outcome: Outcome, start: number, status?: number) =>
+  console.log(JSON.stringify({ chat: outcome, ms: Date.now() - start, ...(status ? { status } : {}) }));
 
 export const POST: APIRoute = async ({ request, url }) => {
+  const start = Date.now();
+  const fail = (status: number, code: ErrorCode) => {
+    log(code, start);
+    return Response.json({ code }, { status, headers: noStore });
+  };
+
   // Solo peticiones del mismo origen, con cuerpo pequeño y un historial válido.
   if (request.headers.get('origin') !== url.origin) return fail(403, 'invalid');
   if (Number(request.headers.get('content-length') ?? 0) > MAX_BODY_BYTES) return fail(400, 'invalid');
@@ -36,8 +49,8 @@ export const POST: APIRoute = async ({ request, url }) => {
 
   if (!env.ANTHROPIC_API_KEY) {
     if (import.meta.env.DEV) return simulated(messages.at(-1)!.content);
-    console.error('chat: falta el secreto ANTHROPIC_API_KEY en el Worker');
-    return fail(502, 'upstream');
+    log('missing_key', start);
+    return Response.json({ code: 'upstream' }, { status: 502, headers: noStore });
   }
 
   const limit = await consume(env.RATE_LIMIT, request.headers.get('cf-connecting-ip') ?? 'local');
@@ -60,22 +73,24 @@ export const POST: APIRoute = async ({ request, url }) => {
       messages,
     });
   } catch (error) {
-    console.error('chat: upstream', error instanceof Anthropic.APIError ? error.status : error);
-    return fail(502, 'upstream');
+    log('upstream', start, error instanceof Anthropic.APIError ? error.status : undefined);
+    return Response.json({ code: 'upstream' }, { status: 502, headers: noStore });
   }
 
   const encoder = new TextEncoder();
   const text = new ReadableStream<Uint8Array>({
     async start(controller) {
+      let outcome: Outcome = 'ok';
       try {
         for await (const event of stream) {
           if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
             controller.enqueue(encoder.encode(event.delta.text));
           }
         }
-      } catch (error) {
-        console.error('chat: stream', error);
+      } catch {
+        outcome = 'stream';
       }
+      log(outcome, start);
       controller.close();
     },
     cancel() {

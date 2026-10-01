@@ -7,7 +7,7 @@ Un chat en el capítulo 06 de la portada que responde como una versión IA del a
 1. **Transparencia:** siempre queda claro que es una IA (nombre "versión IA", aviso bajo el botón y saludo inicial).
 2. **Fidelidad:** responde solo con la información del contexto. Si no lo sabe, lo dice y remite al email del autor. Nunca inventa experiencia, fechas, empresas ni opiniones.
 3. **Coste acotado:** límites por visitante, límite global diario y tope de gasto en la consola de Anthropic.
-4. **Privacidad:** no se guardan conversaciones. Solo contadores anónimos para los límites.
+4. **Privacidad:** no se guardan conversaciones. Solo contadores anónimos para los límites. Los logs del Worker nunca registran el contenido de los mensajes, la respuesta del modelo, la IP ni la clave: solo el código de error, la duración y si se alcanzó algún límite (una línea JSON por petición, p. ej. `{"chat":"limit_user","ms":12}`).
 5. **Seguridad:** la clave nunca sale del servidor.
 
 ## Arquitectura
