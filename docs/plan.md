@@ -18,7 +18,7 @@ Contenido (buscar `[` en los archivos):
 Chat de la versión IA:
 
 - [x] `src/ai/cv.md` a partir del CV de 2023 (sin teléfono, Skype, email ni nombres de clientes).
-- [ ] Completar `src/ai/system-prompt.md` (borrador con las reglas de `docs/chat-ia.md`).
+- [x] `src/ai/system-prompt.md` completado a partir de una entrevista con el autor (tono, casos concretos, opiniones y temas).
 - [ ] Secreto `ANTHROPIC_API_KEY` en el Worker `klykov-me` de Cloudflare (Settings → Variables and Secrets). Sin él, el chat responde "Ahora mismo no puedo responder".
 - [ ] Tope de gasto mensual en la consola de Anthropic.
 - [ ] Comprobar en el primer despliegue que Wrangler ha creado la KV `RATE_LIMIT`. Si el despliegue falla por la KV: créala en Cloudflare (Storage & Databases → KV) y pon su `id` en `wrangler.jsonc`.

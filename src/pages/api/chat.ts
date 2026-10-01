@@ -49,11 +49,11 @@ export const POST: APIRoute = async ({ request, url }) => {
       max_tokens: MAX_TOKENS,
       stream: true,
       // Instrucciones y contexto son iguales en todas las peticiones: van en caché.
-      // El idioma de la página cambia, así que va después del punto de caché.
+      // El idioma de la página y la fecha (para calcular la edad) cambian: van después del punto de caché.
       system: [
         { type: 'text', text: instructions },
         { type: 'text', text: await context(), cache_control: { type: 'ephemeral' } },
-        { type: 'text', text: `Idioma de la página: ${LANGUAGE[lang]}.` },
+        { type: 'text', text: `Idioma de la página: ${LANGUAGE[lang]}. Fecha de hoy: ${new Date().toISOString().slice(0, 10)}.` },
       ],
       messages,
     });
