@@ -282,8 +282,9 @@ const textWithHeading = !data.snippet;
       max-width: 28.75rem;
     }
 
+    /* El chat crece con la pantalla: 540px en 1280px, hasta 1120px en pantallas muy grandes. */
     [data-chapter='06'] .aside {
-      width: 33.75rem;
+      width: clamp(33.75rem, 42vw, 70rem);
     }
   }
 </style>

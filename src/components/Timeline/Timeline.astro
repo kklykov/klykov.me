@@ -420,10 +420,8 @@ const first = chapters[0];
     line-height: 1;
   }
 
-  /* Anclas del índice: que la barra no tape el capítulo. */
-  [data-mode='vertical'] :global(.chapter) {
-    scroll-margin-top: calc(3.5rem + env(safe-area-inset-top));
-  }
+  /* Sin scroll-margin: la barra se superpone al margen superior del capítulo (como en el diseño),
+     así cada capítulo de 100svh cabe entero en pantalla al llegar con el índice o al deslizar. */
 
   /* ——— Escritorio: barra superior y menú, solo en horizontal ——— */
   .dbar,
