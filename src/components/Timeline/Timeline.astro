@@ -241,8 +241,7 @@ const first = chapters[0];
         menu.hidden = next !== 'horizontal';
         mbar.hidden = next !== 'vertical';
         closeIndex(false);
-        track.style.transform = '';
-        for (const el of [...numbers, ...winks, ...contents]) if (el) el.style.transform = el.style.opacity = '';
+        for (const el of [track, ...numbers, ...winks, ...contents]) if (el) el.style.transform = el.style.opacity = '';
       }
       jump();
     }
@@ -258,8 +257,8 @@ const first = chapters[0];
 
     // Escritorio: ir a un capítulo es desplazarse a su punto de anclaje (inicio + i/6 × recorrido).
     // El desplazamiento real es instantáneo: la suavidad la pone la inercia, igual que con la rueda.
-    function goTo(i: number, behavior: ScrollBehavior = 'instant') {
-      scrollTo({ top: start + (i / last) * travel, behavior });
+    function goTo(i: number) {
+      scrollTo({ top: start + (i / last) * travel, behavior: 'instant' });
     }
 
     ticks.forEach((tick, i) => tick.addEventListener('click', () => goTo(i)));
@@ -271,13 +270,44 @@ const first = chapters[0];
       if (i >= 0 && i !== current) goTo(i);
     });
 
+    // "Desliza ↓" en horizontal: la portada no es parte de la pista y se mueve con el scroll real, así que
+    // ese scroll se anima con la misma inercia (sin imán durante el trayecto). Se corta si el usuario
+    // desplaza por su cuenta.
+    let glideFrame = 0;
+    function stopGlide() {
+      if (!glideFrame) return;
+      cancelAnimationFrame(glideFrame);
+      glideFrame = 0;
+      document.documentElement.style.removeProperty('scroll-snap-type');
+    }
+    function glide(to: number) {
+      stopGlide();
+      document.documentElement.style.scrollSnapType = 'none';
+      let y = scrollY;
+      let prev = 0;
+      const step = (time: number) => {
+        y += (to - y) * (1 - (1 - 0.085) ** (prev ? (time - prev) / (1000 / 60) : 1));
+        prev = time;
+        const done = Math.abs(to - y) < 0.5;
+        scrollTo({ top: done ? to : y, behavior: 'instant' });
+        if (done) stopGlide();
+        else glideFrame = requestAnimationFrame(step);
+      };
+      glideFrame = requestAnimationFrame(step);
+    }
+    for (const type of ['wheel', 'touchstart', 'keydown'] as const) addEventListener(type, stopGlide, { passive: true });
+    document.querySelector('[data-glide]')?.addEventListener('click', (event) => {
+      if (mode !== 'horizontal' || reduce.matches) return;
+      event.preventDefault();
+      glide(start);
+    });
+
     // Anclas #capitulo-0X: en horizontal, al punto del recorrido.
-    // Al cargar, directo; al pulsar un ancla ("Desliza ↓"), con desplazamiento suave: la portada no es
-    // parte de la pista y se mueve con el scroll real.
+    // Al cargar, directo; al pulsar un ancla ("Desliza ↓"), con la inercia.
     function followHash(initial = false) {
       const i = chapters.findIndex((c) => `#${c.id}` === location.hash);
       if (mode !== 'horizontal' || i < 0) return;
-      goTo(i, initial || reduce.matches ? 'instant' : 'smooth');
+      goTo(i);
       if (initial) jump();
     }
     addEventListener('hashchange', () => followHash());
@@ -590,9 +620,10 @@ const first = chapters[0];
     transform: none;
   }
 
-  /* Anclas de la portada ("Desliza ↓", índice de móvil) con desplazamiento suave */
+  /* Anclas de la portada ("Desliza ↓", índice de móvil) con desplazamiento suave. En horizontal no hace
+     falta: la inercia suaviza todo lo que se pinta. */
   @media (prefers-reduced-motion: no-preference) {
-    :global(html:has([data-timeline])) {
+    :global(html:has([data-timeline]:not([data-mode='horizontal']))) {
       scroll-behavior: smooth;
     }
   }
