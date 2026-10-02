@@ -156,18 +156,12 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
     color: var(--text-muted);
   }
 
-  /* Ocupa todo el alto disponible del capítulo, con margen; crece en pantallas grandes. */
+  /* Móvil: ocupa todo el alto disponible del capítulo, con margen. */
   .panel {
     display: flex;
     flex-direction: column;
     gap: 1.125rem;
     height: max(22rem, calc(100svh - 12.5rem));
-  }
-
-  @media (min-width: 64rem) {
-    .panel {
-      height: max(22rem, calc(100svh - 15rem));
-    }
   }
 
   .head {
@@ -217,7 +211,7 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
 
   .log :global(.user) {
     font-family: var(--font-mono);
-    font-size: clamp(0.875rem, 0.6rem + 0.35vw, 1.125rem); /* 14 en escritorio, crece en pantallas grandes */
+    font-size: 0.875rem;
     line-height: 1.6;
     color: var(--text-muted);
   }
@@ -228,7 +222,7 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
 
   .log :global(.ai) {
     font-family: var(--font-serif);
-    font-size: clamp(1.25rem, 0.9rem + 0.9vw, 2rem); /* 20 → 26 a 1280px → hasta 32 */
+    font-size: 1.25rem;
     line-height: 1.35;
     color: var(--text);
   }
@@ -267,7 +261,7 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
     border: 0;
     background: none;
     color: var(--text-muted);
-    font-size: clamp(0.8125rem, 0.6rem + 0.27vw, 1rem);
+    font-size: 0.8125rem;
     text-decoration: underline;
     text-decoration-color: var(--line-muted);
     text-underline-offset: 4px;
@@ -299,7 +293,7 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
     border: 0;
     background: none;
     color: var(--text);
-    font-size: clamp(1.0625rem, 0.8rem + 0.35vw, 1.375rem);
+    font-size: 1.0625rem;
   }
 
   .ask input::placeholder {
@@ -319,6 +313,101 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
   .ask[data-busy] button {
     opacity: 0.4;
     cursor: default;
+  }
+
+  /* Escritorio: medidas del diseño a 1280×800, escaladas con --u (docs/diseno.md). */
+  @media (min-width: 64rem) {
+    .closed {
+      gap: calc(14 * var(--u));
+    }
+
+    .trigger {
+      gap: calc(16 * var(--u));
+      min-height: calc(56 * var(--u));
+      font-size: calc(36 * var(--u));
+    }
+
+    .trigger:hover .trigger-label {
+      text-underline-offset: calc(8 * var(--u));
+    }
+
+    .pulse {
+      width: calc(10 * var(--u));
+      height: calc(10 * var(--u));
+    }
+
+    .pulse.small {
+      width: calc(8 * var(--u));
+      height: calc(8 * var(--u));
+    }
+
+    .note {
+      padding-left: calc(26 * var(--u));
+      font-size: calc(12 * var(--u));
+    }
+
+    .panel {
+      gap: calc(18 * var(--u));
+      height: calc(540 * var(--u));
+    }
+
+    .head {
+      font-size: calc(12 * var(--u));
+    }
+
+    .who {
+      gap: calc(10 * var(--u));
+    }
+
+    .close,
+    .ask button {
+      min-width: max(var(--tap), calc(44 * var(--u)));
+      min-height: max(var(--tap), calc(44 * var(--u)));
+    }
+
+    .close {
+      font-size: calc(22 * var(--u));
+    }
+
+    .log {
+      gap: calc(22 * var(--u));
+    }
+
+    .log :global(.user) {
+      font-size: calc(14 * var(--u));
+    }
+
+    .log :global(.ai) {
+      font-size: calc(26 * var(--u));
+    }
+
+    .suggestions {
+      gap: calc(4 * var(--u)) calc(18 * var(--u));
+    }
+
+    .suggestions button {
+      min-height: max(var(--tap), calc(36 * var(--u)));
+      font-size: calc(13 * var(--u));
+      text-underline-offset: calc(4 * var(--u));
+    }
+
+    .ask {
+      gap: calc(12 * var(--u));
+      padding-bottom: calc(4 * var(--u));
+    }
+
+    .ask > span {
+      font-size: calc(18 * var(--u));
+    }
+
+    .ask input {
+      min-height: max(var(--tap), calc(44 * var(--u)));
+      font-size: calc(17 * var(--u));
+    }
+
+    .ask button {
+      font-size: calc(20 * var(--u));
+    }
   }
 
   /* Móvil: al abrir el chat se ocultan el "IA" gigante y su texto (docs/diseno.md). */

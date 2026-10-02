@@ -64,6 +64,9 @@ const first = chapters[0];
     </nav>
   </div>
 
+  <!-- Escritorio: un punto de anclaje por capítulo (imán con scroll-snap, sin JS) -->
+  {chapters.map((_, i) => <span class="snap" style={`--i: ${i}`} aria-hidden="true" />)}
+
   <div class="pin" data-pin>
     <!-- Escritorio: barra superior (decorativa: el estado lo anuncia el menú) -->
     <div class="dbar" aria-hidden="true">
@@ -119,6 +122,7 @@ const first = chapters[0];
     const chapters = $$<HTMLElement>('[data-chapter]');
     const numbers = chapters.map((c) => c.querySelector<HTMLElement>('.number')!);
     const contents = chapters.map((c) => c.querySelector<HTMLElement>('.content')!);
+    const winks = chapters.map((c) => c.querySelector<HTMLElement>('[data-wink]'));
     const menu = $<HTMLElement>('[data-menu]');
     const ticks = $$<HTMLButtonElement>('[data-tick]');
     const mbar = $<HTMLElement>('[data-mbar]');
@@ -134,6 +138,7 @@ const first = chapters[0];
     let travel = 1;
     let vw = innerWidth;
     let vh = innerHeight;
+    let u = 1; // --u en px: la portada se diseña a 1280×800
     let tops: number[] = [];
     let current = -1;
     let frame = 0;
@@ -144,6 +149,7 @@ const first = chapters[0];
     function measure() {
       vw = innerWidth;
       vh = innerHeight;
+      u = Math.min(vw / 1280, vh / 800);
       start = pageTop(root);
       travel = Math.max(1, root.offsetHeight - vh);
       tops = chapters.map(pageTop);
@@ -178,12 +184,14 @@ const first = chapters[0];
         // p = clamp((scrollY − inicio) / recorrido); pista con translate3d(−p × 6 × 100vw)
         const pos = clamp((y - start) / travel) * last;
         track.style.transform = `translate3d(${-pos * vw}px, 0, 0)`;
+        // Parallax en tres capas: número detrás, guiño en medio y contenido delante.
         chapters.forEach((_, i) => {
           const local = pos - i;
           const d = Math.min(1, Math.abs(local));
-          numbers[i].style.transform = `translateX(${-local * 360}px)`;
-          contents[i].style.opacity = String(Math.max(0.1, 1 - Math.abs(local) * 1.4));
-          contents[i].style.transform = `translateY(${d * 48}px)`;
+          numbers[i].style.transform = `translateX(${local * 420 * u}px) scale(${1 - d * 0.12})`;
+          if (winks[i]) winks[i].style.transform = `translateX(${-local * 160 * u}px)`;
+          contents[i].style.transform = `translateX(${-local * 280 * u}px) translateY(${d * 24 * u}px)`;
+          contents[i].style.opacity = String(Math.max(0, 1 - Math.abs(local) * 1.6));
         });
         setProgress(pos / last);
         setCurrent(Math.round(pos));
@@ -217,13 +225,13 @@ const first = chapters[0];
         mbar.hidden = next !== 'vertical';
         closeIndex(false);
         track.style.transform = '';
-        for (const el of [...numbers, ...contents]) el.style.transform = el.style.opacity = '';
+        for (const el of [...numbers, ...winks, ...contents]) if (el) el.style.transform = el.style.opacity = '';
       }
       measure();
       update();
     }
 
-    // Escritorio: ir a un capítulo es desplazarse a su punto del recorrido.
+    // Escritorio: ir a un capítulo es desplazarse a su punto de anclaje (inicio + i/6 × recorrido).
     function goTo(i: number, smooth = !reduce.matches) {
       scrollTo({ top: start + (i / last) * travel, behavior: smooth ? 'smooth' : 'instant' });
     }
@@ -424,13 +432,30 @@ const first = chapters[0];
      así el contenido de cada capítulo cabe entero en pantalla al llegar con el índice o al deslizar. */
 
   /* ——— Escritorio: barra superior y menú, solo en horizontal ——— */
+  /* Medidas del diseño a 1280×800, escaladas con --u (docs/diseno.md). */
   .dbar,
-  .menu {
+  .menu,
+  .snap {
     display: none;
   }
 
+  /* Un viewport de recorrido por capítulo */
   [data-mode='horizontal'] {
-    height: calc(100vh + 6 * 900px);
+    position: relative;
+    height: calc(7 * 100vh);
+  }
+
+  /* Imán: un marcador invisible por capítulo, en i × 100vh, del que no se puede pasar de largo */
+  [data-mode='horizontal'] .snap {
+    position: absolute;
+    top: calc(var(--i) * 100vh);
+    left: 0;
+    width: 1px;
+    height: 100vh;
+    display: block;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    pointer-events: none;
   }
 
   [data-mode='horizontal'] .pin {
@@ -452,46 +477,47 @@ const first = chapters[0];
     width: 100vw;
     height: 100vh;
     min-height: 0;
-    padding-bottom: 9.375rem;
+    padding-bottom: calc(150 * var(--u));
   }
 
   [data-mode='horizontal'] :global(.chapter[data-chapter='06']) {
-    padding-top: 6.875rem;
-    padding-bottom: 8.125rem;
+    padding-top: calc(110 * var(--u));
+    padding-bottom: calc(130 * var(--u));
   }
 
   [data-mode='horizontal'] :global(.chapter .number),
+  [data-mode='horizontal'] :global(.chapter [data-wink]),
   [data-mode='horizontal'] :global(.chapter .content) {
     will-change: transform;
   }
 
   [data-mode='horizontal'] .dbar {
     position: absolute;
-    top: 2rem;
-    left: var(--gutter-left);
-    right: var(--gutter-right);
+    top: calc(32 * var(--u));
+    left: calc(96 * var(--u));
+    right: calc(96 * var(--u));
     z-index: 2;
     display: flex;
     justify-content: space-between;
     font-family: var(--font-mono);
-    font-size: 0.875rem;
+    font-size: calc(14 * var(--u));
     color: var(--text-muted);
     pointer-events: none;
   }
 
   [data-mode='horizontal'] .menu:not([hidden]) {
     position: absolute;
-    left: calc(var(--gutter-left) - 0.75rem);
-    right: calc(var(--gutter-right) - 0.75rem);
-    bottom: 1.875rem;
+    left: calc(84 * var(--u));
+    right: calc(84 * var(--u));
+    bottom: calc(30 * var(--u));
     z-index: 2;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: calc(4 * var(--u));
   }
 
   .menu .progress {
-    margin: 0 0.75rem;
+    margin: 0 calc(12 * var(--u));
   }
 
   .ticks {
@@ -501,14 +527,14 @@ const first = chapters[0];
 
   .tick {
     position: relative;
-    min-width: var(--tap);
-    min-height: var(--tap);
-    padding: 0 0.75rem;
+    min-width: max(var(--tap), calc(44 * var(--u)));
+    min-height: max(var(--tap), calc(44 * var(--u)));
+    padding: 0 calc(12 * var(--u));
     border: 0;
     background: none;
     color: var(--text-faint);
     font-family: var(--font-mono);
-    font-size: var(--fs-small);
+    font-size: calc(12 * var(--u));
     cursor: pointer;
     transition: color 300ms ease;
   }
@@ -523,8 +549,8 @@ const first = chapters[0];
 
   .tick-name {
     position: absolute;
-    bottom: calc(100% + 0.75rem); /* separado de la línea de progreso */
-    left: 0.75rem;
+    bottom: calc(100% + 12 * var(--u)); /* separado de la línea de progreso */
+    left: calc(12 * var(--u));
     font-family: var(--font-sans);
     white-space: nowrap;
     color: var(--text);
@@ -549,17 +575,30 @@ const first = chapters[0];
     }
   }
 
-  /* Móvil: capítulos a pantalla completa con ajuste suave al desplazarse */
+  /* Ajuste al desplazarse. En vertical (móvil, movimiento reducido o sin JS), suave, capítulo a capítulo.
+     En horizontal, imán: siempre se para en la portada, en un capítulo (.snap), en el cierre o en el pie. */
+  :global(html:has([data-timeline])) {
+    scroll-snap-type: y proximity;
+  }
+
+  :global(html:has([data-timeline][data-mode='horizontal'])) {
+    scroll-snap-type: y mandatory;
+  }
+
+  :global(html:has([data-timeline]) :is(.hero, .chapter, .outro)) {
+    scroll-snap-align: start;
+  }
+
+  :global(html:has([data-timeline]) .site-footer) {
+    scroll-snap-align: end;
+  }
+
+  /* En horizontal, los capítulos están dentro de la sección anclada: el anclaje lo dan los marcadores. */
+  [data-mode='horizontal'] :global(.chapter) {
+    scroll-snap-align: none;
+  }
+
   @media (max-width: 63.999rem) {
-    :global(html:has([data-timeline])) {
-      scroll-snap-type: y proximity;
-    }
-
-    :global(.chapter),
-    :global(.hero) {
-      scroll-snap-align: start;
-    }
-
     :global(.chapter) {
       padding-bottom: calc(max(3rem, calc(env(safe-area-inset-bottom) + 1.5rem)) + var(--bars));
     }

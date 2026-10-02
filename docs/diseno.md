@@ -19,12 +19,17 @@
 
 ## Línea temporal: escritorio
 
-- Sección anclada de `100vh + 6 × 900px`; dentro, un contenedor `sticky` de `100vh` con la pista horizontal de 7 paneles de `100vw`.
+- Escala: la portada se diseña a 1280×800 y escala con la ventana. Unidad `--u: min(100vw / 1280, 100vh / 800)`. Todas las medidas de la portada (tipografía, márgenes, decoraciones y recorridos del parallax) se expresan como `calc(N * var(--u))`, sin topes máximos. Así, en pantallas grandes no queda vacía ni parece estática.
+- Sección anclada: altura = `100vh × 7` (un viewport de recorrido por capítulo). Dentro, un contenedor `sticky` de `100vh` con la pista horizontal de 7 paneles de `100vw`.
+- Imán: en la portada, `html { scroll-snap-type: y mandatory }`. Dentro de la sección anclada, 7 marcadores invisibles (`position: absolute`, `top: i × 100vh`, `height: 100vh`) con `scroll-snap-align: start` y `scroll-snap-stop: always`. El hero y el cierre también llevan `scroll-snap-align: start`, y el pie, `scroll-snap-align: end`. Nada de capturar la rueda con JavaScript.
 - Progreso `p = clamp((scrollY − inicio) / recorrido, 0, 1)` y pista con `translate3d(−p × 6 × 100vw, 0, 0)`.
-- Para cada panel `i`, con `local = p × 6 − i`: número gigante con `translateX(−local × 360px)`; contenido con `opacity = max(0.1, 1 − |local| × 1.4)` y `translateY(min(1, |local|) × 48px)`.
+- Parallax por capas, con `local = p × 6 − i`:
+  - Número gigante (detrás): `translateX(local × 420u) scale(1 − min(1, |local|) × 0.12)`.
+  - Guiños de época (en medio): `translateX(−local × 160u)`.
+  - Contenido (delante): `translateX(−local × 280u) translateY(min(1, |local|) × 24u)` y `opacity: max(0, 1 − |local| × 1.6)`.
 - Un único listener de `scroll` pasivo que escribe en `requestAnimationFrame`. Sin librerías.
-- Menú inferior: botones de 44×44 mínimo, `aria-current="step"` en el capítulo actual y nombre visible con `:hover` y `:focus-visible`. Al pulsar, `scrollTo` a `inicio + i/6 × recorrido` (suave, salvo con movimiento reducido).
-- Con movimiento reducido o sin JS, los capítulos se apilan en vertical, sin anclaje.
+- Menú inferior y "Desliza ↓": `scrollTo` a los mismos puntos de anclaje.
+- Con movimiento reducido o sin JS: capítulos en vertical, sin anclaje horizontal, con `scroll-snap-type: y proximity`.
 
 ## Línea temporal: móvil
 

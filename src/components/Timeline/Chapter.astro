@@ -51,34 +51,49 @@ const textWithHeading = !data.snippet;
 </section>
 
 <style>
-  /* Tamaños por capítulo: titular y número gigante, de móvil (390px) a escritorio (1280px). */
+  /* Tamaños por capítulo: titular y número gigante de móvil (390px) a 1280px; en escritorio,
+     --t y --n son sus medidas en el diseño, escaladas con --u. */
   [data-chapter='00'] {
     --title: clamp(4.5rem, 2.7472rem + 7.191vw, 8.5rem);
     --number: clamp(22.5rem, 11.5449rem + 44.9438vw, 47.5rem);
+    --t: 136;
+    --n: 760;
   }
   [data-chapter='01'] {
     --title: clamp(5.5rem, 3.802rem + 6.9663vw, 9.375rem);
     --number: clamp(22.5rem, 11.5449rem + 44.9438vw, 47.5rem);
+    --t: 150;
+    --n: 760;
   }
   [data-chapter='02'] {
     --title: clamp(4.5rem, 2.3638rem + 8.764vw, 9.375rem);
     --number: clamp(22.5rem, 15.927rem + 26.9663vw, 37.5rem);
+    --t: 150;
+    --n: 600;
   }
   [data-chapter='03'] {
     --title: clamp(6.5rem, 4.1447rem + 9.6629vw, 11.875rem);
     --number: clamp(22.5rem, 15.927rem + 26.9663vw, 37.5rem);
+    --t: 190;
+    --n: 600;
   }
   [data-chapter='04'] {
     --title: clamp(3.5rem, 2.1854rem + 5.3933vw, 6.5rem);
     --number: clamp(22.5rem, 15.927rem + 26.9663vw, 37.5rem);
+    --t: 104;
+    --n: 600;
   }
   [data-chapter='05'] {
     --title: clamp(4rem, 2.2472rem + 7.191vw, 8rem);
     --number: clamp(22.5rem, 14.8315rem + 31.4607vw, 40rem);
+    --t: 128;
+    --n: 640;
   }
   [data-chapter='06'] {
     --title: clamp(10rem, 7.809rem + 8.9888vw, 15rem);
     --number: clamp(22.5rem, 11.5449rem + 44.9438vw, 47.5rem);
+    --t: 240;
+    --n: 760;
   }
 
   .chapter {
@@ -235,59 +250,77 @@ const textWithHeading = !data.snippet;
     display: none;
   }
 
+  /* Escritorio: medidas del diseño a 1280×800, escaladas con --u (docs/diseno.md). */
   @media (min-width: 64rem) {
     .chapter {
-      padding: 7.5rem var(--gutter-right) 6rem var(--gutter-left);
+      --title: calc(var(--t) * var(--u));
+      --number: calc(var(--n) * var(--u));
+      padding: calc(120 * var(--u)) calc(96 * var(--u)) calc(96 * var(--u));
     }
 
     .number {
-      top: -2.5rem;
-      right: -3.75rem;
+      top: calc(-20 * var(--u));
+      right: calc(-60 * var(--u));
+      transform-origin: center;
+    }
+
+    :is([data-chapter='00'], [data-chapter='01']) .number {
+      top: calc(-40 * var(--u));
+    }
+
+    :is([data-chapter='03'], [data-chapter='04']) .number {
+      right: calc(-80 * var(--u));
     }
 
     .content {
       flex-direction: row;
       justify-content: space-between;
       align-items: flex-end;
-      gap: 4rem;
+      gap: calc(64 * var(--u));
     }
 
     .heading {
-      gap: 1rem;
+      gap: calc(16 * var(--u));
     }
 
     .label {
-      font-size: 0.875rem;
+      font-size: calc(14 * var(--u));
+    }
+
+    .text {
+      font-size: calc(18 * var(--u));
     }
 
     .aside {
       flex-shrink: 0;
-      width: 23.75rem;
-      gap: 1.25rem;
+      width: calc(380 * var(--u));
+      gap: calc(20 * var(--u));
     }
 
     pre {
-      padding: 1rem;
+      padding: calc(16 * var(--u));
+      border-radius: calc(10 * var(--u));
+      font-size: calc(13 * var(--u));
       line-height: 1.65;
     }
 
     [data-chapter='06'] .number {
-      left: -2.5rem;
+      top: calc(-40 * var(--u));
+      left: calc(-40 * var(--u));
       right: auto;
     }
 
     [data-chapter='06'] .content {
-      gap: 5rem;
+      gap: calc(80 * var(--u));
     }
 
     [data-chapter='06'] .heading {
-      gap: 1.25rem;
-      max-width: 28.75rem;
+      gap: calc(20 * var(--u));
+      max-width: calc(460 * var(--u));
     }
 
-    /* El chat crece con la pantalla: 540px en 1280px, hasta 1120px en pantallas muy grandes. */
     [data-chapter='06'] .aside {
-      width: clamp(33.75rem, 42vw, 70rem);
+      width: calc(540 * var(--u));
     }
   }
 </style>

@@ -13,6 +13,7 @@ const { wink, lang } = Astro.props;
 const ui = t(lang).home;
 
 // Microservicios: posición [arriba, izquierda] en escritorio y en móvil (null = no cabe).
+// En escritorio son px del diseño, sin unidad: el CSS los escala con --u.
 const services: { name: string; desktop: [number, number]; mobile: [number, number] | null; main?: boolean }[] = [
   { name: 'users', desktop: [0, 0], mobile: [0, 0] },
   { name: 'orders', desktop: [70, 164], mobile: [52, 96] },
@@ -21,9 +22,9 @@ const services: { name: string; desktop: [number, number]; mobile: [number, numb
   { name: 'stock', desktop: [40, 544], mobile: [102, 206] },
   { name: 'billing', desktop: [130, 54], mobile: null },
 ];
-const place = ([top, left]: [number, number], prefix: string) => `--${prefix}t: ${top}px; --${prefix}l: ${left}px;`;
+const place = ([top, left]: [number, number], prefix: string, unit = '') => `--${prefix}t: ${top}${unit}; --${prefix}l: ${left}${unit};`;
 
-// Código Konami: símbolos dispersos, con [izquierda, arriba, tamaño] en escritorio y en móvil.
+// Código Konami: símbolos dispersos, con [izquierda, arriba, tamaño] en escritorio (sin unidad, como arriba) y en móvil.
 const glyphs: { ch: string; desktop: [number, number, number]; mobile: [number, number, number] }[] = [
   { ch: '↑', desktop: [424, -24, 22], mobile: [226, 30, 16] },
   { ch: '↑', desktop: [516, 32, 13], mobile: [276, 72, 11] },
@@ -37,10 +38,10 @@ const glyphs: { ch: string; desktop: [number, number, number]; mobile: [number, 
   { ch: 'A', desktop: [590, -12, 24], mobile: [306, 22, 17] },
 ];
 const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof glyphs)[number], i: number) =>
-  `--i: ${i}; --dx: ${dx}px; --dy: ${dy}px; --ds: ${ds}px; --mx: ${mx}px; --my: ${my}px; --ms: ${ms}px;`;
+  `--i: ${i}; --dx: ${dx}; --dy: ${dy}; --ds: ${ds}; --mx: ${mx}px; --my: ${my}px; --ms: ${ms}px;`;
 ---
 
-{wink === 'grid' && <div class="grid" aria-hidden="true" />}
+{wink === 'grid' && <div class="grid" data-wink="grid" aria-hidden="true" />}
 
 {
   wink !== 'grid' && (
@@ -92,7 +93,7 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
           {services.map((s) => (
             <span
               class:list={{ main: s.main, 'desktop-only': !s.mobile }}
-              style={place(s.desktop, 'd') + (s.mobile ? place(s.mobile, 'm') : '')}
+              style={place(s.desktop, 'd') + (s.mobile ? place(s.mobile, 'm', 'px') : '')}
             >
               {s.name}
             </span>
@@ -329,65 +330,83 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
     font-size: 0.6875rem;
   }
 
+  /* Escritorio: medidas del diseño a 1280×800, escaladas con --u (docs/diseno.md). */
   @media (min-width: 64rem) {
     .wink {
-      top: 7.5rem;
-      font-size: var(--fs-meta);
+      top: calc(120 * var(--u));
+      left: calc(96 * var(--u));
+      right: calc(96 * var(--u));
+      font-size: calc(13 * var(--u));
     }
 
     .hud {
-      gap: 1rem;
+      gap: calc(16 * var(--u));
+    }
+
+    .lives {
+      gap: calc(4 * var(--u));
     }
 
     .lives span {
-      width: 10px;
-      height: 10px;
+      width: calc(10 * var(--u));
+      height: calc(10 * var(--u));
+    }
+
+    .bonus {
+      font-size: calc(12 * var(--u));
     }
 
     .squiggle {
-      width: 26.25rem;
+      width: calc(420 * var(--u));
+      margin-top: calc(16 * var(--u));
     }
 
     .glyphs span {
-      left: var(--dx);
-      top: var(--dy);
-      font-size: var(--ds);
+      left: calc(var(--dx) * var(--u));
+      top: calc(var(--dy) * var(--u));
+      font-size: calc(var(--ds) * var(--u));
     }
 
     .squiggle path {
       stroke-width: 2;
     }
 
+    /* Más ancha que el capítulo: el parallax la desplaza sin dejar bordes vacíos. */
     .grid {
-      background-size: 160px 80px;
+      left: calc(-320 * var(--u));
+      right: calc(-320 * var(--u));
+      background-size: calc(160 * var(--u)) calc(80 * var(--u));
     }
 
     .web2-box {
-      width: 20rem;
-      font-size: 0.75rem;
+      width: calc(320 * var(--u));
+      border-radius: calc(6 * var(--u));
+      font-size: calc(12 * var(--u));
     }
 
     .web2-bar {
-      padding: 0.5rem 0.75rem;
+      padding: calc(8 * var(--u)) calc(12 * var(--u));
+      border-radius: calc(6 * var(--u)) calc(6 * var(--u)) 0 0;
     }
 
     .web2-body {
-      padding: 0.75rem;
+      padding: calc(12 * var(--u));
     }
 
     .mvc {
-      gap: 1rem;
-      font-size: 0.875rem;
+      gap: calc(16 * var(--u));
+      font-size: calc(14 * var(--u));
     }
 
     .mvc span {
-      padding: 1.125rem 1.75rem;
+      padding: calc(18 * var(--u)) calc(28 * var(--u));
     }
 
     .services span {
-      top: var(--dt);
-      left: var(--dl);
-      padding: 0.625rem 1rem;
+      top: calc(var(--dt) * var(--u));
+      left: calc(var(--dl) * var(--u));
+      padding: calc(10 * var(--u)) calc(16 * var(--u));
+      border-radius: calc(4 * var(--u));
     }
 
     .services .desktop-only {
@@ -395,22 +414,28 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
     }
 
     .card {
-      gap: 0.625rem;
-      width: 21.25rem;
-      padding: 1.375rem;
+      gap: calc(10 * var(--u));
+      width: calc(340 * var(--u));
+      padding: calc(22 * var(--u));
+      border-radius: calc(16 * var(--u));
+      box-shadow: 0 calc(24 * var(--u)) calc(60 * var(--u)) var(--paper-shadow);
     }
 
     .card .tag {
-      font-size: var(--fs-small);
+      font-size: calc(12 * var(--u));
     }
 
     .card .title {
-      font-size: 1.25rem;
+      font-size: calc(20 * var(--u));
+    }
+
+    .chips {
+      gap: calc(8 * var(--u));
     }
 
     .chips span {
-      padding: 0.25rem 0.75rem;
-      font-size: var(--fs-small);
+      padding: calc(4 * var(--u)) calc(12 * var(--u));
+      font-size: calc(12 * var(--u));
     }
   }
 </style>

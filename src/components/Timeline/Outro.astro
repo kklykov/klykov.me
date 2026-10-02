@@ -68,4 +68,29 @@ const ui = t(lang);
   a:hover {
     color: var(--accent);
   }
+
+  /* Escritorio: medidas del diseño a 1280×800, escaladas con --u (docs/diseno.md). */
+  @media (min-width: 64rem) {
+    .outro {
+      gap: calc(28 * var(--u));
+      padding: calc(96 * var(--u));
+    }
+
+    h2 {
+      font-size: calc(160 * var(--u));
+    }
+
+    p {
+      font-size: calc(20 * var(--u));
+    }
+
+    ul {
+      gap: calc(8 * var(--u)) calc(32 * var(--u));
+      font-size: calc(18 * var(--u));
+    }
+
+    a {
+      min-height: max(var(--tap), calc(44 * var(--u)));
+    }
+  }
 </style>

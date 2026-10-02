@@ -71,6 +71,9 @@
   --header-pad-y: clamp(1.5rem, 1.2809rem + 0.8989vw, 2rem); /* 24 → 32 */
   --measure: 42.5rem; /* 680, columna de lectura */
   --tap: 44px; /* zona táctil mínima */
+  /* Portada en escritorio: diseñada a 1280×800 y escalada con la ventana, sin topes (docs/diseno.md).
+     Las medidas se escriben como calc(N * var(--u)), con N en px del diseño. */
+  --u: min(100vw / 1280, 100vh / 800);
 
   /* Formas */
   --radius-sm: 4px;
