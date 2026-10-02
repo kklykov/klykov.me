@@ -45,7 +45,7 @@
 
 - Listener de `keydown` en `document`. Ignora el teclado cuando el foco está en `input` o `textarea`. **No** llama a `preventDefault`: las flechas siguen desplazando la página.
 - Un error reinicia la secuencia, salvo un ↑ extra tras ↑↑, que mantiene el progreso.
-- Los caracteres dispersos son decorativos (`aria-hidden`).
+- Los caracteres dispersos son decorativos (`aria-hidden`). Al acertar, cada uno se enciende en caramelo y crece un poco (`scale: 1.3`). En escritorio se reparten con `--u` y su tamaño crece con `--u-detail`.
 - Al completarlo, una región `aria-live="polite"` anuncia: "Código Konami activado: nivel 999 y 30 vidas extra."
 
 ## Chat de la versión IA
