@@ -24,7 +24,7 @@ const first = chapters[0];
 ---
 
 <div class="timeline" data-timeline data-go-to={ui.goTo} data-index-label={ui.index} data-konami-message={ui.konami}>
-  <!-- Escritorio: puntos del imán (scroll-snap, sin JS): portada, un capítulo por pantalla y cierre -->
+  <!-- Escritorio: puntos del imán (scroll-snap, sin JS): portada, un capítulo por pantalla y final (cierre y pie) -->
   {[...Array(chapters.length + 2).keys()].map((i) => <span class="snap" style={`--i: ${i}`} aria-hidden="true" />)}
 
   <div class="pin" data-pin>
@@ -120,6 +120,7 @@ const first = chapters[0];
     const $$ = <T extends Element>(sel: string) => [...root.querySelectorAll<T>(sel)];
 
     const stage = $<HTMLElement>('[data-stage]');
+    const footer = document.querySelector<HTMLElement>('.site-footer');
     const track = $<HTMLElement>('[data-track]');
     const chapters = $$<HTMLElement>('[data-chapter]');
     const numbers = chapters.map((c) => c.querySelector<HTMLElement>('.number')!);
@@ -137,6 +138,7 @@ const first = chapters[0];
     const reduce = matchMedia('(prefers-reduced-motion: reduce)');
     let mode: 'horizontal' | 'vertical' | undefined;
     let start = 0;
+    let footerH = 0; // en horizontal, el pie entra con el escenario (fijo abajo, pintado desde la inercia)
     let vw = innerWidth;
     let vh = innerHeight;
     let u = 1; // --u en px: la portada se diseña a 1280×800
@@ -154,6 +156,7 @@ const first = chapters[0];
       vh = innerHeight;
       u = Math.min(vw / 1280, vh / 800);
       start = pageTop(root);
+      footerH = mode === 'horizontal' ? (footer?.offsetHeight ?? 0) : 0;
       tops = chapters.map(pageTop);
     }
 
@@ -190,7 +193,9 @@ const first = chapters[0];
       return shown === target;
     }
 
-    // Escritorio: el recorrido se mide en pantallas. Parada 0: portada; 1…7: capítulos 00…06; 8: cierre.
+    // Escritorio: el recorrido se mide en pantallas. Parada 0: portada; 1…7: capítulos 00…06; 8: final,
+    // con el cierre y el pie. Todas a una pantalla: si el imán tuviera que saltar más, el navegador
+    // dejaría parar a medio camino.
     const stopTop = (k: number) => start + k * vh;
 
     // Un solo bucle de requestAnimationFrame: se mantiene mientras el pintado no ha llegado al scroll real.
@@ -200,9 +205,13 @@ const first = chapters[0];
         const arrived = follow(time);
         if (!arrived) frame = requestAnimationFrame(update);
         const at = (shown - start) / vh; // pantallas recorridas
-        // El escenario (portada, capítulos y cierre en columna) sube al entrar y al salir de los capítulos.
-        const lift = clamp(at) + clamp(at - 1 - last);
-        stage.style.transform = lift ? `translate3d(0, ${-lift * vh}px, 0)` : '';
+        // El escenario (portada, capítulos y cierre en columna, y el pie debajo) sube al entrar y al salir
+        // de los capítulos: es una página normal salvo los capítulos, que se quedan anclados.
+        // La última pantalla de scroll real sube el cierre y el pie a la vez (una pantalla más el pie).
+        const lift = clamp(at) * vh + clamp(at - 1 - last) * (vh + footerH);
+        stage.style.transform = lift ? `translate3d(0, ${-lift}px, 0)` : '';
+        // El pie está fijo abajo; se pinta donde estaría, justo debajo del cierre.
+        if (footer) footer.style.transform = `translate3d(0, ${Math.min(footerH, 2 * vh + footerH - lift)}px, 0)`;
         // Capítulo pintado (0…6) y pista con translate3d(−pos × 100vw)
         const pos = Math.min(last, Math.max(0, at - 1));
         track.style.transform = `translate3d(${-pos * vw}px, 0, 0)`;
@@ -247,7 +256,7 @@ const first = chapters[0];
         menu.hidden = next !== 'horizontal';
         mbar.hidden = next !== 'vertical';
         closeIndex(false);
-        for (const el of [stage, track, ...numbers, ...winks, ...contents]) if (el) el.style.transform = el.style.opacity = '';
+        for (const el of [stage, footer, track, ...numbers, ...winks, ...contents]) if (el) el.style.transform = el.style.opacity = '';
       }
       jump();
     }
@@ -278,11 +287,12 @@ const first = chapters[0];
     // Con el foco (Tab) en algo que no se ve, se lleva a la vista su parada: portada, capítulo o cierre.
     const hero = $<HTMLElement>('.hero');
     const outro = $<HTMLElement>('.outro');
-    root.addEventListener('focusin', (event) => {
+    document.addEventListener('focusin', (event) => {
       if (mode !== 'horizontal') return;
       const target = event.target as Node;
       const i = chapters.findIndex((c) => c.contains(target));
-      const k = hero.contains(target) ? 0 : outro.contains(target) ? last + 2 : i >= 0 ? i + 1 : -1;
+      const end = outro.contains(target) || !!footer?.contains(target);
+      const k = hero.contains(target) ? 0 : end ? last + 2 : i >= 0 ? i + 1 : -1;
       if (k >= 0 && Math.abs(scrollY - stopTop(k)) > 1) goToStop(k);
     });
 
@@ -475,7 +485,7 @@ const first = chapters[0];
     display: none;
   }
 
-  /* Recorrido: una pantalla por parada (portada, 7 capítulos y cierre) */
+  /* Recorrido: una pantalla por parada (portada, 7 capítulos y final con el cierre y el pie) */
   [data-mode='horizontal'] {
     position: relative;
     height: calc(9 * 100vh);
@@ -499,6 +509,20 @@ const first = chapters[0];
     top: 0;
     height: 100vh;
     overflow: clip;
+  }
+
+  /* El pie (de Base) queda fijo abajo y lo coloca el script, debajo del cierre: así entra con la inercia
+     y el scroll nativo no mueve nada visible. Sigue siendo el mismo pie, al final del documento. */
+  :global(html:has([data-timeline][data-mode='horizontal']) .site-footer) {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: 0;
+    background: var(--bg);
+    transform: translate3d(0, 100%, 0);
+    will-change: transform;
+    scroll-snap-align: none; /* el final lo marca el último .snap */
   }
 
   /* Escenario: portada, capítulos y cierre en columna, una pantalla cada uno; sube con la inercia */
