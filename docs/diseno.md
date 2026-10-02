@@ -19,7 +19,8 @@
 
 ## Línea temporal: escritorio
 
-- Escala: la portada se diseña a 1280×800 y escala con la ventana. Unidad `--u: min(100vw / 1280, 100vh / 800)`. Todas las medidas de la portada (tipografía, márgenes, decoraciones y recorridos del parallax) se expresan como `calc(N * var(--u))`, sin topes máximos. Así, en pantallas grandes no queda vacía ni parece estática.
+- Escala: la portada se diseña a 1280×800. Solo escala la capa expresiva, con la unidad `--u: min(100vw / 1280, 100vh / 800)`: números gigantes del fondo, guiños y dibujos de cada época, titulares en display (portada, capítulos y cierre) y los recorridos del parallax. Se aplica siempre con `font-size`, `width` y `height` en `calc(N * var(--u))`, nunca con `transform: scale()` ni `zoom`, para que el texto se vea nítido. El resto (etiquetas, párrafos, código, barra superior, menú y chat) mantiene sus tamaños normales con `clamp()`.
+- Suavizado: el imán mueve el scroll real, pero lo visual (pista, parallax y progreso) sigue a ese scroll con inercia, interpolando en cada frame (`actual += (objetivo − actual) × 0.085`) hasta llegar. Así, la rueda, el trackpad, el teclado y los botones se sienten igual de suaves (~0,9 s). Con movimiento reducido no hay suavizado.
 - Sección anclada: altura = `100vh × 7` (un viewport de recorrido por capítulo). Dentro, un contenedor `sticky` de `100vh` con la pista horizontal de 7 paneles de `100vw`.
 - Imán: en la portada, `html { scroll-snap-type: y mandatory }`. Dentro de la sección anclada, 7 marcadores invisibles (`position: absolute`, `top: i × 100vh`, `height: 100vh`) con `scroll-snap-align: start` y `scroll-snap-stop: always`. El hero y el cierre también llevan `scroll-snap-align: start`, y el pie, `scroll-snap-align: end`. Nada de capturar la rueda con JavaScript.
 - Progreso `p = clamp((scrollY − inicio) / recorrido, 0, 1)` y pista con `translate3d(−p × 6 × 100vw, 0, 0)`.

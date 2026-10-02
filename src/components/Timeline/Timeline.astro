@@ -142,6 +142,8 @@ const first = chapters[0];
     let tops: number[] = [];
     let current = -1;
     let frame = 0;
+    let shown = scrollY; // scroll que se pinta: sigue al real con inercia (solo en horizontal)
+    let lastTime = 0;
 
     const clamp = (v: number) => Math.min(1, Math.max(0, v));
     const pageTop = (el: Element) => el.getBoundingClientRect().top + scrollY;
@@ -177,10 +179,24 @@ const first = chapters[0];
       for (const bar of $$<HTMLElement>('[data-progress]')) bar.style.transform = `scaleX(${p})`;
     }
 
-    function update() {
+    // Inercia: shown += (scrollY − shown) × 0.085 por frame de 60 Hz (~0,9 s), igual a cualquier frecuencia.
+    // El imán mueve el scroll real; esto solo suaviza lo que se pinta. Sin suavizado con movimiento reducido.
+    function follow(time: number) {
+      const target = scrollY;
+      const frames = lastTime ? (time - lastTime) / (1000 / 60) : 1;
+      shown = reduce.matches ? target : shown + (target - shown) * (1 - (1 - 0.085) ** frames);
+      if (Math.abs(target - shown) < 0.5) shown = target;
+      lastTime = shown === target ? 0 : time;
+      return shown === target;
+    }
+
+    // Un solo bucle de requestAnimationFrame: se mantiene mientras el pintado no ha llegado al scroll real.
+    function update(time: number) {
       frame = 0;
-      const y = scrollY;
       if (mode === 'horizontal') {
+        const arrived = follow(time);
+        if (!arrived) frame = requestAnimationFrame(update);
+        const y = shown;
         // p = clamp((scrollY − inicio) / recorrido); pista con translate3d(−p × 6 × 100vw)
         const pos = clamp((y - start) / travel) * last;
         track.style.transform = `translate3d(${-pos * vw}px, 0, 0)`;
@@ -196,6 +212,7 @@ const first = chapters[0];
         setProgress(pos / last);
         setCurrent(Math.round(pos));
       } else {
+        const y = (shown = scrollY);
         let i = 0;
         tops.forEach((top, t) => {
           if (y + vh / 2 >= top) i = t;
@@ -227,13 +244,22 @@ const first = chapters[0];
         track.style.transform = '';
         for (const el of [...numbers, ...winks, ...contents]) if (el) el.style.transform = el.style.opacity = '';
       }
+      jump();
+    }
+
+    // Pinta ya la posición real, sin inercia (al cargar, al cambiar de modo o de tamaño).
+    function jump() {
+      cancelAnimationFrame(frame); // un solo bucle
       measure();
-      update();
+      shown = scrollY;
+      lastTime = 0;
+      update(performance.now());
     }
 
     // Escritorio: ir a un capítulo es desplazarse a su punto de anclaje (inicio + i/6 × recorrido).
-    function goTo(i: number, smooth = !reduce.matches) {
-      scrollTo({ top: start + (i / last) * travel, behavior: smooth ? 'smooth' : 'instant' });
+    // El desplazamiento real es instantáneo: la suavidad la pone la inercia, igual que con la rueda.
+    function goTo(i: number, behavior: ScrollBehavior = 'instant') {
+      scrollTo({ top: start + (i / last) * travel, behavior });
     }
 
     ticks.forEach((tick, i) => tick.addEventListener('click', () => goTo(i)));
@@ -242,16 +268,19 @@ const first = chapters[0];
     root.addEventListener('focusin', (event) => {
       if (mode !== 'horizontal') return;
       const i = chapters.findIndex((c) => c.contains(event.target as Node));
-      if (i >= 0 && i !== current) goTo(i, false);
+      if (i >= 0 && i !== current) goTo(i);
     });
 
     // Anclas #capitulo-0X: en horizontal, al punto del recorrido.
-    // Al cargar, directo; al pulsar un ancla ("Desliza ↓"), con desplazamiento suave.
-    function followHash(smooth = false) {
+    // Al cargar, directo; al pulsar un ancla ("Desliza ↓"), con desplazamiento suave: la portada no es
+    // parte de la pista y se mueve con el scroll real.
+    function followHash(initial = false) {
       const i = chapters.findIndex((c) => `#${c.id}` === location.hash);
-      if (mode === 'horizontal' && i >= 0) goTo(i, smooth && !reduce.matches);
+      if (mode !== 'horizontal' || i < 0) return;
+      goTo(i, initial || reduce.matches ? 'instant' : 'smooth');
+      if (initial) jump();
     }
-    addEventListener('hashchange', () => followHash(true));
+    addEventListener('hashchange', () => followHash());
 
     // Móvil: índice desplegable
     function closeIndex(focus = true) {
@@ -299,19 +328,13 @@ const first = chapters[0];
     });
 
     addEventListener('scroll', schedule, { passive: true });
-    addEventListener('resize', () => {
-      measure();
-      schedule();
-    });
+    addEventListener('resize', jump);
     desktop.addEventListener('change', setMode);
     reduce.addEventListener('change', setMode);
     setMode();
-    followHash();
+    followHash(true);
     // Las fuentes cambian las alturas: se vuelve a medir cuando cargan.
-    document.fonts?.ready.then(() => {
-      measure();
-      schedule();
-    });
+    document.fonts?.ready.then(jump);
   }
 </script>
 
@@ -432,7 +455,6 @@ const first = chapters[0];
      así el contenido de cada capítulo cabe entero en pantalla al llegar con el índice o al deslizar. */
 
   /* ——— Escritorio: barra superior y menú, solo en horizontal ——— */
-  /* Medidas del diseño a 1280×800, escaladas con --u (docs/diseno.md). */
   .dbar,
   .menu,
   .snap {
@@ -477,12 +499,12 @@ const first = chapters[0];
     width: 100vw;
     height: 100vh;
     min-height: 0;
-    padding-bottom: calc(150 * var(--u));
+    padding-bottom: 9.375rem;
   }
 
   [data-mode='horizontal'] :global(.chapter[data-chapter='06']) {
-    padding-top: calc(110 * var(--u));
-    padding-bottom: calc(130 * var(--u));
+    padding-top: 6.875rem;
+    padding-bottom: 8.125rem;
   }
 
   [data-mode='horizontal'] :global(.chapter .number),
@@ -493,31 +515,31 @@ const first = chapters[0];
 
   [data-mode='horizontal'] .dbar {
     position: absolute;
-    top: calc(32 * var(--u));
-    left: calc(96 * var(--u));
-    right: calc(96 * var(--u));
+    top: 2rem;
+    left: var(--gutter-left);
+    right: var(--gutter-right);
     z-index: 2;
     display: flex;
     justify-content: space-between;
     font-family: var(--font-mono);
-    font-size: calc(14 * var(--u));
+    font-size: 0.875rem;
     color: var(--text-muted);
     pointer-events: none;
   }
 
   [data-mode='horizontal'] .menu:not([hidden]) {
     position: absolute;
-    left: calc(84 * var(--u));
-    right: calc(84 * var(--u));
-    bottom: calc(30 * var(--u));
+    left: calc(var(--gutter-left) - 0.75rem);
+    right: calc(var(--gutter-right) - 0.75rem);
+    bottom: 1.875rem;
     z-index: 2;
     display: flex;
     flex-direction: column;
-    gap: calc(4 * var(--u));
+    gap: 0.25rem;
   }
 
   .menu .progress {
-    margin: 0 calc(12 * var(--u));
+    margin: 0 0.75rem;
   }
 
   .ticks {
@@ -527,14 +549,14 @@ const first = chapters[0];
 
   .tick {
     position: relative;
-    min-width: max(var(--tap), calc(44 * var(--u)));
-    min-height: max(var(--tap), calc(44 * var(--u)));
-    padding: 0 calc(12 * var(--u));
+    min-width: var(--tap);
+    min-height: var(--tap);
+    padding: 0 0.75rem;
     border: 0;
     background: none;
     color: var(--text-faint);
     font-family: var(--font-mono);
-    font-size: calc(12 * var(--u));
+    font-size: var(--fs-small);
     cursor: pointer;
     transition: color 300ms ease;
   }
@@ -549,8 +571,8 @@ const first = chapters[0];
 
   .tick-name {
     position: absolute;
-    bottom: calc(100% + 12 * var(--u)); /* separado de la línea de progreso */
-    left: calc(12 * var(--u));
+    bottom: calc(100% + 0.75rem); /* separado de la línea de progreso */
+    left: 0.75rem;
     font-family: var(--font-sans);
     white-space: nowrap;
     color: var(--text);

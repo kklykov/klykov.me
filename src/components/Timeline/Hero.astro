@@ -159,7 +159,6 @@ const ui = t(lang).home;
 
   /* Escritorio: el lema sube a la barra y la entradilla baja junto a "Desliza". */
   @media (min-width: 64rem) {
-    /* Medidas del diseño a 1280×800, escaladas con --u (docs/diseno.md). */
     .hero {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -168,17 +167,7 @@ const ui = t(lang).home;
         'bar bar'
         'title title'
         'intro scroll';
-      gap: calc(32 * var(--u));
-      padding: calc(32 * var(--u)) calc(96 * var(--u)) calc(48 * var(--u));
-      font-size: calc(14 * var(--u));
-    }
-
-    h1 {
-      font-size: calc(210 * var(--u));
-    }
-
-    .scroll {
-      min-height: max(var(--tap), calc(44 * var(--u)));
+      padding-bottom: 3rem;
     }
 
     .bar {
@@ -197,16 +186,16 @@ const ui = t(lang).home;
       display: none;
     }
 
+    /* Titular en display: escala con la ventana (--u, docs/diseno.md). */
     h1 {
       grid-area: title;
       align-self: center;
+      font-size: calc(210 * var(--u));
     }
 
     .intro {
       grid-area: intro;
       align-self: end;
-      max-width: calc(460 * var(--u));
-      font-size: calc(20 * var(--u));
     }
 
     .scroll {
