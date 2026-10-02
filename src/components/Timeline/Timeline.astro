@@ -1,8 +1,9 @@
 ---
 /**
- * Línea temporal de la portada. Sin JS (o con movimiento reducido) los capítulos se apilan en vertical.
- * Con JS, `data-mode` elige la versión:
- * - "horizontal" (escritorio): sección anclada con la pista de capítulos en horizontal y menú inferior.
+ * Línea temporal de la portada, con la portada (slot "before") y el cierre (slot "after").
+ * Sin JS (o con movimiento reducido) todo se apila en vertical. Con JS, `data-mode` elige la versión:
+ * - "horizontal" (escritorio): un escenario anclado de una pantalla. El scroll real solo da el recorrido
+ *   y los puntos del imán; portada, capítulos (en horizontal) y cierre se pintan desde él, con inercia.
  * - "vertical" (móvil, o escritorio con movimiento reducido): barra superior con índice desplegable.
  */
 import type { CollectionEntry } from 'astro:content';
@@ -22,89 +23,89 @@ const nameOf = (chapter: CollectionEntry<'timeline'>) => chapter.data.title[lang
 const first = chapters[0];
 ---
 
-<div
-  class="timeline"
-  role="region"
-  aria-label={ui.timeline}
-  data-timeline
-  data-go-to={ui.goTo}
-  data-index-label={ui.index}
-  data-konami-message={ui.konami}
->
-  <!-- Móvil: barra fija con el capítulo actual y el índice -->
-  <div class="mbar" data-mbar hidden>
-    <div class="mbar-row">
-      <span>klykov.me</span>
-      <button
-        type="button"
-        class="mbar-toggle"
-        aria-expanded="false"
-        aria-controls="indice-capitulos"
-        aria-label={ui.index.replace('{name}', nameOf(first))}
-        data-index-toggle
-      >
-        <span class="code" data-current-code>{first.data.code}</span> — <span data-current-name>{nameOf(first)}</span>
-        <span class="chevron" aria-hidden="true">▾</span>
-      </button>
-    </div>
-    <div class="progress"><span data-progress></span></div>
-    <nav id="indice-capitulos" class="index" aria-label={ui.chapters} hidden>
-      <ul role="list">
-        {
-          chapters.map((chapter) => (
-            <li>
-              <a href={`#capitulo-${chapter.id}`} data-index-link>
-                <span class="code">{chapter.data.code}</span>
-                <span class="name">{nameOf(chapter)}</span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
-  </div>
-
-  <!-- Escritorio: un punto de anclaje por capítulo (imán con scroll-snap, sin JS) -->
-  {chapters.map((_, i) => <span class="snap" style={`--i: ${i}`} aria-hidden="true" />)}
+<div class="timeline" data-timeline data-go-to={ui.goTo} data-index-label={ui.index} data-konami-message={ui.konami}>
+  <!-- Escritorio: puntos del imán (scroll-snap, sin JS): portada, un capítulo por pantalla y cierre -->
+  {[...Array(chapters.length + 2).keys()].map((i) => <span class="snap" style={`--i: ${i}`} aria-hidden="true" />)}
 
   <div class="pin" data-pin>
-    <!-- Escritorio: barra superior (decorativa: el estado lo anuncia el menú) -->
-    <div class="dbar" aria-hidden="true">
-      <span>klykov.me</span>
-      <span><span class="code" data-current-code>{first.data.code}</span> — <span data-current-name>{nameOf(first)}</span></span>
-    </div>
+    <div class="stage" data-stage>
+      <slot name="before" />
 
-    <div class="track" data-track>
-      {
-        chapters.map((chapter) => (
-          <Chapter chapter={chapter} lang={lang}>
-            {chapter.id === '06' && <Chat lang={lang} />}
-          </Chapter>
-        ))
-      }
-    </div>
-
-    <!-- Escritorio: menú inferior de capítulos -->
-    <nav class="menu" aria-label={ui.chapters} data-menu hidden>
-      <div class="progress"><span data-progress></span></div>
-      <div class="ticks">
-        {
-          chapters.map((chapter, i) => (
+      <div class="view" role="region" aria-label={ui.timeline} data-view>
+        <!-- Móvil: barra fija con el capítulo actual y el índice -->
+        <div class="mbar" data-mbar hidden>
+          <div class="mbar-row">
+            <span>klykov.me</span>
             <button
               type="button"
-              class="tick"
-              data-tick={i}
-              aria-label={ui.goTo.replace('{code}', chapter.id).replace('{name}', nameOf(chapter))}
+              class="mbar-toggle"
+              aria-expanded="false"
+              aria-controls="indice-capitulos"
+              aria-label={ui.index.replace('{name}', nameOf(first))}
+              data-index-toggle
             >
-              {chapter.id}
-              <span class="tick-name" aria-hidden="true">
-                {nameOf(chapter)}
-              </span>
+              <span class="code" data-current-code>{first.data.code}</span> — <span data-current-name>{nameOf(first)}</span>
+              <span class="chevron" aria-hidden="true">▾</span>
             </button>
-          ))
-        }
+          </div>
+          <div class="progress"><span data-progress></span></div>
+          <nav id="indice-capitulos" class="index" aria-label={ui.chapters} hidden>
+            <ul role="list">
+              {
+                chapters.map((chapter) => (
+                  <li>
+                    <a href={`#capitulo-${chapter.id}`} data-index-link>
+                      <span class="code">{chapter.data.code}</span>
+                      <span class="name">{nameOf(chapter)}</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+        </div>
+
+        <!-- Escritorio: barra superior (decorativa: el estado lo anuncia el menú) -->
+        <div class="dbar" aria-hidden="true">
+          <span>klykov.me</span>
+          <span><span class="code" data-current-code>{first.data.code}</span> — <span data-current-name>{nameOf(first)}</span></span>
+        </div>
+
+        <div class="track" data-track>
+          {
+            chapters.map((chapter) => (
+              <Chapter chapter={chapter} lang={lang}>
+                {chapter.id === '06' && <Chat lang={lang} />}
+              </Chapter>
+            ))
+          }
+        </div>
+
+        <!-- Escritorio: menú inferior de capítulos -->
+        <nav class="menu" aria-label={ui.chapters} data-menu hidden>
+          <div class="progress"><span data-progress></span></div>
+          <div class="ticks">
+            {
+              chapters.map((chapter, i) => (
+                <button
+                  type="button"
+                  class="tick"
+                  data-tick={i}
+                  aria-label={ui.goTo.replace('{code}', chapter.id).replace('{name}', nameOf(chapter))}
+                >
+                  {chapter.id}
+                  <span class="tick-name" aria-hidden="true">
+                    {nameOf(chapter)}
+                  </span>
+                </button>
+              ))
+            }
+          </div>
+        </nav>
       </div>
-    </nav>
+
+      <slot name="after" />
+    </div>
   </div>
 
   <p class="visually-hidden" role="status" aria-live="polite" data-konami-live></p>
@@ -118,6 +119,7 @@ const first = chapters[0];
     const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
     const $$ = <T extends Element>(sel: string) => [...root.querySelectorAll<T>(sel)];
 
+    const stage = $<HTMLElement>('[data-stage]');
     const track = $<HTMLElement>('[data-track]');
     const chapters = $$<HTMLElement>('[data-chapter]');
     const numbers = chapters.map((c) => c.querySelector<HTMLElement>('.number')!);
@@ -135,7 +137,6 @@ const first = chapters[0];
     const reduce = matchMedia('(prefers-reduced-motion: reduce)');
     let mode: 'horizontal' | 'vertical' | undefined;
     let start = 0;
-    let travel = 1;
     let vw = innerWidth;
     let vh = innerHeight;
     let u = 1; // --u en px: la portada se diseña a 1280×800
@@ -153,7 +154,6 @@ const first = chapters[0];
       vh = innerHeight;
       u = Math.min(vw / 1280, vh / 800);
       start = pageTop(root);
-      travel = Math.max(1, root.offsetHeight - vh);
       tops = chapters.map(pageTop);
     }
 
@@ -190,15 +190,21 @@ const first = chapters[0];
       return shown === target;
     }
 
+    // Escritorio: el recorrido se mide en pantallas. Parada 0: portada; 1…7: capítulos 00…06; 8: cierre.
+    const stopTop = (k: number) => start + k * vh;
+
     // Un solo bucle de requestAnimationFrame: se mantiene mientras el pintado no ha llegado al scroll real.
     function update(time: number) {
       frame = 0;
       if (mode === 'horizontal') {
         const arrived = follow(time);
         if (!arrived) frame = requestAnimationFrame(update);
-        const y = shown;
-        // p = clamp((scrollY − inicio) / recorrido); pista con translate3d(−p × 6 × 100vw)
-        const pos = clamp((y - start) / travel) * last;
+        const at = (shown - start) / vh; // pantallas recorridas
+        // El escenario (portada, capítulos y cierre en columna) sube al entrar y al salir de los capítulos.
+        const lift = clamp(at) + clamp(at - 1 - last);
+        stage.style.transform = lift ? `translate3d(0, ${-lift * vh}px, 0)` : '';
+        // Capítulo pintado (0…6) y pista con translate3d(−pos × 100vw)
+        const pos = Math.min(last, Math.max(0, at - 1));
         track.style.transform = `translate3d(${-pos * vw}px, 0, 0)`;
         // Parallax en tres capas: número detrás, guiño en medio y contenido delante.
         chapters.forEach((_, i) => {
@@ -241,7 +247,7 @@ const first = chapters[0];
         menu.hidden = next !== 'horizontal';
         mbar.hidden = next !== 'vertical';
         closeIndex(false);
-        for (const el of [track, ...numbers, ...winks, ...contents]) if (el) el.style.transform = el.style.opacity = '';
+        for (const el of [stage, track, ...numbers, ...winks, ...contents]) if (el) el.style.transform = el.style.opacity = '';
       }
       jump();
     }
@@ -255,51 +261,29 @@ const first = chapters[0];
       update(performance.now());
     }
 
-    // Escritorio: ir a un capítulo es desplazarse a su punto de anclaje (inicio + i/6 × recorrido).
-    // El desplazamiento real es instantáneo: la suavidad la pone la inercia, igual que con la rueda.
-    function goTo(i: number) {
-      scrollTo({ top: start + (i / last) * travel, behavior: 'instant' });
-    }
+    // Escritorio: ir a una parada es desplazar el scroll real a su punto del imán, al instante.
+    // La suavidad la pone la inercia, igual que con la rueda.
+    const goToStop = (k: number) => scrollTo({ top: stopTop(k), behavior: 'instant' });
+    const goTo = (i: number) => goToStop(i + 1);
 
     ticks.forEach((tick, i) => tick.addEventListener('click', () => goTo(i)));
 
-    // Con el foco en un capítulo que no se ve (Tab), se lleva a la vista.
-    root.addEventListener('focusin', (event) => {
+    // "Desliza ↓": al capítulo 00, como los botones del menú.
+    $('[data-to-start]').addEventListener('click', (event) => {
       if (mode !== 'horizontal') return;
-      const i = chapters.findIndex((c) => c.contains(event.target as Node));
-      if (i >= 0 && i !== current) goTo(i);
+      event.preventDefault();
+      goTo(0);
     });
 
-    // "Desliza ↓" en horizontal: la portada no es parte de la pista y se mueve con el scroll real, así que
-    // ese scroll se anima con la misma inercia (sin imán durante el trayecto). Se corta si el usuario
-    // desplaza por su cuenta.
-    let glideFrame = 0;
-    function stopGlide() {
-      if (!glideFrame) return;
-      cancelAnimationFrame(glideFrame);
-      glideFrame = 0;
-      document.documentElement.style.removeProperty('scroll-snap-type');
-    }
-    function glide(to: number) {
-      stopGlide();
-      document.documentElement.style.scrollSnapType = 'none';
-      let y = scrollY;
-      let prev = 0;
-      const step = (time: number) => {
-        y += (to - y) * (1 - (1 - 0.085) ** (prev ? (time - prev) / (1000 / 60) : 1));
-        prev = time;
-        const done = Math.abs(to - y) < 0.5;
-        scrollTo({ top: done ? to : y, behavior: 'instant' });
-        if (done) stopGlide();
-        else glideFrame = requestAnimationFrame(step);
-      };
-      glideFrame = requestAnimationFrame(step);
-    }
-    for (const type of ['wheel', 'touchstart', 'keydown'] as const) addEventListener(type, stopGlide, { passive: true });
-    document.querySelector('[data-glide]')?.addEventListener('click', (event) => {
-      if (mode !== 'horizontal' || reduce.matches) return;
-      event.preventDefault();
-      glide(start);
+    // Con el foco (Tab) en algo que no se ve, se lleva a la vista su parada: portada, capítulo o cierre.
+    const hero = $<HTMLElement>('.hero');
+    const outro = $<HTMLElement>('.outro');
+    root.addEventListener('focusin', (event) => {
+      if (mode !== 'horizontal') return;
+      const target = event.target as Node;
+      const i = chapters.findIndex((c) => c.contains(target));
+      const k = hero.contains(target) ? 0 : outro.contains(target) ? last + 2 : i >= 0 ? i + 1 : -1;
+      if (k >= 0 && Math.abs(scrollY - stopTop(k)) > 1) goToStop(k);
     });
 
     // Anclas #capitulo-0X: en horizontal, al punto del recorrido.
@@ -491,13 +475,13 @@ const first = chapters[0];
     display: none;
   }
 
-  /* Un viewport de recorrido por capítulo */
+  /* Recorrido: una pantalla por parada (portada, 7 capítulos y cierre) */
   [data-mode='horizontal'] {
     position: relative;
-    height: calc(7 * 100vh);
+    height: calc(9 * 100vh);
   }
 
-  /* Imán: un marcador invisible por capítulo, en i × 100vh, del que no se puede pasar de largo */
+  /* Imán: un marcador invisible por parada, en i × 100vh, del que no se puede pasar de largo */
   [data-mode='horizontal'] .snap {
     position: absolute;
     top: calc(var(--i) * 100vh);
@@ -515,6 +499,21 @@ const first = chapters[0];
     top: 0;
     height: 100vh;
     overflow: clip;
+  }
+
+  /* Escenario: portada, capítulos y cierre en columna, una pantalla cada uno; sube con la inercia */
+  [data-mode='horizontal'] .stage {
+    will-change: transform;
+  }
+
+  [data-mode='horizontal'] .view {
+    position: relative;
+    height: 100vh;
+  }
+
+  [data-mode='horizontal'] :global(:is(.hero, .outro)) {
+    height: 100vh;
+    min-height: 0;
   }
 
   [data-mode='horizontal'] .track {
@@ -646,8 +645,8 @@ const first = chapters[0];
     scroll-snap-align: end;
   }
 
-  /* En horizontal, los capítulos están dentro de la sección anclada: el anclaje lo dan los marcadores. */
-  [data-mode='horizontal'] :global(.chapter) {
+  /* En horizontal, todo está dentro del escenario anclado: el anclaje lo dan los marcadores. */
+  [data-mode='horizontal'] :global(:is(.hero, .chapter, .outro)) {
     scroll-snap-align: none;
   }
 

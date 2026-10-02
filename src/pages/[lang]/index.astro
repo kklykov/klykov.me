@@ -19,7 +19,8 @@ const chapters = (await getCollection('timeline')).sort((a, b) => a.id.localeCom
 ---
 
 <Base title="klykov.me" description={ui.intro} alternates={alternates} header={false}>
-  <Hero lang={lang} alternates={alternates} />
-  <Timeline chapters={chapters} lang={lang} />
-  <Outro lang={lang} />
+  <Timeline chapters={chapters} lang={lang}>
+    <Hero slot="before" lang={lang} alternates={alternates} />
+    <Outro slot="after" lang={lang} />
+  </Timeline>
 </Base>

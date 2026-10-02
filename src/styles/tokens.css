@@ -71,10 +71,12 @@
   --header-pad-y: clamp(1.5rem, 1.2809rem + 0.8989vw, 2rem); /* 24 → 32 */
   --measure: 42.5rem; /* 680, columna de lectura */
   --tap: 44px; /* zona táctil mínima */
-  /* Portada en escritorio: diseñada a 1280×800. Solo la capa expresiva (números gigantes, guiños,
-     titulares en display y recorridos del parallax) escala con la ventana, sin topes, como
+  /* Portada en escritorio: diseñada a 1280×800. Solo la capa expresiva (números gigantes, titulares
+     en display y recorridos del parallax) escala con la ventana, sin topes, como
      calc(N * var(--u)), con N en px del diseño (docs/diseno.md). El resto usa sus tamaños normales. */
   --u: min(100vw / 1280, 100vh / 800);
+  /* Detalles de cada época (guiños): crecen la mitad que --u, para no comerse la pantalla en 2K y 4K. */
+  --u-detail: calc((var(--u) + 1px) / 2);
 
   /* Formas */
   --radius-sm: 4px;
