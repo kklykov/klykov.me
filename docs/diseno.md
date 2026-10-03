@@ -77,6 +77,7 @@ En reposo todo queda alineado; el movimiento solo se ve durante las transiciones
 - Por defecto, los trazos están ocultos y sin animación.
 - Con movimiento reducido, se muestra completo desde el principio.
 - Decorativo: `aria-hidden="true"`.
+- Posición: a 1280, debajo de "NIVEL 00" (40px por debajo del origen de los guiños). En pantallas mayores se desplaza hacia el centro de los símbolos del Konami, en proporción a lo que crece la pantalla: `left = (u − 1) × 617`, `top = 40 × u-detail + (u − 1) × 307`, nunca negativos. En móvil va a la derecha, 296px por debajo del inicio del capítulo, a 200×100.
 
 ### Código Konami (solo escritorio)
 

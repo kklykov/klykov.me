@@ -240,11 +240,13 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
     color: var(--accent);
   }
 
+  /* Móvil: a la derecha, debajo de los símbolos, para no amontonar la zona del NIVEL */
   .sketch {
-    display: block;
-    width: 15rem;
-    height: auto;
-    margin-top: 0.75rem;
+    position: absolute;
+    top: 13rem;
+    right: 0;
+    width: 12.5rem;
+    height: 6.25rem;
     overflow: visible;
   }
 
@@ -432,13 +434,14 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
       font-size: calc(12 * var(--u-detail));
     }
 
+    /* A 1280 queda bajo el NIVEL; en pantallas mayores se desplaza hacia el centro de los símbolos,
+       en proporción a lo que crece la pantalla (u − 1). Nunca hacia la izquierda ni hacia arriba. */
     .sketch {
-      position: absolute;
-      top: calc(40 * var(--u-detail));
-      left: 0;
+      top: calc(40 * var(--u-detail) + max(0px, (var(--u) - 1px) * 307));
+      right: auto;
+      left: max(0px, (var(--u) - 1px) * 617);
       width: calc(320 * var(--u-detail));
       height: calc(160 * var(--u-detail));
-      margin: 0;
     }
 
     .glyphs span {
