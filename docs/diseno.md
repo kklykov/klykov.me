@@ -59,7 +59,7 @@ En reposo todo queda alineado; el movimiento solo se ve durante las transiciones
 
 ## Portada: móvil
 
-- Capítulos de `100svh` con `scroll-snap-type: y proximity`. El anclaje obligatorio da tirones en Safari cuando su barra aparece y desaparece.
+- Portada y capítulos de `100lvh` (el alto con las barras del navegador ocultas), con `scroll-snap-type: y proximity`. La diferencia con `100svh` va al margen inferior: con las barras visibles el contenido cabe entero, y al ocultarse no asoma el capítulo siguiente. El anclaje obligatorio da tirones en Safari cuando su barra aparece y desaparece.
 - Barra superior fija con el índice desplegable: botón con `aria-expanded` y `aria-controls`. Se cierra al elegir un capítulo, al tocar fuera, con Escape o al volver a pulsar. Al cerrarse, el foco vuelve al botón.
 - **Sin menú inferior.**
 - `viewport-fit=cover` y `env(safe-area-inset-*)` en la barra superior y en los capítulos.
@@ -109,6 +109,7 @@ En reposo todo queda alineado; el movimiento solo se ve durante las transiciones
 - `<label>` visualmente oculto para el campo; Enter envía.
 - Una región `aria-live="polite"` anuncia **la respuesta completa una sola vez** al terminar, nunca carácter a carácter.
 - Al abrir el chat, el foco va al campo de texto; al cerrarlo, vuelve al botón que lo abrió.
+- Móvil: al abrirse el teclado, el formulario se coloca justo encima de él (el navegador lo dejaría en mitad de la pantalla) y, al cerrarse, la página vuelve a donde estaba. Con el chat abierto no hay `scroll-snap`.
 - El historial solo vive en memoria (nada de `localStorage`).
 - Endpoint, límites, errores y logs: `docs/chat-ia.md`.
 
