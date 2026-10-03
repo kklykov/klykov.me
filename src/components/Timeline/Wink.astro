@@ -250,6 +250,17 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
     overflow: visible;
   }
 
+  /* Pantallas intermedias (tablet, ventanas estrechas): bajo el NIVEL, como en escritorio */
+  @media (min-width: 40rem) {
+    .sketch {
+      top: 2.5rem;
+      right: auto;
+      left: 0;
+      width: 20rem;
+      height: 10rem;
+    }
+  }
+
   .sketch path {
     stroke: var(--accent);
     stroke-width: 1.8;
@@ -437,9 +448,8 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
     /* A 1280 queda bajo el NIVEL; en pantallas mayores se desplaza hacia el centro de los símbolos,
        en proporción a lo que crece la pantalla (u − 1). Nunca hacia la izquierda ni hacia arriba. */
     .sketch {
-      top: calc(40 * var(--u-detail) + max(0px, (var(--u) - 1px) * 307));
-      right: auto;
-      left: max(0px, (var(--u) - 1px) * 617);
+      top: calc(40 * var(--u-detail) + max(0px, (var(--u) - 1px) * 184));
+      left: max(0px, (var(--u) - 1px) * 315);
       width: calc(320 * var(--u-detail));
       height: calc(160 * var(--u-detail));
     }
