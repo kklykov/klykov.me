@@ -101,8 +101,13 @@
   snippet:
     file: Note.jsx
     code: |
-      export function Note({ title }) {
-        return <article>{title}</article>;
+      export function Note({ title, tags }) {
+        return (
+          <article>
+            <h2>{title}</h2>
+            <Tags list={tags} />
+          </article>
+        );
       }
 
 - id: "06"

@@ -75,9 +75,8 @@ const es = {
     readNotes: 'Leer las notas',
     level: 'NIVEL',
     winks: {
-      news: 'Últimas noticias ▾',
-      rounded: '¡Esquinas redondeadas sin imágenes!',
-      readMore: 'Leer más »',
+      // Menú acordeón de jQuery (02): una sección abierta con sus enlaces y dos plegadas.
+      accordion: { open: 'Productos', links: ['Novedades', 'Ofertas', 'Catálogo'], closed: ['Servicios', 'Contacto'] },
       model: 'Modelo',
       controller: 'Controlador',
       view: 'Vista',
@@ -200,9 +199,7 @@ const en: Ui = {
     readNotes: 'Read the notes',
     level: 'LEVEL',
     winks: {
-      news: 'Latest news ▾',
-      rounded: 'Rounded corners without images!',
-      readMore: 'Read more »',
+      accordion: { open: 'Products', links: ["What's new", 'Deals', 'Catalog'], closed: ['Services', 'Contact'] },
       model: 'Model',
       controller: 'Controller',
       view: 'View',

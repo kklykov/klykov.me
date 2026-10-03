@@ -126,6 +126,12 @@ const first = chapters[0];
     const numbers = chapters.map((c) => c.querySelector<HTMLElement>('.number')!);
     const contents = chapters.map((c) => c.querySelector<HTMLElement>('.content')!);
     const winks = chapters.map((c) => c.querySelector<HTMLElement>('[data-wink]'));
+    // Mando del 00: oculto hasta que la llegada al capítulo pasa del 90 %; entonces se traza una sola vez.
+    const sketch = $<SVGElement>('[data-sketch]');
+    root.toggleAttribute('data-sketch-ready', true);
+    const drawSketch = (arrival: number) => {
+      if (arrival >= 0.9 && !sketch.hasAttribute('data-drawn')) sketch.toggleAttribute('data-drawn', true);
+    };
     const menu = $<HTMLElement>('[data-menu]');
     const ticks = $$<HTMLButtonElement>('[data-tick]');
     const mbar = $<HTMLElement>('[data-mbar]');
@@ -205,6 +211,7 @@ const first = chapters[0];
         const arrived = follow(time);
         if (!arrived) frame = requestAnimationFrame(update);
         const at = (shown - start) / vh; // pantallas recorridas
+        drawSketch(at); // de la portada al 00, con la posición suavizada
         // El escenario (portada, capítulos y cierre en columna, y el pie debajo) sube al entrar y al salir
         // de los capítulos: es una página normal salvo los capítulos, que se quedan anclados.
         // La última pantalla de scroll real sube el cierre y el pie a la vez (una pantalla más el pie).
@@ -228,6 +235,7 @@ const first = chapters[0];
         setCurrent(Math.round(pos));
       } else {
         const y = (shown = scrollY);
+        drawSketch((y - tops[0] + vh) / vh); // el 00 entrando desde abajo
         let i = 0;
         tops.forEach((top, t) => {
           if (y + vh / 2 >= top) i = t;

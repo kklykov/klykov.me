@@ -37,8 +37,9 @@
   --line-muted: #4a463c; /* cajas del MVC (03) */
   --line-dashed: #5a564b; /* microservicios (04) */
   --glyph: #2a2822; /* símbolos del Código Konami apagados (00) */
-  --web2-bg: #f2f2f2; /* caja Web 2.0 (02) */
-  --web2-bar: #dddddd;
+  --web2-bg: #f2f2f2; /* acordeón Web 2.0 (02) */
+  --web2-bar: #dddddd; /* sección abierta */
+  --web2-bar-closed: #e8e8e8; /* secciones plegadas */
   --web2-border: #bbbbbb;
   --web2-text: #333333;
   --web2-link: #0055aa;

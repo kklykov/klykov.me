@@ -38,6 +38,21 @@ const glyphs: { ch: string; desktop: [number, number, number]; mobile: [number, 
   { ch: 'B', desktop: [204, 214, 16], mobile: [86, 196, 10] },
   { ch: 'A', desktop: [590, -12, 24], mobile: [306, 22, 17] },
 ];
+// Mando de videojuegos a trazos (00), en orden de trazado: [d, duración ms, retraso ms, opacidad].
+// Contorno, segundo repaso tenue, cruceta, botones B y A, sus letras, select, start y cable.
+const sketch: [string, number, number, number][] = [
+  ['M 70 31 C 112 22, 208 21, 251 30 C 301 38, 313 91, 291 123 C 272 147, 235 141, 221 118 C 204 104, 116 105, 99 119 C 84 141, 47 146, 29 122 C 8 89, 21 39, 70 31', 845, 0, 0.9],
+  ['M 72 34 C 114 25, 206 24, 248 33 C 296 41, 307 90, 287 120', 455, 585, 0.35],
+  ['M 64 59 L 80 58 L 80 70 L 92 70 L 92 86 L 80 87 L 80 98 L 64 98 L 64 86 L 52 86 L 52 71 L 64 70 Z', 422, 878, 0.9],
+  ['M 243 86 C 243 79, 238 75, 232 75 C 225 75, 221 80, 221 86 C 221 93, 226 97, 232 97 C 239 97, 243 92, 242 84', 247, 1332, 0.9],
+  ['M 273 70 C 273 63, 268 59, 262 59 C 255 59, 251 64, 251 70 C 251 77, 256 81, 262 81 C 269 81, 273 76, 272 68', 247, 1592, 0.9],
+  ['M 229 80 L 229 92 M 229 80 C 236 80, 236 86, 229 86 C 237 86, 237 92, 229 92', 195, 1852, 0.9],
+  ['M 258 75 L 262 64 L 266 75 M 259.5 71 L 264.5 71', 195, 2048, 0.9],
+  ['M 137 82 L 152 77', 130, 2242, 0.9],
+  ['M 167 77 L 182 82', 130, 2372, 0.9],
+  ['M 160 25 C 158 8, 182 -2, 206 6 C 224 12, 236 4, 244 -6', 455, 2502, 0.7],
+];
+
 const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof glyphs)[number], i: number) =>
   `--i: ${i}; --dx: ${dx}; --dy: ${dy}; --ds: ${ds}; --mx: ${mx}px; --my: ${my}px; --ms: ${ms}px;`;
 ---
@@ -68,18 +83,31 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
               </span>
             ))}
           </div>
-          <svg class="squiggle" viewBox="0 0 420 120" fill="none">
-            <path d="M4 90 C 60 20, 110 110, 170 60 S 280 10, 330 70 S 400 100, 416 40" />
+          <svg class="sketch" viewBox="0 0 320 160" fill="none" data-sketch>
+            {sketch.map(([d, ms, delay, opacity]) => (
+              <path d={d} pathLength="1" opacity={opacity} style={`--ms: ${ms}ms; --delay: ${delay}ms`} />
+            ))}
           </svg>
         </>
       )}
 
       {wink === 'web2' && (
-        <div class="web2-box">
-          <div class="web2-bar">{ui.winks.news}</div>
-          <div class="web2-body">
-            {ui.winks.rounded} <span>{ui.winks.readMore}</span>
+        <div class="accordion">
+          <div class="acc-head open">
+            <span>{ui.winks.accordion.open}</span>
+            <span>▾</span>
           </div>
+          <div class="acc-body">
+            {ui.winks.accordion.links.map((link) => (
+              <span>{link}</span>
+            ))}
+          </div>
+          {ui.winks.accordion.closed.map((item) => (
+            <div class="acc-head">
+              <span>{item}</span>
+              <span>▸</span>
+            </div>
+          ))}
         </div>
       )}
 
@@ -128,7 +156,7 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
     pointer-events: none;
   }
 
-  /* 00 · Nivel y vidas, y un garabato de lápiz */
+  /* 00 · Nivel y vidas, y un mando dibujado a trazos */
   .hud {
     display: flex;
     align-items: center;
@@ -174,7 +202,6 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
     font-size: var(--ms);
     line-height: 1;
     color: var(--glyph);
-    transition: color 400ms ease;
   }
 
   /* Al acertar, cada símbolo se enciende y crece un poco (scale no choca con la ola final, que usa transform). */
@@ -186,8 +213,8 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
   @media (prefers-reduced-motion: no-preference) {
     .glyphs span {
       transition:
-        color 400ms ease,
-        scale 300ms var(--ease-out);
+        color 300ms ease,
+        scale 300ms ease;
     }
   }
 
@@ -213,16 +240,38 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
     color: var(--accent);
   }
 
-  .squiggle {
-    width: 18.75rem;
-    margin-top: 1rem;
+  .sketch {
+    display: block;
+    width: 15rem;
+    height: auto;
+    margin-top: 0.75rem;
+    overflow: visible;
   }
 
-  .squiggle path {
+  .sketch path {
     stroke: var(--accent);
-    stroke-width: 2.5;
+    stroke-width: 1.8;
     stroke-linecap: round;
-    opacity: 0.7;
+    stroke-linejoin: round;
+  }
+
+  /* Trazado: con JS, los trazos empiezan ocultos y se dibujan una sola vez cuando el script marca
+     data-drawn (ver Timeline.astro). Sin JS o con movimiento reducido, el dibujo se ve completo. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global([data-sketch-ready]) .sketch path {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+    }
+
+    :global([data-sketch-ready]) .sketch[data-drawn] path {
+      animation: draw var(--ms) cubic-bezier(0.45, 0.05, 0.35, 1) var(--delay) forwards;
+    }
+  }
+
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 
   /* 01 · Retícula de tablas */
@@ -236,32 +285,49 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
     pointer-events: none;
   }
 
-  /* 02 · Caja Web 2.0 */
-  .web2-box {
-    width: 16.25rem;
+  /* 02 · Menú acordeón de jQuery: lo que hace el slideToggle() del capítulo */
+  .accordion {
+    display: flex;
+    flex-direction: column;
+    width: 12.5rem;
     border: 1px solid var(--web2-border);
-    border-radius: 6px;
     background: var(--web2-bg);
     font-family: var(--font-verdana);
     font-size: 0.6875rem;
-    line-height: 1.6;
     color: var(--web2-text);
   }
 
-  .web2-bar {
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--web2-border);
-    border-radius: 6px 6px 0 0;
-    background: var(--web2-bar);
+  .acc-head {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.375rem 0.625rem;
+    background: var(--web2-bar-closed);
     font-weight: 700;
   }
 
-  .web2-body {
-    padding: 0.625rem 0.75rem;
+  .acc-head,
+  .acc-body {
+    border-bottom: 1px solid var(--web2-border);
   }
 
-  .web2-body span {
+  .accordion > :last-child {
+    border-bottom: 0;
+  }
+
+  .acc-head.open {
+    background: var(--web2-bar);
+  }
+
+  .acc-body {
+    display: flex;
+    flex-direction: column;
+    padding: 0.3125rem 0.625rem 0.4375rem 1.25rem;
+    line-height: 1.9;
+  }
+
+  .acc-body span {
     color: var(--web2-link);
+    text-decoration: underline;
   }
 
   /* 03 · Modelo ⇄ Controlador ⇄ Vista */
@@ -343,8 +409,9 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
 
   /* Escritorio: medidas del diseño a 1280×800, escaladas con --u-detail (crecen la mitad que --u). */
   @media (min-width: 64rem) {
+    /* Origen de los guiños: el margen del texto y 120px desde arriba (docs/diseno.md) */
     .wink {
-      top: calc(120 * var(--u-detail));
+      top: 7.5rem;
       font-size: calc(13 * var(--u-detail));
     }
 
@@ -365,19 +432,19 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
       font-size: calc(12 * var(--u-detail));
     }
 
-    .squiggle {
-      width: calc(420 * var(--u-detail));
-      margin-top: calc(16 * var(--u-detail));
+    .sketch {
+      position: absolute;
+      top: calc(40 * var(--u-detail));
+      left: 0;
+      width: calc(320 * var(--u-detail));
+      height: calc(160 * var(--u-detail));
+      margin: 0;
     }
 
     .glyphs span {
       left: calc(var(--dx) * var(--u));
       top: calc(var(--dy) * var(--u));
       font-size: calc(var(--ds) * var(--u-detail));
-    }
-
-    .squiggle path {
-      stroke-width: 2;
     }
 
     /* Más ancha que el capítulo: el parallax la desplaza sin dejar bordes vacíos. */
@@ -387,19 +454,17 @@ const glyphStyle = ({ desktop: [dx, dy, ds], mobile: [mx, my, ms] }: (typeof gly
       background-size: calc(160 * var(--u-detail)) calc(80 * var(--u-detail));
     }
 
-    .web2-box {
-      width: calc(320 * var(--u-detail));
-      border-radius: calc(6 * var(--u-detail));
+    .accordion {
+      width: calc(240 * var(--u-detail));
       font-size: calc(12 * var(--u-detail));
     }
 
-    .web2-bar {
-      padding: calc(8 * var(--u-detail)) calc(12 * var(--u-detail));
-      border-radius: calc(6 * var(--u-detail)) calc(6 * var(--u-detail)) 0 0;
+    .acc-head {
+      padding: calc(7 * var(--u-detail)) calc(12 * var(--u-detail));
     }
 
-    .web2-body {
-      padding: calc(12 * var(--u-detail));
+    .acc-body {
+      padding: calc(6 * var(--u-detail)) calc(12 * var(--u-detail)) calc(8 * var(--u-detail)) calc(24 * var(--u-detail));
     }
 
     .mvc {
