@@ -1,0 +1,7 @@
+# Cabeceras de seguridad para todo lo estático (Cloudflare las aplica a los assets).
+# El adaptador de Astro añade aquí la caché larga de /_astro/* al hacer el build.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Content-Security-Policy: frame-ancestors 'none'
+  Permissions-Policy: camera=(), microphone=(), geolocation=()

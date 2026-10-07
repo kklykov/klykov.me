@@ -40,6 +40,8 @@ export default defineConfig({
   adapter: cloudflare({ imageService: 'compile', prerenderEnvironment: 'node' }),
   // Sin sesiones: evita que el adaptador cree una KV para ellas.
   session: false,
+  // El CSS va dentro del HTML: sin hojas que bloqueen el primer pintado (~300 ms menos en móvil).
+  build: { inlineStylesheets: 'always' },
 
   i18n: {
     defaultLocale,
