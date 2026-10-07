@@ -77,6 +77,7 @@
   font: mono
   year: "2015"
   title: { es: "Micro\nservicios", en: "Micro\nservices" }
+  name: { es: Microservicios, en: Microservices }
   text:
     es: Partir el sistema en piezas pequeñas y descubrir lo que cuesta que hablen entre sí.
     en: "Splitting the system into small pieces and finding out how hard it is to get them talking to each other."

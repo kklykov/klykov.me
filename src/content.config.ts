@@ -96,13 +96,15 @@ const timeline = defineCollection({
     font: z.enum(['serif', 'times', 'verdana', 'mono', 'sans']),
     year: localized,
     title: translated,
+    // Nombre en una línea (índice, menú, barra): solo si no basta con quitar el salto del título,
+    // p. ej. "Micro\nservicios" → "Microservicios".
+    name: translated.optional(),
     text: translated,
     wink: z.enum(['level', 'grid', 'web2', 'mvc', 'services', 'component']).optional(),
     snippet: z.object({ file: z.string().optional(), code: z.string() }).optional(),
   }),
 });
 
-export type UsesSection = z.infer<typeof usesSection>;
 export type LocalizedText = z.infer<typeof localized>;
 
 export const collections = { notas, lab, uses, timeline };

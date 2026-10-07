@@ -19,11 +19,12 @@ interface Props {
 
 const { chapters, lang } = Astro.props;
 const ui = t(lang).home;
-const nameOf = (chapter: CollectionEntry<'timeline'>) => chapter.data.title[lang].replace(/\n/g, ' ');
+// Nombre en una línea: el propio, si lo tiene, o el título sin saltos (ver content.config.ts).
+const nameOf = ({ data }: CollectionEntry<'timeline'>) => data.name?.[lang] ?? data.title[lang].replace(/\n/g, ' ');
 const first = chapters[0];
 ---
 
-<div class="timeline" data-timeline data-go-to={ui.goTo} data-index-label={ui.index} data-konami-message={ui.konami}>
+<div class="timeline" style={`--count: ${chapters.length}`} data-timeline data-konami-message={ui.konami}>
   <!-- Escritorio: puntos del imán (scroll-snap, sin JS): portada, un capítulo por pantalla y final (cierre y pie) -->
   {[...Array(chapters.length + 2).keys()].map((i) => <span class="snap" style={`--i: ${i}`} aria-hidden="true" />)}
 
@@ -41,9 +42,10 @@ const first = chapters[0];
               class="mbar-toggle"
               aria-expanded="false"
               aria-controls="indice-capitulos"
-              aria-label={ui.index.replace('{name}', nameOf(first))}
               data-index-toggle
             >
+              <!-- Nombre accesible: el texto visible, precedido de esta explicación -->
+              <span class="visually-hidden">{ui.index} </span>
               <span class="code" data-current-code>{first.data.code}</span> — <span data-current-name>{nameOf(first)}</span>
               <span class="chevron" aria-hidden="true">▾</span>
             </button>
@@ -127,10 +129,13 @@ const first = chapters[0];
     const contents = chapters.map((c) => c.querySelector<HTMLElement>('.content')!);
     const winks = chapters.map((c) => c.querySelector<HTMLElement>('[data-wink]'));
     // Mando del 00: oculto hasta que la llegada al capítulo pasa del 90 %; entonces se traza una sola vez.
-    const sketch = $<SVGElement>('[data-sketch]');
+    // Solo con el 00 a la vista (llegada entre 0,9 y 1,5): al entrar en otro capítulo no se gasta.
+    const sketch = root.querySelector<SVGElement>('[data-sketch]');
     root.toggleAttribute('data-sketch-ready', true);
     const drawSketch = (arrival: number) => {
-      if (arrival >= 0.9 && !sketch.hasAttribute('data-drawn')) sketch.toggleAttribute('data-drawn', true);
+      if (sketch && arrival >= 0.9 && arrival < 1.5 && !sketch.hasAttribute('data-drawn')) {
+        sketch.toggleAttribute('data-drawn', true);
+      }
     };
     const menu = $<HTMLElement>('[data-menu]');
     const ticks = $$<HTMLButtonElement>('[data-tick]');
@@ -138,7 +143,10 @@ const first = chapters[0];
     const toggle = $<HTMLButtonElement>('[data-index-toggle]');
     const index = document.getElementById(toggle.getAttribute('aria-controls')!)!;
     const indexLinks = $$<HTMLAnchorElement>('[data-index-link]');
+    const bars = $$<HTMLElement>('[data-progress]');
     const last = chapters.length - 1;
+    // Capítulos ya colocados fuera de la vista: no se vuelven a escribir en cada frame.
+    const far = chapters.map(() => false);
 
     const desktop = matchMedia('(min-width: 64rem)');
     const reduce = matchMedia('(prefers-reduced-motion: reduce)');
@@ -172,7 +180,6 @@ const first = chapters[0];
       const { code, name } = chapters[i].dataset;
       for (const el of $$('[data-current-code]')) el.textContent = code!;
       for (const el of $$('[data-current-name]')) el.textContent = name!;
-      toggle.setAttribute('aria-label', root.dataset.indexLabel!.replace('{name}', name!));
       ticks.forEach((tick, t) => {
         tick.toggleAttribute('data-passed', t <= i);
         if (t === i) tick.setAttribute('aria-current', 'step');
@@ -185,15 +192,16 @@ const first = chapters[0];
     }
 
     function setProgress(p: number) {
-      for (const bar of $$<HTMLElement>('[data-progress]')) bar.style.transform = `scaleX(${p})`;
+      for (const bar of bars) bar.style.transform = `scaleX(${p})`;
     }
 
     // Inercia: shown += (scrollY − shown) × 0.085 por frame de 60 Hz (~0,9 s), igual a cualquier frecuencia.
-    // El imán mueve el scroll real; esto solo suaviza lo que se pinta. Sin suavizado con movimiento reducido.
+    // El imán mueve el scroll real; esto solo suaviza lo que se pinta. Solo en horizontal, que ya exige
+    // que no haya movimiento reducido.
     function follow(time: number) {
       const target = scrollY;
       const frames = lastTime ? (time - lastTime) / (1000 / 60) : 1;
-      shown = reduce.matches ? target : shown + (target - shown) * (1 - (1 - 0.085) ** frames);
+      shown += (target - shown) * (1 - (1 - 0.085) ** frames);
       if (Math.abs(target - shown) < 0.5) shown = target;
       lastTime = shown === target ? 0 : time;
       return shown === target;
@@ -225,6 +233,10 @@ const first = chapters[0];
         // Parallax en tres capas: número detrás, guiño en medio y contenido delante.
         chapters.forEach((_, i) => {
           const local = pos - i;
+          // Lejos de la vista basta con colocarlo una vez.
+          const away = Math.abs(local) > 1.5;
+          if (away && far[i]) return;
+          far[i] = away;
           const d = Math.min(1, Math.abs(local));
           numbers[i].style.transform = `translateX(${local * 420 * u}px) scale(${1 - d * 0.12})`;
           if (winks[i]) winks[i].style.transform = `translateX(${-local * 160 * u}px)`;
@@ -265,7 +277,10 @@ const first = chapters[0];
         mbar.hidden = next !== 'vertical';
         closeIndex(false);
         for (const el of [stage, footer, track, ...numbers, ...winks, ...contents]) if (el) el.style.transform = el.style.opacity = '';
+        far.fill(false);
       }
+      // Movimiento reducido activado con la página abierta (en vertical): sin parallax de los números.
+      if (reduce.matches) for (const el of numbers) el.style.transform = '';
       jump();
     }
 
@@ -286,7 +301,7 @@ const first = chapters[0];
     ticks.forEach((tick, i) => tick.addEventListener('click', () => goTo(i)));
 
     // "Desliza ↓": al capítulo 00, como los botones del menú.
-    $('[data-to-start]').addEventListener('click', (event) => {
+    root.querySelector('[data-to-start]')?.addEventListener('click', (event) => {
       if (mode !== 'horizontal') return;
       event.preventDefault();
       goTo(0);
@@ -331,8 +346,9 @@ const first = chapters[0];
     index.addEventListener('click', (event) => {
       if ((event.target as Element).closest('a')) closeIndex();
     });
+    // Al tocar fuera, el foco no vuelve al botón: iría contra lo que se acaba de tocar (p. ej. el chat).
     document.addEventListener('click', (event) => {
-      if (!mbar.contains(event.target as Node)) closeIndex();
+      if (!mbar.contains(event.target as Node)) closeIndex(false);
     });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') closeIndex();
@@ -344,6 +360,8 @@ const first = chapters[0];
     let step = 0;
     document.addEventListener('keydown', function konami(event) {
       if (!desktop.matches || (event.target as Element).closest?.('input, textarea')) return;
+      // Mayúsculas (para escribir B o A) y otras teclas modificadoras no cuentan.
+      if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock'].includes(event.key)) return;
       const key = event.key?.length === 1 ? event.key.toLowerCase() : event.key;
       // Un error reinicia la secuencia, salvo un ↑ de más tras ↑↑, que mantiene el progreso.
       if (key === sequence[step]) step++;
@@ -354,8 +372,10 @@ const first = chapters[0];
       document.removeEventListener('keydown', konami);
       root.toggleAttribute('data-konami-done', true);
       for (const el of $$('[data-level], [data-life]')) el.toggleAttribute('data-lit', true);
-      $('[data-level]').textContent = '999';
-      $<HTMLElement>('[data-bonus]').hidden = false;
+      const level = root.querySelector('[data-level]');
+      if (level) level.textContent = '999';
+      const bonus = root.querySelector<HTMLElement>('[data-bonus]');
+      if (bonus) bonus.hidden = false;
       $('[data-konami-live]').textContent = root.dataset.konamiMessage!;
     });
 
@@ -496,7 +516,7 @@ const first = chapters[0];
   /* Recorrido: una pantalla por parada (portada, 7 capítulos y final con el cierre y el pie) */
   [data-mode='horizontal'] {
     position: relative;
-    height: calc(9 * 100vh);
+    height: calc((var(--count) + 2) * 100vh);
   }
 
   /* Imán: un marcador invisible por parada, en i × 100vh, del que no se puede pasar de largo */
@@ -550,7 +570,7 @@ const first = chapters[0];
 
   [data-mode='horizontal'] .track {
     display: flex;
-    width: calc(7 * 100vw);
+    width: calc(var(--count) * 100vw);
     height: 100vh;
     will-change: transform;
   }
@@ -683,13 +703,9 @@ const first = chapters[0];
   }
 
   @media (max-width: 63.999rem) {
-    :global(.chapter) {
-      padding-bottom: calc(max(3rem, calc(env(safe-area-inset-bottom) + 1.5rem)) + var(--bars));
-    }
-
     /* Con el chat abierto, sin ajuste: el teclado cambia el área visible y el ajuste podría
        devolver la página al inicio del capítulo, con el campo de texto debajo del teclado. */
-    :global(html:has([data-chapter][data-chat-open])) {
+    :global(html:has([data-chat-active])) {
       scroll-snap-type: none;
     }
   }
