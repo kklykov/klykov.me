@@ -4,8 +4,9 @@ export const MAX_MESSAGES = 10;
 /** Máximo por pregunta. */
 export const MAX_CHARS = 500;
 /** Las respuestas anteriores del asistente se recortan a esto al reenviarlas. */
-const MAX_ASSISTANT_CHARS = 2000;
-export const MAX_BODY_BYTES = 8 * 1024;
+export const MAX_ASSISTANT_CHARS = 2000;
+/** Cabe el historial más largo posible (5 preguntas y 4 respuestas recortadas), con margen para tildes. */
+export const MAX_BODY_BYTES = 16 * 1024;
 
 export type ChatRole = 'user' | 'assistant';
 export interface ChatMessage {

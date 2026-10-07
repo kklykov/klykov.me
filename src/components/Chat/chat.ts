@@ -1,14 +1,31 @@
 // Comportamiento del chat. Se carga con import() al abrirlo (ver Chat.astro y docs/diseno.md).
-import { MAX_CHARS, MAX_MESSAGES, type ChatMessage, type ErrorCode } from '../../lib/chat/protocol';
+import {
+  MAX_ASSISTANT_CHARS,
+  MAX_BODY_BYTES,
+  MAX_CHARS,
+  MAX_MESSAGES,
+  type ChatMessage,
+  type ErrorCode,
+} from '../../lib/chat/protocol';
 
 interface Strings {
   greeting: string;
   errors: Record<ErrorCode, string>;
 }
 
-const initialized = new WeakSet<HTMLElement>();
+// Un chat por raíz: se prepara la primera vez y después solo se vuelve a abrir.
+const chats = new WeakMap<HTMLElement, () => void>();
 
 export function openChat(root: HTMLElement) {
+  let open = chats.get(root);
+  if (!open) {
+    open = createChat(root);
+    chats.set(root, open);
+  }
+  open();
+}
+
+function createChat(root: HTMLElement) {
   const $ = <T extends Element>(selector: string) => root.querySelector<T>(selector)!;
   const trigger = $<HTMLButtonElement>('[data-chat-open]');
   const closed = $<HTMLElement>('[data-chat-closed]');
@@ -20,13 +37,21 @@ export function openChat(root: HTMLElement) {
   const chapter = root.closest<HTMLElement>('[data-chapter]');
   const strings: Strings = JSON.parse(root.dataset.strings!);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const encoder = new TextEncoder();
 
   // El historial solo vive en memoria mientras el chat está abierto.
   const history: ChatMessage[] = [];
   let busy = false;
   let request: AbortController | undefined;
 
-  const scrollDown = () => (log.scrollTop = log.scrollHeight);
+  // Bajar al final una vez por frame, aunque lleguen varios trozos de respuesta en el mismo.
+  let scrollFrame = 0;
+  const scrollDown = () => {
+    scrollFrame ||= requestAnimationFrame(() => {
+      scrollFrame = 0;
+      log.scrollTop = log.scrollHeight;
+    });
+  };
 
   function addMessage(role: 'user' | 'ai', text: string) {
     const p = document.createElement('p');
@@ -44,7 +69,7 @@ export function openChat(root: HTMLElement) {
   function open() {
     closed.hidden = true;
     panel.hidden = false;
-    chapter?.toggleAttribute('data-chat-open', true);
+    chapter?.toggleAttribute('data-chat-active', true);
     if (!log.childElementCount) addMessage('ai', strings.greeting);
     input.focus();
   }
@@ -55,11 +80,24 @@ export function openChat(root: HTMLElement) {
     form.removeAttribute('data-busy');
     panel.hidden = true;
     closed.hidden = false;
-    chapter?.removeAttribute('data-chat-open');
+    chapter?.removeAttribute('data-chat-active');
     log.replaceChildren();
     live.textContent = '';
     history.length = 0;
     trigger.focus();
+  }
+
+  // Como mucho 10 mensajes, empezando siempre por una pregunta, con las respuestas recortadas como
+  // las recorta el servidor. Si aun así no cabe en el cuerpo, se quitan las preguntas más antiguas.
+  function body() {
+    let messages = (history.length > MAX_MESSAGES ? history.slice(-(MAX_MESSAGES - 1)) : history).map((m) =>
+      m.role === 'assistant' ? { ...m, content: m.content.slice(0, MAX_ASSISTANT_CHARS) } : m,
+    );
+    for (;;) {
+      const json = JSON.stringify({ messages, lang: root.dataset.lang });
+      if (messages.length <= 1 || encoder.encode(json).length <= MAX_BODY_BYTES) return json;
+      messages = messages.slice(2);
+    }
   }
 
   async function ask(question: string) {
@@ -78,12 +116,10 @@ export function openChat(root: HTMLElement) {
     request = new AbortController();
     const { signal } = request;
     try {
-      // Como mucho 10 mensajes, empezando siempre por una pregunta.
-      const messages = history.length > MAX_MESSAGES ? history.slice(-(MAX_MESSAGES - 1)) : history;
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ messages, lang: root.dataset.lang }),
+        body: body(),
         signal,
       });
       if (!response.ok || !response.body) {
@@ -108,6 +144,7 @@ export function openChat(root: HTMLElement) {
         }
       }
     } catch {
+      // También si la respuesta se corta a medias: el servidor cierra la conexión con error.
       answer = strings.errors.upstream;
       failed = true;
     }
@@ -134,15 +171,19 @@ export function openChat(root: HTMLElement) {
     let full = 0; // alto visible antes de abrirse el teclado
     let before = 0; // desplazamiento de la página antes de abrirse el teclado
     let lifted = false;
+    let frame = 0;
 
     input.addEventListener('focus', () => {
       if (lifted) return;
       full = viewport.height;
       before = scrollY;
     });
-    viewport.addEventListener('resize', () =>
-      requestAnimationFrame(() => {
-        if (timeline?.dataset.mode === 'horizontal') return;
+    // Un ajuste por frame (iOS lanza varios resize seguidos). Con zoom de dos dedos el alto visible
+    // también baja: eso no es el teclado.
+    viewport.addEventListener('resize', () => {
+      frame ||= requestAnimationFrame(() => {
+        frame = 0;
+        if (timeline?.dataset.mode === 'horizontal' || viewport.scale > 1.01) return;
         const keyboard = full - viewport.height > 150; // más que las barras del navegador
         if (keyboard && document.activeElement === input) {
           const gap = form.getBoundingClientRect().bottom + 16 - (viewport.offsetTop + viewport.height);
@@ -152,24 +193,22 @@ export function openChat(root: HTMLElement) {
           scrollTo({ top: before, behavior: 'instant' });
           lifted = false;
         }
-      }),
-    );
+      });
+    });
   }
 
-  if (!initialized.has(root)) {
-    initialized.add(root);
-    $('[data-chat-close]').addEventListener('click', close);
-    form.addEventListener('submit', (event) => {
-      event.preventDefault();
-      ask(input.value);
-    });
-    for (const button of root.querySelectorAll<HTMLButtonElement>('[data-chat-suggestion]')) {
-      button.addEventListener('click', () => ask(button.textContent ?? ''));
-    }
-    panel.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') close();
-    });
-    followKeyboard();
+  $('[data-chat-close]').addEventListener('click', close);
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    ask(input.value);
+  });
+  for (const button of root.querySelectorAll<HTMLButtonElement>('[data-chat-suggestion]')) {
+    button.addEventListener('click', () => ask(button.textContent ?? ''));
   }
-  open();
+  panel.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') close();
+  });
+  followKeyboard();
+
+  return open;
 }

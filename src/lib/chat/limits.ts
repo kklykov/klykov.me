@@ -17,7 +17,9 @@ async function dailySalt(kv: KVNamespace, day: string): Promise<string> {
   const existing = await kv.get(key);
   if (existing) return existing;
   const salt = [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, '0')).join('');
-  await kv.put(key, salt, { expirationTtl: 2 * DAY });
+  // Si dos peticiones la crean a la vez, KV puede rechazar la segunda escritura: se usa la propia sal
+  // para esta petición y la que quedó guardada para las siguientes.
+  await kv.put(key, salt, { expirationTtl: 2 * DAY }).catch(() => {});
   return salt;
 }
 
@@ -26,6 +28,8 @@ export type LimitResult = 'ok' | 'limit_user' | 'limit_global';
 /**
  * Comprueba y cuenta un mensaje. KV no es atómico: con estos volúmenes basta.
  * Si se quedara corto, pasar a Durable Objects o al rate limiting de Cloudflare.
+ * Si falla una lectura, lanza (el endpoint no llama a la API); si falla una escritura (KV admite una
+ * por segundo en la misma clave, y la global se escribe en cada mensaje), el mensaje pasa sin contar.
  */
 export async function consume(kv: KVNamespace, ip: string): Promise<LimitResult> {
   const day = today();
@@ -36,7 +40,7 @@ export async function consume(kv: KVNamespace, ip: string): Promise<LimitResult>
   const globalCount = Number(global ?? 0);
   if (globalCount >= GLOBAL_DAILY) return 'limit_global';
   if (userCount >= USER_DAILY) return 'limit_user';
-  await Promise.all([
+  await Promise.allSettled([
     kv.put(userKey, String(userCount + 1), { expirationTtl: DAY }),
     kv.put(globalKey, String(globalCount + 1), { expirationTtl: DAY }),
   ]);

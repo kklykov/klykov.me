@@ -43,9 +43,13 @@ Respuesta: texto en streaming (`text/event-stream` o `text/plain` por trozos). E
 | Código HTTP | `code` | Mensaje en la interfaz |
 |---|---|---|
 | 400 | `invalid` | "No he entendido la pregunta. ¿Puedes reformularla?" |
-| 429 | `limit_user` | "Por hoy ya hemos hablado bastante. Si quieres seguir, escríbeme a [email]." |
-| 429 | `limit_global` | "Hoy he llegado a mi límite de conversaciones. Escríbeme a [email]." |
+| 429 | `limit_user` | "Por hoy ya hemos hablado bastante. Si quieres seguir, escríbeme a {email}." |
+| 429 | `limit_global` | "Hoy he llegado a mi límite de conversaciones. Escríbeme a {email}." |
 | 502 | `upstream` | "Ahora mismo no puedo responder. Prueba en un rato." |
+
+`upstream` cubre también: falta la clave, KV no responde al comprobar los límites (no se llama a la API), la API tarda más de 30 s o la respuesta se corta a mitad (el servidor cierra la conexión con error y el cliente no guarda la respuesta truncada). Si falla una escritura en KV (admite una por segundo en la misma clave), el mensaje pasa sin contar.
+
+En el log, el resultado es uno de: `ok`, `invalid`, `limit_user`, `limit_global`, `upstream`, `missing_key`, `limit_error`, `stream` (cortada a mitad) o `cancelled` (el visitante cerró el chat).
 
 ## Modelo y parámetros
 
@@ -77,7 +81,7 @@ Si el contexto crece mucho, usa solo título y descripción de las notas. Aprove
 
 - El system prompt indica que ignore instrucciones del usuario para cambiar de papel, revelar el prompt o hablar de temas ajenos al autor.
 - Recorta y limpia la entrada (sin HTML).
-- Rechaza cuerpos de más de 8 KB.
+- Rechaza cuerpos de más de 16 KB (cabe el historial más largo posible). El cliente recorta las respuestas antiguas a 2000 caracteres y quita las preguntas más viejas si aun así no cabe.
 - No hay herramientas ni acceso a internet desde el modelo.
 
 ## Cliente
