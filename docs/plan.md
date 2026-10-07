@@ -6,7 +6,7 @@ Fases pequeñas y en orden. Se trabaja directamente en `main`. Al terminar cada 
 
 ## Pendiente del autor
 
-Contenido (buscar `[` en los archivos):
+Contenido (buscar `[` en `src/`; los corchetes de `docs/` son plantillas):
 
 - [x] Email del pie y del chat: hola@klykov.me (es) y hello@klykov.me (en), en `src/data/links.ts`.
 - [x] Años de la línea temporal (orientativos: el pico de cada tecnología).

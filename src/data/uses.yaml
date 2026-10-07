@@ -15,7 +15,7 @@ sections:
       - name: "Cursor"
         category: { es: Editor, en: Editor }
         why: { es: "Empecé con VS Code y me pasé a Cursor por lo rápido que dejaba probar modelos nuevos. Hoy lo uso junto a Claude Code y sigo en él por comodidad, con todo ya montado.", en: "I started with VS Code and switched to Cursor because it let me try new models so quickly. Today I use it alongside Claude Code, and I stick with it because everything is already set up." }
-      - name: "Warp / Git bash"
+      - name: "Warp / Git Bash"
         category: { es: Terminal, en: Terminal }
         why: { es: "Warp para el día a día; Git Bash cuando necesito un entorno Unix en Windows.", en: "Warp for everyday work; Git Bash when I need a Unix environment on Windows." }
 
@@ -62,15 +62,15 @@ sections:
       - key: { es: Procesador, en: CPU }
         value: "AMD Ryzen 9 9950X3D"
       - key: { es: Tarjeta gráfica, en: Graphics card }
-        value: "Asus Prime RTX 5080"
+        value: "ASUS Prime RTX 5080"
       - key: { es: Placa base, en: Motherboard }
         value: "MSI PRO X870E-P WiFi"
       - key: { es: Memoria, en: Memory }
-        value: "64 GB DDR5 6000 Mhz · Corsair Vengeance"
+        value: "64 GB DDR5 6000 MHz · Corsair Vengeance"
       - key: { es: Almacenamiento, en: Storage }
         value: "4 TB · Samsung SSD 990 PRO"
       - key: { es: Refrigeración, en: Cooling }
-        value: "CORSAIR iCUE LINK TITAN 360 RX"
+        value: "Corsair iCUE LINK TITAN 360 RX"
       - key: { es: Fuente, en: Power supply }
         value: "1000 W 80 PLUS Platinum · Corsair HX1000i"
       - key: { es: Caja, en: Case }
@@ -90,7 +90,7 @@ sections:
       - key: { es: Montaje, en: Mount }
         value: Gasket
       - key: { es: PCB, en: PCB }
-        value: { es: "Hot-swap, 3 y 5 pines · QMK/VIA · inalámbrico", en: "Hot-swap, 3 and 5 pin · QMK/VIA · wireless" }
+        value: { es: "Hot-swap, 3 y 5 pines · QMK/VIA · inalámbrico", en: "Hot-swap, 3- and 5-pin · QMK/VIA · wireless" }
       - key: { es: Placa, en: Plate }
         value: { es: Policarbonato (PC), en: Polycarbonate (PC) }
       - key: { es: Switches, en: Switches }
@@ -119,18 +119,18 @@ sections:
     title: { es: Café, en: Coffee }
     intro: { es: "Desde 2019, espresso y filtro en casa.", en: "Espresso and filter at home since 2019." }
     recipe:
-      dose: "20g"
-      yield: "40g"
-      time: "25-28s"
-      temp: "94°C"
-      coffee: { es: "Suscripción café espresso de especialidad Right Side Coffee", en: "Right Side Coffee specialty espresso subscription" }
+      dose: "20 g"
+      yield: "40 g"
+      time: "25–28 s"
+      temp: "94 °C"
+      coffee: { es: "Suscripción de café de especialidad para espresso de Right Side Coffee", en: "Right Side Coffee specialty espresso subscription" }
     items:
       - name: "Sage Barista Pro"
         category: { es: Espresso, en: Espresso }
-        why: { es: "Ideal para empezar, buena relación calidad precio, compacta y duradera", en: "Great for getting started: good value for money, compact and durable" }
+        why: { es: "Ideal para empezar, buena relación calidad-precio, compacta y duradera.", en: "Great for getting started: good value for money, compact and durable." }
       - name: "Eureka Mignon Zero"
         category: { es: Molinillo, en: Grinder }
-        why: { es: "Flat burr de 55mm, silenciosa, rápida y casi cero retención.", en: "55mm flat burrs, quiet, fast and almost zero retention." }
+        why: { es: "Flat burr de 55 mm, silenciosa, rápida y casi cero retención.", en: "55 mm flat burrs, quiet, fast and almost zero retention." }
       - name: "V60"
         category: { es: Filtro, en: Pour-over }
         why: { es: "Simple, efectivo y flexible con la receta que utilices.", en: "Simple, effective and flexible with whatever recipe you use." }
