@@ -102,19 +102,21 @@ const tagList = (list: typeof data.tags) => list.map((tag) => ui.tags[tag]).join
 
 <script>
   // Copiar enlace y copiar código. Sin JS, los botones no existen o están ocultos.
-  const flash = (button: HTMLElement, done: string) => {
-    const label = button.textContent;
-    button.textContent = done;
-    setTimeout(() => (button.textContent = label), 1800);
-  };
+  // Sin imports: así el script va dentro del HTML (la misma función está en lab/[slug].astro).
+  const labels = new WeakMap<HTMLElement, string>();
+  const timers = new WeakMap<HTMLElement, number>();
 
   const copy = async (text: string, button: HTMLElement, done: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      flash(button, done);
     } catch {
-      // Sin permiso para el portapapeles: no hacemos nada.
+      return; // sin permiso para el portapapeles: no hacemos nada
     }
+    // La etiqueta original se guarda una sola vez: un segundo clic no debe guardar "copiado".
+    if (!labels.has(button)) labels.set(button, button.textContent ?? '');
+    clearTimeout(timers.get(button));
+    button.textContent = done;
+    timers.set(button, window.setTimeout(() => (button.textContent = labels.get(button)!), 1800));
   };
 
   if (navigator.clipboard) {
@@ -225,28 +227,7 @@ const tagList = (list: typeof data.tags) => list.map((tag) => ui.tags[tag]).join
     align-self: flex-start;
   }
 
-  .pill,
-  .prose :global(.pill) {
-    min-height: var(--tap);
-    padding: 0 1rem;
-    border: 1px solid var(--line-strong);
-    border-radius: var(--radius-pill);
-    background: transparent;
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: var(--fs-small);
-    cursor: pointer;
-  }
-
-  .pill:hover,
-  .prose :global(.pill:hover) {
-    border-color: var(--accent);
-    color: var(--text);
-  }
-
-  .pill[hidden] {
-    display: none;
-  }
+  /* .pill (copiar enlace y copiar código) está en global.css */
 
   article {
     display: flex;
@@ -309,18 +290,6 @@ const tagList = (list: typeof data.tags) => list.map((tag) => ui.tags[tag]).join
   @media (prefers-reduced-motion: no-preference) {
     .pulse::after {
       animation: pulse 2.6s ease-in-out infinite;
-    }
-  }
-
-  @keyframes pulse {
-    0% {
-      opacity: 0.55;
-      transform: scale(1);
-    }
-    70%,
-    100% {
-      opacity: 0;
-      transform: scale(3);
     }
   }
 

@@ -121,20 +121,22 @@ const poster = data.type === 'video' ? await getImage({ src: data.poster, format
 </Base>
 
 <script>
-  // Copiar prompt
+  // Copiar prompt. Sin imports: así el script va dentro del HTML (como en [notes]/[slug].astro).
   const button = document.querySelector<HTMLButtonElement>('[data-copy-prompt]');
   const prompt = document.querySelector<HTMLElement>('[data-prompt]');
   if (button && prompt && navigator.clipboard) {
+    const label = button.textContent; // se guarda una vez: un segundo clic no debe guardar "copiado"
+    let timer = 0;
     button.hidden = false;
     button.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(prompt.textContent ?? '');
-        const label = button.textContent;
-        button.textContent = button.dataset.done!;
-        setTimeout(() => (button.textContent = label), 1800);
       } catch {
-        // Sin permiso para el portapapeles: no hacemos nada.
+        return; // sin permiso para el portapapeles: no hacemos nada
       }
+      clearTimeout(timer);
+      button.textContent = button.dataset.done!;
+      timer = window.setTimeout(() => (button.textContent = label), 1800);
     });
   }
 
@@ -266,26 +268,13 @@ const poster = data.type === 'video' ? await getImage({ src: data.poster, format
     margin-top: 0.75rem;
   }
 
+  /* Base de .pill en global.css; aquí, como enlace con icono */
   .pill {
     display: inline-flex;
     align-items: center;
     gap: 0.5ch;
     align-self: flex-start;
-    min-height: var(--tap);
-    padding: 0 1rem;
-    border: 1px solid var(--line-strong);
-    border-radius: var(--radius-pill);
-    background: transparent;
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: var(--fs-small);
     text-decoration: none;
-    cursor: pointer;
-  }
-
-  .pill:hover {
-    border-color: var(--accent);
-    color: var(--text);
   }
 
   .pill[hidden],
