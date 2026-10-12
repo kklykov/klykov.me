@@ -188,11 +188,15 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
     background: var(--bg);
   }
 
-  /* En el modal, difuminado de alto fijo arriba (no un porcentaje de una pantalla entera) y uno corto
-     abajo, para que el texto no se corte en seco al desplazarse; el relleno deja la última línea fuera. */
+  /* En el modal, el difuminado de arriba es de alto fijo (no un porcentaje de una pantalla entera) */
   .panel:modal .log {
-    padding-bottom: 1.25rem;
-    mask-image: linear-gradient(to bottom, transparent 0, var(--bg) 5rem, var(--bg) calc(100% - 1.25rem), transparent 100%);
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      var(--bg) 5rem,
+      var(--bg) calc(100% - var(--fade-bottom)),
+      transparent 100%
+    );
   }
 
   /* Con el modal abierto, la página de detrás no se desplaza */
@@ -239,7 +243,17 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
     overflow-y: auto;
     overscroll-behavior: contain; /* al llegar al principio o al final, el scroll no pasa a la página */
     scrollbar-width: none;
-    mask-image: linear-gradient(to bottom, transparent 0%, var(--bg) 40%);
+    /* Difuminado arriba (lo antiguo) y uno corto abajo, para que el texto no se corte en seco; el
+       relleno deja la última línea fuera del difuminado. */
+    --fade-bottom: 2rem;
+    padding-bottom: var(--fade-bottom);
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      var(--bg) 40%,
+      var(--bg) calc(100% - var(--fade-bottom)),
+      transparent 100%
+    );
   }
 
   .log :global(> :first-child) {

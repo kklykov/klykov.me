@@ -247,6 +247,12 @@ const first = chapters[0];
         setCurrent(Math.round(pos));
       } else {
         const y = (shown = scrollY);
+        // La barra del índice aparece en cuanto se empieza a desplazar (y se va al volver arriba).
+        const barShown = y > 4;
+        if (barShown !== mbar.hasAttribute('data-shown')) {
+          mbar.toggleAttribute('data-shown', barShown);
+          if (!barShown) closeIndex(false);
+        }
         drawSketch((y - tops[0] + vh) / vh); // el 00 entrando desde abajo
         let i = 0;
         tops.forEach((top, t) => {
@@ -409,15 +415,38 @@ const first = chapters[0];
   }
 
   /* ——— Móvil: barra superior con índice ——— */
+  /* Fija arriba, oculta en la portada: al empezar a desplazarse baja desde arriba y tapa la cabecera
+     de la portada; al volver arriba del todo, se esconde (data-shown, ver el script). */
   .mbar {
-    position: sticky;
+    position: fixed;
     top: 0;
+    right: 0;
+    left: 0;
     z-index: 3;
     padding: env(safe-area-inset-top) var(--gutter-right) 0 var(--gutter-left);
     background: var(--bg);
     font-family: var(--font-mono);
     font-size: var(--fs-small);
     color: var(--text-muted);
+    transform: translateY(-100%);
+    visibility: hidden;
+  }
+
+  .mbar[data-shown] {
+    transform: none;
+    visibility: visible;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .mbar {
+      transition:
+        transform var(--duration) var(--ease-out),
+        visibility 0s var(--duration);
+    }
+
+    .mbar[data-shown] {
+      transition: transform var(--duration) var(--ease-out);
+    }
   }
 
   .mbar[hidden] {
