@@ -64,7 +64,7 @@ En reposo todo queda alineado; el movimiento solo se ve durante las transiciones
 - **Sin menú inferior.**
 - `viewport-fit=cover` y `env(safe-area-inset-*)` en la barra superior y en los capítulos.
 - Parallax vertical del número gigante (`translateY(local × 220px)`), desactivado con movimiento reducido.
-- El capítulo 06 cabe en una pantalla. Al abrir el chat se ocultan el "IA" gigante y su texto, y el chat ocupa toda la altura.
+- El capítulo 06 cabe en una pantalla. El chat se abre como modal a pantalla completa (ver "Chat de la versión IA").
 - El Código Konami es solo decorativo (no hay teclado).
 
 ## Capítulo 00
@@ -109,7 +109,8 @@ En reposo todo queda alineado; el movimiento solo se ve durante las transiciones
 - `<label>` visualmente oculto para el campo; Enter envía.
 - Una región `aria-live="polite"` anuncia **la respuesta completa una sola vez** al terminar, nunca carácter a carácter.
 - Al abrir el chat, el foco va al campo de texto; al cerrarlo, vuelve al botón que lo abrió.
-- Móvil: al abrirse el teclado, el formulario se coloca justo encima de él (el navegador lo dejaría en mitad de la pantalla) y, al cerrarse, la página vuelve a donde estaba. Con el chat abierto no hay `scroll-snap`.
+- El panel es un `<dialog>`. En escritorio se abre en línea, dentro del capítulo (`show()`). En móvil (< 1024px), como modal a pantalla completa (`showModal()`): 100 % de ancho y alto, la cabecera con "Klykov · versión IA" y la × arriba a la derecha, la conversación con el difuminado arriba, y las sugerencias y el campo abajo. El resto de la página queda inerte y sin scroll; Escape o la × lo cierran.
+- En el modal, el alto sigue al área visible (`visualViewport`): al abrirse el teclado se encoge y el campo queda siempre justo encima de él.
 - El historial solo vive en memoria (nada de `localStorage`).
 - Endpoint, límites, errores y logs: `docs/chat-ia.md`.
 

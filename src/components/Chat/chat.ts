@@ -29,14 +29,15 @@ function createChat(root: HTMLElement) {
   const $ = <T extends Element>(selector: string) => root.querySelector<T>(selector)!;
   const trigger = $<HTMLButtonElement>('[data-chat-open]');
   const closed = $<HTMLElement>('[data-chat-closed]');
-  const panel = $<HTMLElement>('[data-chat-panel]');
+  const panel = $<HTMLDialogElement>('[data-chat-panel]');
   const log = $<HTMLElement>('[data-chat-log]');
   const live = $<HTMLElement>('[data-chat-live]');
   const form = $<HTMLFormElement>('[data-chat-form]');
   const input = form.querySelector('input')!;
-  const chapter = root.closest<HTMLElement>('[data-chapter]');
   const strings: Strings = JSON.parse(root.dataset.strings!);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  // Móvil: modal a pantalla completa. Escritorio: en línea, dentro del capítulo.
+  const mobile = matchMedia('(max-width: 63.999rem)');
   const encoder = new TextEncoder();
 
   // El historial solo vive en memoria mientras el chat está abierto.
@@ -68,19 +69,21 @@ function createChat(root: HTMLElement) {
 
   function open() {
     closed.hidden = true;
-    panel.hidden = false;
-    chapter?.toggleAttribute('data-chat-active', true);
+    if (mobile.matches) {
+      panel.showModal();
+      fit();
+    } else panel.show();
     if (!log.childElementCount) addMessage('ai', strings.greeting);
     input.focus();
   }
 
   function close() {
+    if (!panel.open) return;
     request?.abort(); // una respuesta a medias no debe acabar en una conversación nueva
     busy = false;
     form.removeAttribute('data-busy');
-    panel.hidden = true;
+    panel.close();
     closed.hidden = false;
-    chapter?.removeAttribute('data-chat-active');
     log.replaceChildren();
     live.textContent = '';
     history.length = 0;
@@ -161,41 +164,25 @@ function createChat(root: HTMLElement) {
     form.removeAttribute('data-busy');
   }
 
-  // Móvil: al abrirse el teclado, el navegador centra el campo y deja un hueco debajo. El formulario
-  // se coloca justo encima del teclado y, al cerrarse, la página vuelve a donde estaba.
-  // En la línea temporal horizontal no: ahí desplazar la página mueve la pista.
-  function followKeyboard() {
+  // Móvil: el modal ocupa justo el área visible, que se encoge al abrirse el teclado (en iOS, además,
+  // se desplaza). Así el campo queda siempre encima del teclado y la conversación, encima del campo.
+  // Una vez por frame: iOS lanza varios eventos seguidos.
+  let fitFrame = 0;
+  function fit() {
     const viewport = window.visualViewport;
-    if (!viewport) return;
-    const timeline = root.closest<HTMLElement>('[data-timeline]');
-    let full = 0; // alto visible antes de abrirse el teclado
-    let before = 0; // desplazamiento de la página antes de abrirse el teclado
-    let lifted = false;
-    let frame = 0;
-
-    input.addEventListener('focus', () => {
-      if (lifted) return;
-      full = viewport.height;
-      before = scrollY;
-    });
-    // Un ajuste por frame (iOS lanza varios resize seguidos). Con zoom de dos dedos el alto visible
-    // también baja: eso no es el teclado.
-    viewport.addEventListener('resize', () => {
-      frame ||= requestAnimationFrame(() => {
-        frame = 0;
-        if (timeline?.dataset.mode === 'horizontal' || viewport.scale > 1.01) return;
-        const keyboard = full - viewport.height > 150; // más que las barras del navegador
-        if (keyboard && document.activeElement === input) {
-          const gap = form.getBoundingClientRect().bottom + 16 - (viewport.offsetTop + viewport.height);
-          if (Math.abs(gap) > 1) scrollBy({ top: gap, behavior: 'instant' });
-          lifted = true;
-        } else if (lifted && !keyboard) {
-          scrollTo({ top: before, behavior: 'instant' });
-          lifted = false;
-        }
-      });
-    });
+    if (!viewport || !panel.matches(':modal')) return;
+    panel.style.setProperty('--chat-h', `${viewport.height}px`);
+    panel.style.setProperty('--chat-top', `${viewport.offsetTop}px`);
+    scrollDown();
   }
+  const scheduleFit = () => {
+    fitFrame ||= requestAnimationFrame(() => {
+      fitFrame = 0;
+      fit();
+    });
+  };
+  window.visualViewport?.addEventListener('resize', scheduleFit);
+  window.visualViewport?.addEventListener('scroll', scheduleFit);
 
   $('[data-chat-close]').addEventListener('click', close);
   form.addEventListener('submit', (event) => {
@@ -205,10 +192,15 @@ function createChat(root: HTMLElement) {
   for (const button of root.querySelectorAll<HTMLButtonElement>('[data-chat-suggestion]')) {
     button.addEventListener('click', () => ask(button.textContent ?? ''));
   }
+  // Escape: en el modal llega como "cancel" (se cancela el cierre nativo para limpiar el chat);
+  // en línea, como tecla.
+  panel.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    close();
+  });
   panel.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') close();
   });
-  followKeyboard();
 
   return open;
 }

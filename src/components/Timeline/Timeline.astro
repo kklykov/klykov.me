@@ -701,12 +701,4 @@ const first = chapters[0];
   [data-mode='horizontal'] :global(:is(.hero, .chapter, .outro)) {
     scroll-snap-align: none;
   }
-
-  @media (max-width: 63.999rem) {
-    /* Con el chat abierto, sin ajuste: el teclado cambia el área visible y el ajuste podría
-       devolver la página al inicio del capítulo, con el campo de texto debajo del teclado. */
-    :global(html:has([data-chat-active])) {
-      scroll-snap-type: none;
-    }
-  }
 </style>

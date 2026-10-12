@@ -25,9 +25,10 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
     <p class="note">{ui.note}</p>
   </div>
 
-  <div class="panel" data-chat-panel hidden>
+  <!-- Escritorio: en línea (show). Móvil: modal a pantalla completa (showModal). Ver chat.ts. -->
+  <dialog class="panel" aria-labelledby="chat-title" data-chat-panel>
     <div class="head">
-      <span class="who"><span class="pulse small" aria-hidden="true"></span>{ui.title}</span>
+      <span class="who" id="chat-title"><span class="pulse small" aria-hidden="true"></span>{ui.title}</span>
       <button type="button" class="close" aria-label={ui.close} data-chat-close>×</button>
     </div>
     <div class="log" data-chat-log></div>
@@ -47,7 +48,7 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
       <input id="chat-question" type="text" autocomplete="off" maxlength="500" placeholder={ui.placeholder} />
       <button type="submit" aria-label={ui.send}>↵</button>
     </form>
-  </div>
+  </dialog>
 </div>
 
 <script>
@@ -149,18 +150,47 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
     color: var(--text-muted);
   }
 
-  /* Ocupa todo el alto disponible del capítulo, con margen; crece en pantallas grandes. */
+  /* Panel (un <dialog> sin los estilos del navegador). En escritorio ocupa todo el alto disponible
+     del capítulo, con margen, y crece en pantallas grandes. */
   .panel {
+    position: static;
+    width: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+  }
+
+  .panel[open] {
     display: flex;
     flex-direction: column;
     gap: 1.125rem;
-    height: max(22rem, calc(100svh - 12.5rem));
+    height: max(22rem, calc(100svh - 15rem));
   }
 
-  @media (min-width: 64rem) {
-    .panel {
-      height: max(22rem, calc(100svh - 15rem));
-    }
+  /* Móvil: modal a pantalla completa. Sigue al área visible (--chat-top y --chat-h los pone chat.ts
+     con visualViewport), así el campo queda siempre justo encima del teclado. */
+  .panel:modal {
+    position: fixed;
+    inset: var(--chat-top, 0px) 0 auto;
+    width: 100%;
+    height: var(--chat-h, 100dvh);
+    padding: max(0.75rem, env(safe-area-inset-top)) var(--gutter-right) max(1rem, env(safe-area-inset-bottom))
+      var(--gutter-left);
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .panel::backdrop {
+    background: var(--bg);
+  }
+
+  /* Con el modal abierto, la página de detrás no se desplaza */
+  :global(html:has([data-chat-panel]:modal)) {
+    overflow: hidden;
   }
 
   .head {
@@ -309,10 +339,4 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
     cursor: default;
   }
 
-  /* Móvil: al abrir el chat se ocultan el "IA" gigante y su texto (docs/diseno.md). */
-  @media (max-width: 63.999rem) {
-    :global([data-chat-active]) :global(:is(.number, h2, .text)) {
-      display: none;
-    }
-  }
 </style>
