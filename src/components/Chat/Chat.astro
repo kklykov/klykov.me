@@ -171,13 +171,13 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
     height: max(22rem, calc(100svh - 15rem));
   }
 
-  /* Móvil: modal a pantalla completa. Sigue al área visible (--chat-top y --chat-h los pone chat.ts
-     con visualViewport), así el campo queda siempre justo encima del teclado. */
+  /* Móvil: modal a pantalla completa, anclado arriba y abajo de la ventana. En iOS, chat.ts pone
+     --chat-top y --chat-bottom para dejar fuera lo que tapa el teclado (ver chat.ts). */
   .panel:modal {
     position: fixed;
-    inset: var(--chat-top, 0px) 0 auto;
+    inset: var(--chat-top, 0px) 0 var(--chat-bottom, 0px);
     width: 100%;
-    height: var(--chat-h, 100dvh);
+    height: auto;
     padding: max(0.75rem, env(safe-area-inset-top)) var(--gutter-right) max(1rem, env(safe-area-inset-bottom))
       var(--gutter-left);
     overflow: hidden;
@@ -186,6 +186,13 @@ const strings = JSON.stringify({ greeting: ui.greeting, errors });
 
   .panel::backdrop {
     background: var(--bg);
+  }
+
+  /* En el modal, difuminado de alto fijo arriba (no un porcentaje de una pantalla entera) y uno corto
+     abajo, para que el texto no se corte en seco al desplazarse; el relleno deja la última línea fuera. */
+  .panel:modal .log {
+    padding-bottom: 1.25rem;
+    mask-image: linear-gradient(to bottom, transparent 0, var(--bg) 5rem, var(--bg) calc(100% - 1.25rem), transparent 100%);
   }
 
   /* Con el modal abierto, la página de detrás no se desplaza */

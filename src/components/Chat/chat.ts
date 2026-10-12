@@ -164,15 +164,17 @@ function createChat(root: HTMLElement) {
     form.removeAttribute('data-busy');
   }
 
-  // Móvil: el modal ocupa justo el área visible, que se encoge al abrirse el teclado (en iOS, además,
-  // se desplaza). Así el campo queda siempre encima del teclado y la conversación, encima del campo.
+  // Móvil: el modal va de arriba abajo de la ventana (inset: 0). En Android el teclado encoge la
+  // ventana (interactive-widget=resizes-content, en Base.astro) y no hace falta nada más. En iOS el
+  // teclado se superpone: el modal se ajusta al área visible, así el campo queda encima del teclado.
   // Una vez por frame: iOS lanza varios eventos seguidos.
   let fitFrame = 0;
   function fit() {
     const viewport = window.visualViewport;
     if (!viewport || !panel.matches(':modal')) return;
-    panel.style.setProperty('--chat-h', `${viewport.height}px`);
-    panel.style.setProperty('--chat-top', `${viewport.offsetTop}px`);
+    const covered = innerHeight - viewport.offsetTop - viewport.height; // lo que tapa el teclado
+    panel.style.setProperty('--chat-top', `${Math.max(0, viewport.offsetTop)}px`);
+    panel.style.setProperty('--chat-bottom', `${Math.max(0, covered)}px`);
     scrollDown();
   }
   const scheduleFit = () => {
@@ -183,6 +185,7 @@ function createChat(root: HTMLElement) {
   };
   window.visualViewport?.addEventListener('resize', scheduleFit);
   window.visualViewport?.addEventListener('scroll', scheduleFit);
+  addEventListener('resize', scheduleFit);
 
   $('[data-chat-close]').addEventListener('click', close);
   form.addEventListener('submit', (event) => {

@@ -38,7 +38,8 @@ const ogLocale: Record<Locale, string> = { es: 'es_ES', en: 'en_US' };
 <html lang={lang}>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- resizes-content: en Android, el teclado encoge la ventana (el modal del chat queda encima) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="color-scheme" content="dark" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}

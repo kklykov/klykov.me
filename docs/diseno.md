@@ -110,7 +110,8 @@ En reposo todo queda alineado; el movimiento solo se ve durante las transiciones
 - Una región `aria-live="polite"` anuncia **la respuesta completa una sola vez** al terminar, nunca carácter a carácter.
 - Al abrir el chat, el foco va al campo de texto; al cerrarlo, vuelve al botón que lo abrió.
 - El panel es un `<dialog>`. En escritorio se abre en línea, dentro del capítulo (`show()`). En móvil (< 1024px), como modal a pantalla completa (`showModal()`): 100 % de ancho y alto, la cabecera con "Klykov · versión IA" y la × arriba a la derecha, la conversación con el difuminado arriba, y las sugerencias y el campo abajo. El resto de la página queda inerte y sin scroll; Escape o la × lo cierran.
-- En el modal, el alto sigue al área visible (`visualViewport`): al abrirse el teclado se encoge y el campo queda siempre justo encima de él.
+- El modal va anclado arriba y abajo de la ventana (`inset: 0`). En Android, el teclado encoge la ventana (`interactive-widget=resizes-content` en el `viewport`); en iOS se superpone y el modal se ajusta al área visible (`visualViewport`). En los dos, el campo queda justo encima del teclado.
+- En el modal, la conversación se difumina arriba con un alto fijo (5rem, no un porcentaje) y abajo con uno corto, para que el texto no se corte en seco.
 - El historial solo vive en memoria (nada de `localStorage`).
 - Endpoint, límites, errores y logs: `docs/chat-ia.md`.
 
